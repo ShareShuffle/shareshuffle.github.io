@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShareShuffle — Share what’s worth finding</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --ss-orange: #ff7a18;
+      --ss-gold: #ffc145;
+      --ss-blue: #0d6efd;
+      --ss-cyan: #13c8ff;
+      --ss-green: #39d98a;
+      --ss-navy: #071426;
+      --ss-ink: #102033;
+      --ss-muted: #6b7280;
+      --ss-cloud: #f5f8ff;
+      --ss-white: #ffffff;
+      --ss-radius: 28px;
+      --ss-shadow: 0 24px 70px rgba(7, 20, 38, .16);
+      --ss-grad: linear-gradient(135deg, #ff7a18 0%, #ffc145 32%, #13c8ff 68%, #0d6efd 100%);
+      --ss-grad-dark: radial-gradient(circle at top left, rgba(255,122,24,.35), transparent 32%),
+                      radial-gradient(circle at bottom right, rgba(13,110,253,.4), transparent 35%),
+                      linear-gradient(135deg, #071426 0%, #102033 100%);
+    }
+
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ss-ink);
+      background: var(--ss-cloud);
+    }
+
+    .brand-serif {
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .navbar {
+      backdrop-filter: blur(16px);
+      background: rgba(255,255,255,.86);
+      border-bottom: 1px solid rgba(13,110,253,.08);
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: var(--ss-grad);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 10px 30px rgba(13,110,253,.24);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-mark::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 2px solid rgba(255,255,255,.65);
+      border-radius: 999px;
+    }
+
+    .logo-mark i {
+      position: relative;
+      z-index: 2;
+      font-size: 1.05rem;
+    }
+
+    .btn-ss {
+      border: 0;
+      background: var(--ss-grad);
+      color: white;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: .85rem 1.25rem;
+      box-shadow: 0 16px 34px rgba(13,110,253,.24);
+    }
+
+    .btn-ss:hover {
+      color: white;
+      transform: translateY(-1px);
+      filter: saturate(1.08);
+    }
+
+    .btn-outline-ss {
+      border: 1px solid rgba(13,110,253,.22);
+      background: rgba(255,255,255,.75);
+      color: var(--ss-ink);
+      font-weight: 800;
+      border-radius: 999px;
+      padding: .85rem 1.25rem;
+    }
+
+    .hero {
+      min-height: 92vh;
+      padding-top: 120px;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,193,69,.36), transparent 24%),
+        radial-gradient(circle at 80% 15%, rgba(19,200,255,.28), transparent 26%),
+        radial-gradient(circle at 65% 80%, rgba(255,122,24,.22), transparent 24%),
+        linear-gradient(180deg, #fff 0%, #f5f8ff 100%);
+      overflow: hidden;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .55rem;
+      align-items: center;
+      padding: .5rem .8rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.8);
+      border: 1px solid rgba(13,110,253,.12);
+      box-shadow: 0 10px 30px rgba(7,20,38,.06);
+      font-weight: 800;
+      color: #1c4ed8;
+      font-size: .85rem;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 7rem);
+      letter-spacing: -.07em;
+      line-height: .88;
+      font-weight: 950;
+    }
+
+    .gradient-text {
+      background: var(--ss-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lead-big {
+      font-size: clamp(1.12rem, 2vw, 1.45rem);
+      color: #3f4d63;
+      max-width: 760px;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255,255,255,.85);
+      border-radius: var(--ss-radius);
+      box-shadow: var(--ss-shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .mock-browser {
+      border-radius: 30px;
+      overflow: hidden;
+      background: white;
+      border: 1px solid rgba(7,20,38,.08);
+      box-shadow: var(--ss-shadow);
+    }
+
+    .browser-top {
+      background: #eef3fb;
+      padding: 14px 18px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #cbd5e1;
+    }
+
+    .dot:nth-child(1){ background: #ff7a18; }
+    .dot:nth-child(2){ background: #ffc145; }
+    .dot:nth-child(3){ background: #39d98a; }
+
+    .extension-panel {
+      margin: 24px;
+      border-radius: 26px;
+      background: var(--ss-grad-dark);
+      color: white;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card {
+      border: 1px solid rgba(7,20,38,.08);
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 12px 36px rgba(7,20,38,.08);
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .product-card img {
+      height: 210px;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .section {
+      padding: 95px 0;
+    }
+
+    .section-title {
+      font-size: clamp(2.25rem, 5vw, 4.5rem);
+      letter-spacing: -.055em;
+      line-height: .95;
+      font-weight: 950;
+    }
+
+    .soft-card {
+      border-radius: 28px;
+      background: #fff;
+      border: 1px solid rgba(7,20,38,.07);
+      box-shadow: 0 18px 55px rgba(7,20,38,.08);
+      height: 100%;
+    }
+
+    .icon-bubble {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,122,24,.16), rgba(13,110,253,.16));
+      color: var(--ss-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .dark-band {
+      background: var(--ss-grad-dark);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric {
+      font-size: clamp(2.4rem, 5vw, 5rem);
+      font-weight: 950;
+      letter-spacing: -.06em;
+      line-height: .9;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: .45rem .75rem;
+      background: rgba(13,110,253,.08);
+      color: #1d4ed8;
+      display: inline-flex;
+      gap: .4rem;
+      align-items: center;
+      font-weight: 800;
+      font-size: .85rem;
+    }
+
+    .timeline-line {
+      border-left: 3px solid rgba(13,110,253,.18);
+      padding-left: 28px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -38px;
+      top: 5px;
+      width: 18px;
+      height: 18px;
+      background: var(--ss-grad);
+      border-radius: 50%;
+      box-shadow: 0 0 0 7px rgba(13,110,253,.09);
+    }
+
+    .price-card {
+      border-radius: 32px;
+      background: #fff;
+      border: 2px solid rgba(13,110,253,.12);
+      box-shadow: var(--ss-shadow);
+    }
+
+    .investor-card {
+      border-radius: 32px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      color: white;
+      height: 100%;
+    }
+
+    .footer {
+      background: #050b14;
+      color: rgba(255,255,255,.72);
+    }
+
+    .img-rounded {
+      border-radius: 32px;
+      box-shadow: var(--ss-shadow);
+      object-fit: cover;
+    }
+
+    .chrome-pill {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: .55rem .8rem;
+      color: rgba(255,255,255,.86);
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-weight: 700;
+      font-size: .86rem;
+    }
+  </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg fixed-top">
+  <div class="container py-2">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-black" href="#">
+      <span class="logo-mark"><i class="fa-solid fa-shuffle"></i></span>
+      <span class="fw-bold fs-4">ShareShuffle</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-semibold">
+        <li class="nav-item"><a class="nav-link" href="#extension">Extension</a></li>
+        <li class="nav-item"><a class="nav-link" href="#story">Story</a></li>
+        <li class="nav-item"><a class="nav-link" href="#investors">Investors</a></li>
+        <li class="nav-item"><a class="nav-link" href="#roadmap">Roadmap</a></li>
+      </ul>
+      <a class="btn btn-ss ms-lg-3" href="#waitlist">Join Waitlist</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero d-flex align-items-center">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="eyebrow mb-4">
+          <i class="fa-solid fa-bolt"></i>
+          A browser extension for sharing what’s worth finding
+        </div>
+
+        <h1 class="hero-title mb-4">
+          Share your finds.<br>
+          <span class="gradient-text">Shuffle better choices.</span>
+        </h1>
+
+        <p class="lead-big mb-4">
+          ShareShuffle turns products, wishlists, gift ideas, gear picks, travel finds, and “you have to see this” links into beautiful shareable cards and collections.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 mb-5">
+          <a href="#extension" class="btn btn-ss btn-lg">
+            <i class="fa-brands fa-chrome me-2"></i> See the extension
+          </a>
+          <a href="#investors" class="btn btn-outline-ss btn-lg">
+            <i class="fa-solid fa-chart-line me-2"></i> Investor story
+          </a>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-sm-4">
+            <div class="glass-card p-3">
+              <div class="fw-bold fs-4">1 click</div>
+              <div class="text-secondary small">Save any product page</div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="glass-card p-3">
+              <div class="fw-bold fs-4">Cards</div>
+              <div class="text-secondary small">Clean, shareable previews</div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="glass-card p-3">
+              <div class="fw-bold fs-4">Lists</div>
+              <div class="text-secondary small">Curated shelves by topic</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="mock-browser">
+          <div class="browser-top">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <div class="ms-3 bg-white rounded-pill px-3 py-1 small text-secondary flex-grow-1">
+              amazon.com / product / great-find
+            </div>
+          </div>
+
+          <div class="extension-panel">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <div class="d-flex align-items-center gap-2">
+                <span class="logo-mark"><i class="fa-solid fa-shuffle"></i></span>
+                <strong>ShareShuffle</strong>
+              </div>
+              <span class="chrome-pill"><i class="fa-solid fa-lock"></i> Private draft</span>
+            </div>
+
+            <h3 class="fw-black mb-2">Save to your Share Shelf?</h3>
+            <p class="text-white-50 mb-4">Add a note, choose a shelf, and copy a clean share link.</p>
+
+            <div class="bg-white text-dark rounded-4 p-3 mb-3">
+              <div class="d-flex gap-3">
+                <img src="https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=300" alt="Product placeholder" class="rounded-3" style="width:92px;height:92px;object-fit:cover;">
+                <div>
+                  <div class="fw-bold">The thing I found</div>
+                  <div class="small text-secondary">Saved from the current product page</div>
+                  <div class="tag mt-2"><i class="fa-solid fa-gift"></i> Gift ideas</div>
+                </div>
+              </div>
+            </div>
+
+            <textarea class="form-control rounded-4 mb-3" rows="3" placeholder="Why this is worth sharing...">This looks perfect for your setup. Good price, solid reviews, and exactly the kind of thing we talked about.</textarea>
+
+            <button class="btn btn-ss w-100">
+              <i class="fa-solid fa-link me-2"></i> Copy Share Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="extension" class="section">
+  <div class="container">
+    <div class="row align-items-end mb-5">
+      <div class="col-lg-7">
+        <span class="tag mb-3"><i class="fa-brands fa-chrome"></i> Chrome extension concept</span>
+        <h2 class="section-title">A better share button for the shopping web.</h2>
+      </div>
+      <div class="col-lg-5">
+        <p class="lead text-secondary">
+          People already send product links in texts, Discords, Facebook groups, family chats, church chats, band chats, and work Slacks. ShareShuffle makes that behavior cleaner, prettier, and easier to organize.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="soft-card p-4">
+          <div class="icon-bubble"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h4 class="fw-bold">Capture the page</h4>
+          <p class="text-secondary">Grab the title, image, store, price hint, and product link from the current page.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="soft-card p-4">
+          <div class="icon-bubble"><i class="fa-solid fa-pen-to-square"></i></div>
+          <h4 class="fw-bold">Add your take</h4>
+          <p class="text-secondary">Make the link human with a note: why you like it, who it’s for, or what problem it solves.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="soft-card p-4">
+          <div class="icon-bubble"><i class="fa-solid fa-layer-group"></i></div>
+          <h4 class="fw-bold">Build shelves</h4>
+          <p class="text-secondary">Organize finds into shelves like “Bass Gear,” “Birthday Ideas,” “Kitchen Upgrades,” or “Road Trip Stuff.”</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="soft-card p-4">
+          <div class="icon-bubble"><i class="fa-solid fa-share-nodes"></i></div>
+          <h4 class="fw-bold">Share anywhere</h4>
+          <p class="text-secondary">Copy a clean link, send a card, or share a whole shelf with a friend, spouse, client, or group chat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-white">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <img class="img-fluid img-rounded" src="https://images.pexels.com/photos/5082579/pexels-photo-5082579.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Person shopping online">
+      </div>
+      <div class="col-lg-6">
+        <span class="tag mb-3"><i class="fa-solid fa-user"></i> User pitch</span>
+        <h2 class="section-title">Stop sending ugly links.</h2>
+        <p class="lead text-secondary">
+          A raw product URL is messy. A screenshot gets lost. A wishlist is too formal. ShareShuffle gives you a lightweight way to say:
+        </p>
+
+        <div class="glass-card p-4 my-4">
+          <h3 class="fw-bold mb-3">“I saw this and thought of you.”</h3>
+          <p class="mb-0 text-secondary">
+            That is the core behavior. Not voting. Not a complicated marketplace. Just the human moment of spotting something useful and sending it to someone who might care.
+          </p>
+        </div>
+
+        <ul class="list-unstyled fs-5">
+          <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2"></i> Save things before you forget them.</li>
+          <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2"></i> Share with context, not just a link.</li>
+          <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2"></i> Keep gift ideas, gear lists, and recommendations in one place.</li>
+          <li class="mb-3"><i class="fa-solid fa-circle-check text-primary me-2"></i> Turn one-off links into reusable shelves.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="story" class="section">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8">
+        <span class="tag mb-3"><i class="fa-solid fa-book-open"></i> The story</span>
+        <h2 class="section-title">From “what should I buy?” to “you should see this.”</h2>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="soft-card p-4">
+          <h3 class="fw-bold">The old web was search.</h3>
+          <p class="text-secondary">
+            People searched, clicked, bought, and moved on. Product discovery was private, transactional, and mostly controlled by stores.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="soft-card p-4">
+          <h3 class="fw-bold">The social web became advice.</h3>
+          <p class="text-secondary">
+            Now people ask friends, creators, group chats, Reddit threads, and AI tools before buying. Trust has shifted from ads to recommendations.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="soft-card p-4">
+          <h3 class="fw-bold">ShareShuffle is the bridge.</h3>
+          <p class="text-secondary">
+            It gives everyday people a simple recommendation layer on top of the shopping web: save, explain, organize, and share.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card p-4 p-lg-5 mt-5">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+          <h3 class="fw-black display-6">The big idea</h3>
+          <p class="lead text-secondary mb-0">
+            ShareShuffle is not trying to replace stores. It sits above them as a friendly sharing layer. Amazon, Walmart, Target, Best Buy, Etsy, Sweetwater, Reverb, and niche stores can all become part of a person’s shareable discovery shelf.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <a class="btn btn-ss btn-lg" href="#waitlist">
+            <i class="fa-solid fa-paper-plane me-2"></i> Get early access
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section dark-band">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        <span class="chrome-pill mb-3"><i class="fa-solid fa-palette"></i> Brand system</span>
+        <h2 class="section-title">Bright enough to feel fun. Serious enough to pitch.</h2>
+        <p class="lead text-white-50">
+          The palette combines shopping energy, trust, motion, and discovery.
+        </p>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="row g-3">
+          <div class="col-6 col-md-4">
+            <div class="p-4 rounded-5" style="background:#ff7a18;">
+              <div class="fw-bold text-white">Orange</div>
+              <code class="text-white">#ff7a18</code>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="p-4 rounded-5" style="background:#ffc145;">
+              <div class="fw-bold text-dark">Gold</div>
+              <code class="text-dark">#ffc145</code>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="p-4 rounded-5" style="background:#13c8ff;">
+              <div class="fw-bold text-dark">Cyan</div>
+              <code class="text-dark">#13c8ff</code>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="p-4 rounded-5" style="background:#0d6efd;">
+              <div class="fw-bold text-white">Blue</div>
+              <code class="text-white">#0d6efd</code>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="p-4 rounded-5" style="background:#39d98a;">
+              <div class="fw-bold text-dark">Green</div>
+              <code class="text-dark">#39d98a</code>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="p-4 rounded-5" style="background:#071426;">
+              <div class="fw-bold text-white">Navy</div>
+              <code class="text-white">#071426</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-white">
+  <div class="container">
+    <div class="row align-items-end mb-5">
+      <div class="col-lg-8">
+        <span class="tag mb-3"><i class="fa-solid fa-grid-2"></i> Example shelves</span>
+        <h2 class="section-title">Anything worth sharing can become a shelf.</h2>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="product-card">
+          <img src="https://images.pexels.com/photos/164853/pexels-photo-164853.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Music gear">
+          <div class="p-4">
+            <h4 class="fw-bold">Bass Rig Under $500</h4>
+            <p class="text-secondary">Pedals, straps, cables, and practical gear picks.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="product-card">
+          <img src="https://images.pexels.com/photos/5872361/pexels-photo-5872361.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Gift wrapping">
+          <div class="p-4">
+            <h4 class="fw-bold">Charlie’s Birthday Ideas</h4>
+            <p class="text-secondary">A private shelf you can share with family.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="product-card">
+          <img src="https://images.pexels.com/photos/16029366/pexels-photo-16029366.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Road trip">
+          <div class="p-4">
+            <h4 class="fw-bold">Route 66 Weekend</h4>
+            <p class="text-secondary">Motels, snacks, chargers, and road trip stuff.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="product-card">
+          <img src="https://images.pexels.com/photos/4065891/pexels-photo-4065891.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Home office">
+          <div class="p-4">
+            <h4 class="fw-bold">Work From Home Finds</h4>
+            <p class="text-secondary">The links you keep sending coworkers anyway.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="investors" class="section dark-band">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8">
+        <span class="chrome-pill mb-3"><i class="fa-solid fa-handshake"></i> Investor section</span>
+        <h2 class="section-title">A lightweight recommendation layer for commerce.</h2>
+        <p class="lead text-white-50">
+          ShareShuffle starts as a simple Chrome extension, but the long-term opportunity is a consumer recommendation graph built from real sharing intent.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="investor-card p-4">
+          <div class="metric">1</div>
+          <h4 class="fw-bold mt-3">Clear wedge</h4>
+          <p class="text-white-50">A browser extension that solves an immediate behavior: sharing product links with context.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="investor-card p-4">
+          <div class="metric">2</div>
+          <h4 class="fw-bold mt-3">Expandable surface</h4>
+          <p class="text-white-50">Start with Amazon-compatible sharing, then expand to multi-retailer shelves, creator pages, gift guides, and AI lists.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="investor-card p-4">
+          <div class="metric">3</div>
+          <h4 class="fw-bold mt-3">Monetization paths</h4>
+          <p class="text-white-50">Affiliate revenue, pro shelves, creator analytics, team collections, sponsored placement, and marketplace partnerships.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="investor-card p-4 p-lg-5">
+          <h3 class="fw-black">Why now?</h3>
+          <p class="text-white-50">
+            Shopping discovery is fragmented. People bounce between stores, creators, group chats, AI answers, Reddit threads, and screenshots. The share action is still primitive. ShareShuffle turns that primitive action into a product surface.
+          </p>
+          <ul class="text-white-50">
+            <li>Social commerce keeps moving into private chats.</li>
+            <li>Affiliate infrastructure already exists.</li>
+            <li>AI can enrich saved links later without being required on day one.</li>
+            <li>Creators and regular users both need better link organization.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="investor-card p-4 p-lg-5">
+          <h3 class="fw-black">The wedge strategy</h3>
+          <p class="text-white-50">
+            Launch with a tiny, useful extension: save, annotate, and share. Avoid overbuilding. Let early users reveal which shelves matter most: gifts, gear, family shopping, creator picks, home projects, travel, and wishlists.
+          </p>
+          <div class="row g-3 mt-3">
+            <div class="col-6">
+              <div class="chrome-pill w-100"><i class="fa-solid fa-link"></i> Affiliate-safe links</div>
+            </div>
+            <div class="col-6">
+              <div class="chrome-pill w-100"><i class="fa-solid fa-user-group"></i> Friend sharing</div>
+            </div>
+            <div class="col-6">
+              <div class="chrome-pill w-100"><i class="fa-solid fa-chart-simple"></i> Click analytics</div>
+            </div>
+            <div class="col-6">
+              <div class="chrome-pill w-100"><i class="fa-solid fa-robot"></i> AI summaries</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="roadmap" class="section">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-5">
+        <span class="tag mb-3"><i class="fa-solid fa-route"></i> Roadmap</span>
+        <h2 class="section-title">Start tiny. Grow where the behavior points.</h2>
+        <p class="lead text-secondary">
+          The MVP should be small enough to build fast, but structured enough to become a real platform.
+        </p>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="timeline-line">
+          <div class="timeline-item">
+            <h4 class="fw-bold">Phase 1 — Extension MVP</h4>
+            <p class="text-secondary">Chrome extension, product detection, save button, affiliate-friendly link generation, note field, copy share link.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="fw-bold">Phase 2 — Share shelves</h4>
+            <p class="text-secondary">User accounts, public/private shelves, gift lists, creator-style profile pages, QR codes, and clean share cards.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="fw-bold">Phase 3 — Multi-store support</h4>
+            <p class="text-secondary">Support Amazon, Walmart, Target, Best Buy, Etsy, Reverb, Sweetwater, and direct-to-consumer stores.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="fw-bold">Phase 4 — Smart recommendations</h4>
+            <p class="text-secondary">AI summaries, comparison cards, “why this one,” duplicate product detection, and buying guide generation.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="fw-bold">Phase 5 — Creator and investor scale</h4>
+            <p class="text-secondary">Analytics, newsletter embeds, sponsored shelves, creator monetization, brand partnerships, and referral revenue optimization.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-white">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="tag mb-3"><i class="fa-solid fa-shield-heart"></i> Product principles</span>
+        <h2 class="section-title">Built around trust.</h2>
+        <p class="lead text-secondary">
+          ShareShuffle works best when the recommendation feels personal, transparent, and useful.
+        </p>
+
+        <div class="accordion mt-4" id="principles">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p1">
+                No trick clicks
+              </button>
+            </h2>
+            <div id="p1" class="accordion-collapse collapse show" data-bs-parent="#principles">
+              <div class="accordion-body text-secondary">
+                The product should never secretly overwrite links or mislead users. The value is in better sharing, not sneaky attribution.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p2">
+                Human context first
+              </button>
+            </h2>
+            <div id="p2" class="accordion-collapse collapse" data-bs-parent="#principles">
+              <div class="accordion-body text-secondary">
+                A note from a friend is more valuable than a generic product card. The extension should make that note easy and natural.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#p3">
+                Useful before monetized
+              </button>
+            </h2>
+            <div id="p3" class="accordion-collapse collapse" data-bs-parent="#principles">
+              <div class="accordion-body text-secondary">
+                The extension should be useful even before affiliate revenue. Monetization should follow real sharing behavior.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="price-card p-4 p-lg-5">
+          <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+              <h3 class="fw-black display-6">MVP feature set</h3>
+              <p class="text-secondary mb-0">A focused build target.</p>
+            </div>
+            <span class="tag"><i class="fa-solid fa-rocket"></i> V1</span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-sm-6"><div class="p-3 bg-light rounded-4 fw-bold"><i class="fa-solid fa-check text-primary me-2"></i> Detect product page</div></div>
+            <div class="col-sm-6"><div class="p-3 bg-light rounded-4 fw-bold"><i class="fa-solid fa-check text-primary me-2"></i> Capture image/title</div></div>
+            <div class="col-sm-6"><div class="p-3 bg-light rounded-4 fw-bold"><i class="fa-solid fa-check text-primary me-2"></i> Add personal note</div></div>
+            <div class="col-sm-6"><div class="p-3 bg-light rounded-4 fw-bold"><i class="fa-solid fa-check text-primary me-2"></i> Save to shelf</div></div>
+            <div class="col-sm-6"><div class="p-3 bg-light rounded-4 fw-bold"><i class="fa-solid fa-check text-primary me-2"></i> Copy share link</div></div>
+            <div class="col-sm-6"><div class="p-3 bg-light rounded-4 fw-bold"><i class="fa-solid fa-check text-primary me-2"></i> Public shelf page</div></div>
+          </div>
+
+          <hr class="my-4">
+
+          <p class="text-secondary mb-0">
+            Keep the first version focused. No polling. No complicated social network. No heavy marketplace. Just a better way to save and share finds.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="waitlist" class="section" style="background: linear-gradient(135deg, #fff 0%, #eaf3ff 100%);">
+  <div class="container">
+    <div class="glass-card p-4 p-lg-5">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <span class="tag mb-3"><i class="fa-solid fa-envelope"></i> Early access</span>
+          <h2 class="section-title">Be first to shuffle.</h2>
+          <p class="lead text-secondary">
+            Join the early list for the ShareShuffle Chrome extension. Save finds. Build shelves. Share better links.
+          </p>
+        </div>
+
+        <div class="col-lg-5">
+          <form class="bg-white rounded-5 p-4 shadow-sm">
+            <label class="form-label fw-bold">Email address</label>
+            <input type="email" class="form-control form-control-lg rounded-pill mb-3" placeholder="you@example.com">
+            <label class="form-label fw-bold">What would you share first?</label>
+            <select class="form-select form-select-lg rounded-pill mb-3">
+              <option>Gift ideas</option>
+              <option>Gear recommendations</option>
+              <option>Home finds</option>
+              <option>Travel ideas</option>
+              <option>Creator product picks</option>
+            </select>
+            <button type="button" class="btn btn-ss btn-lg w-100">
+              <i class="fa-solid fa-arrow-right me-2"></i> Join the waitlist
+            </button>
+            <p class="small text-secondary mt-3 mb-0">
+              Placeholder form only. Connect this to Mailchimp, ConvertKit, HubSpot, or your own backend.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer py-5">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-6">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="logo-mark"><i class="fa-solid fa-shuffle"></i></span>
+          <span class="fw-bold fs-4 text-white">ShareShuffle</span>
+        </div>
+        <p class="mb-0">
+          Share what’s worth finding. Build shelves for the products, places, tools, gifts, and ideas you keep recommending anyway.
+        </p>
+      </div>
+
+      <div class="col-lg-6 text-lg-end">
+        <a class="text-white-50 text-decoration-none me-3" href="#extension">Extension</a>
+        <a class="text-white-50 text-decoration-none me-3" href="#investors">Investors</a>
+        <a class="text-white-50 text-decoration-none" href="#waitlist">Waitlist</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
