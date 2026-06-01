@@ -19,8 +19,13 @@
 
           <div class="text-center mb-4">
 
-            <img id="productImage" src="" class="img-fluid rounded-4 mb-4" style="max-height:350px; display:none;">
-
+<img
+  id="productImage"
+  src=""
+  class="img-fluid rounded-4 mb-4"
+  style="max-height:350px; display:none;"
+  alt="Shared product image"
+>
             <h1 id="title" class="display-6 fw-bold">
               Loading...
             </h1>
@@ -104,30 +109,34 @@
         document.getElementById("title").innerText = "Share not found";
         return;
       }
+      
+const data = snap.data();
 
-      const data = snap.data();
+document.getElementById("title").innerText = data.title || "Shared find";
+document.getElementById("note").innerText = data.note || "";
 
-      document.getElementById("title").innerText = data.title || "Shared find";
-      document.getElementById("note").innerText = data.note || "";
-
-
-
-
-
-
-      const amazonLink = document.getElementById("amazon");
-      amazonLink.href = makeAmazonAffiliateUrl(data.url);
-    }
-
-    const productImage = document.getElementById("productImage");
+const productImage = document.getElementById("productImage");
 
 if (data.image) {
   productImage.src = data.image;
   productImage.style.display = "block";
 }
 
+const amazonLink = document.getElementById("amazon");
+amazonLink.href = makeAmazonAffiliateUrl(data.url);
+
     loadShare();
   </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
