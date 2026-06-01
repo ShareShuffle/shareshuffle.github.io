@@ -3,21 +3,61 @@
 <head>
   <meta charset="utf-8">
   <title>ShareShuffle</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-dark">
 
-  <h1 id="title">Loading...</h1>
+<div class="container py-5">
 
-  <p id="note"></p>
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
 
-  <a id="amazon" href="#" target="_blank" rel="noopener noreferrer">
-    View On Amazon
-  </a>
+      <div class="card shadow-lg border-0 rounded-4">
 
-  <p>
-    As an Amazon Associate I earn from qualifying purchases.
-  </p>
+        <div class="card-body p-5">
+
+          <div class="text-center mb-4">
+
+            <img id="productImage" src="" class="img-fluid rounded-4 mb-4" style="max-height:350px; display:none;">
+
+            <h1 id="title" class="display-6 fw-bold">
+              Loading...
+            </h1>
+
+          </div>
+
+          <div class="alert alert-light border">
+            <p id="note" class="mb-0"></p>
+          </div>
+
+          <div class="d-grid gap-2">
+
+            <a
+              id="amazon"
+              class="btn btn-primary btn-lg rounded-pill"
+              target="_blank">
+              View On Amazon
+            </a>
+
+          </div>
+
+          <hr>
+
+          <small class="text-muted">
+            As an Amazon Associate I earn from qualifying purchases.
+          </small>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -70,9 +110,21 @@
       document.getElementById("title").innerText = data.title || "Shared find";
       document.getElementById("note").innerText = data.note || "";
 
+
+
+
+
+
       const amazonLink = document.getElementById("amazon");
       amazonLink.href = makeAmazonAffiliateUrl(data.url);
     }
+
+    const productImage = document.getElementById("productImage");
+
+if (data.image) {
+  productImage.src = data.image;
+  productImage.style.display = "block";
+}
 
     loadShare();
   </script>
