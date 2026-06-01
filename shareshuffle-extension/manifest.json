@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "ShareShuffle",
+  "version": "0.0.1",
+  "description": "Save and share product recommendations with personal notes.",
+  "permissions": ["tabs", "clipboardWrite"],
+  "action": {
+    "default_title": "ShareShuffle",
+    "default_popup": "popup.html"
+  }
+}
