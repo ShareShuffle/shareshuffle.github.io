@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  width: 360px;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #071426;
+  color: #102033;
+}
+
+.card {
+  margin: 0;
+  padding: 18px;
+  background: #f5f8ff;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 900;
+  font-size: 28px;
+  background: linear-gradient(135deg, #13c8ff, #0d6efd, #ff2fb3, #ff7a18);
+  box-shadow: 0 10px 25px rgba(13, 110, 253, .25);
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+p {
+  margin: 2px 0 0;
+  color: #6b7280;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 5px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d8e2f0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font: inherit;
+  outline: none;
+}
+
+textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff7a18, #ffc145, #13c8ff, #0d6efd);
+}
+
+#status {
+  text-align: center;
+  font-weight: 700;
+  margin-top: 12px;
+}
