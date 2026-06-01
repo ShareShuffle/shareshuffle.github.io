@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ShareShuffle</title>
+</head>
+
+<body>
+
+  <h1 id="title">Loading...</h1>
+
+  <p id="note"></p>
+
+  <a id="amazon" href="#" target="_blank" rel="noopener noreferrer">
+    View On Amazon
+  </a>
+
+  <p>
+    As an Amazon Associate I earn from qualifying purchases.
+  </p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
+      authDomain: "shareshuffle-c7f96.firebaseapp.com",
+      projectId: "shareshuffle-c7f96",
+      storageBucket: "shareshuffle-c7f96.firebasestorage.app",
+      messagingSenderId: "507028011652",
+      appId: "1:507028011652:web:97c161c63b7940af0f60d1",
+      measurementId: "G-C8W9TBP705"
+    };
+
+    const AMAZON_TAG = "shareshuffle-20";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    function makeAmazonAffiliateUrl(originalUrl) {
+      const url = new URL(originalUrl);
+      url.searchParams.set("tag", AMAZON_TAG);
+      return url.toString();
+    }
+
+    async function loadShare() {
+      if (!id) {
+        document.getElementById("title").innerText = "Missing share ID";
+        return;
+      }
+
+      const snap = await getDoc(doc(db, "shares", id));
+
+      if (!snap.exists()) {
+        document.getElementById("title").innerText = "Share not found";
+        return;
+      }
+
+      const data = snap.data();
+
+      document.getElementById("title").innerText = data.title || "Shared find";
+      document.getElementById("note").innerText = data.note || "";
+
+      const amazonLink = document.getElementById("amazon");
+      amazonLink.href = makeAmazonAffiliateUrl(data.url);
+    }
+
+    loadShare();
+  </script>
+
+</body>
+</html>

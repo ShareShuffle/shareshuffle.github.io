@@ -1,0 +1,142 @@
+This agent explains why smart people can look at the same data and come to completely different conclusions.
+
+This is based on a very common scenario we see in delivery and reporting.
+
+One common problem across teams is that people look at the same data and come to completely different conclusions.
+
+This agent helps explain why that happens—by separating facts from assumptions.
+
+“You can drop in perspectives like this…”
+
+Perspective A:
+We are significantly behind schedule. Based on current progress, we should be further along at this point.
+
+Perspective B:
+We are not behind schedule. The pipeline includes lagging stages, so progress will materialize later.
+
+Here’s the "alignment analysis".
+
+(Pause for reading...)
+
+Shared facts.
+Interpretations.
+Assumptions.
+Divergence.
+Root Cause.
+Alignment.
+Summary Executive Insight.
+
+If you only read one thing, it’s this.
+
+Notice -- both sides agree on the facts. The disagreement comes from assumptions.
+
+This is what usually takes an entire meeting to figure out.
+
+Both perspectives had the same facts -- but completely different assumptions about how the pipeline works.
+
+This agent makes that visible instantly.
+
+Perspective A:
+This feature is complete and ready for release.
+
+Perspective B:
+This feature is not ready. It has not been fully validated by QA.
+
+Here’s the "alignment analysis".
+
+Here, the disagreement isn’t data—it’s a definition mismatch.
+
+#####
+
+Perspective A:
+User engagement is dropping, so the product direction is failing.
+
+Perspective B:
+Engagement decline is seasonal and not indicative of long-term performance issues.
+
+#####
+
+Here’s the "alignment analysis".
+
+Even here, you can see the agent separating facts from interpretation -- this is the core value.
+
+Again, same data, different assumptions about causality.
+
+This agent doesn’t replace analysis -- it clarifies thinking.
+
+It turns disagreement into alignment in seconds.
+
+This doesn’t replace analysis -- it clarifies thinking. It helps teams align faster by making assumptions visible.
+
+Longer term, this could plug into Teams or reporting tools and run automatically on meeting transcripts.
+
+Most tools summarize what was said -- this explains why people disagree.
+
+Q: how would this be used?
+A: You drop in two or more perspectives—like meeting notes or stakeholder comments—and the agent returns an alignment analysis in seconds.
+
+"alignment analysis"
+##### QUICK SCRIPT #####
+
+This agent explains why smart people can look at the same data and come to different conclusions.
+
+It separates facts from assumptions to show where misalignment actually comes from.
+
+Let’s drop in two perspectives.
+
+#####
+
+Perspective A:
+We are behind schedule.
+
+Perspective B:
+We are not behind, pipeline progress is lagging and will materialize later.
+
+#####
+
+Here’s the alignment analysis.
+
+(pause 2 seconds)
+
+Here’s the "alignment analysis".
+
+(Pause for reading...)
+
+Shared facts.
+Interpretations.
+Assumptions.
+Divergence.
+Root Cause.
+Alignment.
+Summary Executive Insight.
+
+If you only read one thing, it’s this:
+
+This isn’t a data disagreement—it’s an assumption mismatch.
+
+Both sides agree on the facts—but they’re working from different models of how the pipeline behaves.
+
+This is what usually takes an entire meeting to figure out.
+
+Let’s try another.
+
+#####
+
+Perspective A:
+This feature is ready.
+
+Perspective B:
+It’s not ready, QA hasn’t validated it.
+
+#####
+
+Here, the disagreement isn’t data—it’s a definition mismatch.
+
+That’s the core value:
+same data, different assumptions.
+
+This agent doesn’t replace analysis—it clarifies thinking.
+
+It turns disagreement into alignment in seconds.
+
+Most tools summarize what was said—this explains why people disagree.
