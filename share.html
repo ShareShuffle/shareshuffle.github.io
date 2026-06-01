@@ -1,68 +1,329 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>ShareShuffle</title>
+  <title>ShareShuffle — Shared Product Recommendation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Default social preview -->
+  <meta name="description" content="A product recommendation shared with ShareShuffle. Save, organize, and share shopping finds with personal notes.">
+  <meta property="og:title" content="ShareShuffle — Shared Product Recommendation">
+  <meta property="og:description" content="Someone shared a product recommendation with you on ShareShuffle.">
+  <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
+  <meta property="og:url" content="https://shareshuffle.com">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+  <link rel="apple-touch-icon" href="/icons/icon180.png">
+
+  <!-- Bootstrap + Font Awesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --ss-orange: #ff7a18;
+      --ss-gold: #ffc145;
+      --ss-blue: #0d6efd;
+      --ss-cyan: #13c8ff;
+      --ss-green: #39d98a;
+      --ss-navy: #071426;
+      --ss-ink: #102033;
+      --ss-muted: #6b7280;
+      --ss-cloud: #f5f8ff;
+      --ss-grad: linear-gradient(135deg, #ff7a18 0%, #ffc145 28%, #13c8ff 64%, #0d6efd 100%);
+      --ss-grad-dark:
+        radial-gradient(circle at 12% 12%, rgba(255,122,24,.44), transparent 30%),
+        radial-gradient(circle at 90% 20%, rgba(19,200,255,.36), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(13,110,253,.35), transparent 35%),
+        linear-gradient(135deg, #071426 0%, #102033 100%);
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--ss-grad-dark);
+      color: var(--ss-ink);
+      overflow-x: hidden;
+    }
+
+    .page-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 22px 0;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 950;
+      font-size: 1.35rem;
+      background: var(--ss-grad);
+      box-shadow: 0 12px 30px rgba(13,110,253,.33);
+    }
+
+    .share-card {
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 34px;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,.38);
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(18px);
+    }
+
+    .product-shell {
+      background:
+        radial-gradient(circle at top left, rgba(255,193,69,.26), transparent 35%),
+        linear-gradient(180deg, #ffffff 0%, #eef6ff 100%);
+      padding: 18px;
+    }
+
+    .product-img-box {
+      background: white;
+      border-radius: 28px;
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 1px rgba(7,20,38,.06);
+      overflow: hidden;
+    }
+
+    #productImage {
+      max-height: 360px;
+      width: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    .fallback-icon {
+      font-size: 5rem;
+      background: var(--ss-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .badge-ss {
+      border-radius: 999px;
+      padding: .5rem .8rem;
+      background: rgba(13,110,253,.09);
+      color: #1d4ed8;
+      font-weight: 850;
+      font-size: .82rem;
+      display: inline-flex;
+      gap: .4rem;
+      align-items: center;
+    }
+
+    .title {
+      font-size: clamp(1.5rem, 7vw, 2.45rem);
+      font-weight: 950;
+      letter-spacing: -.045em;
+      line-height: 1.02;
+    }
+
+    .note-card {
+      border: 0;
+      border-radius: 26px;
+      background: #f5f8ff;
+      box-shadow: inset 0 0 0 1px rgba(13,110,253,.08);
+    }
+
+    .quote-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--ss-grad);
+      color: white;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .cta-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 1rem 1.1rem;
+      color: white;
+      font-weight: 950;
+      font-size: 1.12rem;
+      background: var(--ss-grad);
+      box-shadow: 0 18px 38px rgba(13,110,253,.28);
+    }
+
+    .cta-btn:hover {
+      color: white;
+      filter: saturate(1.12);
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      border-radius: 999px;
+      padding: .9rem 1rem;
+      font-weight: 850;
+      background: white;
+      border: 1px solid rgba(13,110,253,.18);
+      color: var(--ss-ink);
+    }
+
+    .trust-row {
+      color: var(--ss-muted);
+      font-size: .92rem;
+    }
+
+    .footer-small {
+      color: rgba(255,255,255,.72);
+      font-size: .85rem;
+    }
+
+    .tiny-link {
+      color: rgba(255,255,255,.88);
+      text-decoration: none;
+      font-weight: 750;
+    }
+
+    .tiny-link:hover {
+      color: white;
+    }
+
+    @media (max-width: 575.98px) {
+      .page-wrap {
+        padding: 10px 0 18px;
+        align-items: flex-start;
+      }
+
+      .share-card {
+        border-radius: 26px;
+      }
+
+      .card-body {
+        padding: 1.25rem !important;
+      }
+
+      .product-shell {
+        padding: 12px;
+      }
+
+      .product-img-box {
+        min-height: 210px;
+        border-radius: 22px;
+      }
+
+      #productImage {
+        max-height: 260px;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-dark">
+<body>
+  <main class="page-wrap">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-xl-6 col-lg-7 col-md-9">
 
-<div class="container py-5">
-
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-
-      <div class="card shadow-lg border-0 rounded-4">
-
-        <div class="card-body p-5">
-
-          <div class="text-center mb-4">
-
-<img
-  id="productImage"
-  src=""
-  class="img-fluid rounded-4 mb-4"
-  style="max-height:350px; display:none;"
-  alt="Shared product image"
->
-            <h1 id="title" class="display-6 fw-bold">
-              Loading...
-            </h1>
-
-          </div>
-
-          <div class="alert alert-light border">
-            <p id="note" class="mb-0"></p>
-          </div>
-
-          <div class="d-grid gap-2">
-
-            <a
-              id="amazon"
-              class="btn btn-primary btn-lg rounded-pill"
-              target="_blank">
-              View On Amazon
+          <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+            <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
+              <div class="brand-logo">S</div>
+              <div>
+                <div class="fw-black fw-bold fs-5 lh-1">ShareShuffle</div>
+                <div class="small text-white-50">Share what’s worth finding</div>
+              </div>
             </a>
 
+            <span class="badge rounded-pill text-bg-light">
+              <i class="fa-solid fa-shuffle me-1"></i> Shared find
+            </span>
           </div>
 
-          <hr>
+          <article class="share-card">
 
-          <small class="text-muted">
-            As an Amazon Associate I earn from qualifying purchases.
-          </small>
+            <div class="product-shell">
+              <div class="product-img-box">
+                <i id="fallbackIcon" class="fa-solid fa-gift fallback-icon"></i>
+                <img id="productImage" src="" alt="Shared product image">
+              </div>
+            </div>
+
+            <div class="card-body p-4 p-sm-5">
+              <div class="mb-3">
+                <span class="badge-ss">
+                  <i class="fa-solid fa-user-check"></i>
+                  Personal recommendation
+                </span>
+              </div>
+
+              <h1 id="title" class="title mb-3">
+                Loading...
+              </h1>
+
+              <div class="note-card p-3 p-sm-4 mb-4">
+                <div class="d-flex gap-3">
+                  <div class="quote-mark">
+                    <i class="fa-solid fa-quote-left"></i>
+                  </div>
+                  <div>
+                    <div class="small text-secondary fw-bold mb-1">Why this was shared</div>
+                    <p id="note" class="mb-0 fs-5">
+                      Loading recommendation...
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-grid gap-2 mb-3">
+                <a
+                  id="amazon"
+                  class="btn cta-btn"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="fa-brands fa-amazon me-2"></i>
+                  View Product on Amazon
+                </a>
+
+                <button id="copyPage" class="btn secondary-btn" type="button">
+                  <i class="fa-solid fa-link me-2"></i>
+                  Copy this ShareShuffle link
+                </button>
+              </div>
+
+              <div class="trust-row d-flex flex-wrap justify-content-center gap-3 py-2">
+                <span><i class="fa-solid fa-lock me-1"></i> No account needed</span>
+                <span><i class="fa-solid fa-note-sticky me-1"></i> Shared with context</span>
+                <span><i class="fa-solid fa-mobile-screen-button me-1"></i> Mobile friendly</span>
+              </div>
+
+              <hr>
+
+              <div class="d-flex align-items-start gap-2 text-secondary small">
+                <i class="fa-solid fa-circle-info mt-1"></i>
+                <div>
+                  As an Amazon Associate I earn from qualifying purchases.
+                  Product details, pricing, and availability may change on Amazon.
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="text-center mt-4 footer-small">
+            Create your own product recommendation links at
+            <a href="/" class="tiny-link">ShareShuffle.com</a>
+          </div>
 
         </div>
-
       </div>
-
     </div>
-  </div>
-
-</div>
-
-
+  </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -97,47 +358,69 @@
       return url.toString();
     }
 
+    function setLoadingError(message) {
+      document.getElementById("title").innerText = message;
+      document.getElementById("note").innerText = "This share link could not be loaded.";
+      document.getElementById("amazon").classList.add("disabled");
+    }
+
     async function loadShare() {
       if (!id) {
-        document.getElementById("title").innerText = "Missing share ID";
+        setLoadingError("Missing share ID");
         return;
       }
 
       const snap = await getDoc(doc(db, "shares", id));
 
       if (!snap.exists()) {
-        document.getElementById("title").innerText = "Share not found";
+        setLoadingError("Share not found");
         return;
       }
-      
-const data = snap.data();
 
-document.getElementById("title").innerText = data.title || "Shared find";
-document.getElementById("note").innerText = data.note || "";
+      const data = snap.data();
 
-const productImage = document.getElementById("productImage");
+      document.title = `${data.title || "Shared find"} — ShareShuffle`;
 
-if (data.image) {
-  productImage.src = data.image;
-  productImage.style.display = "block";
-}
+      document.getElementById("title").innerText = data.title || "Shared find";
+      document.getElementById("note").innerText =
+        data.note || "I saw this and thought of you.";
+
+      const productImage = document.getElementById("productImage");
+      const fallbackIcon = document.getElementById("fallbackIcon");
+
+      if (data.image) {
+        productImage.onload = () => {
+          fallbackIcon.style.display = "none";
+          productImage.style.display = "block";
+        };
+
+        productImage.onerror = () => {
+          fallbackIcon.style.display = "block";
+          productImage.style.display = "none";
+        };
+
+        productImage.src = data.image;
+      }
 
       const amazonLink = document.getElementById("amazon");
-      amazonLink.href = makeAmazonAffiliateUrl(data.url);
+
+      if (data.url) {
+        amazonLink.href = makeAmazonAffiliateUrl(data.url);
+      } else {
+        amazonLink.classList.add("disabled");
+      }
     }
+
+    document.getElementById("copyPage").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(window.location.href);
+      const btn = document.getElementById("copyPage");
+      btn.innerHTML = '<i class="fa-solid fa-check me-2"></i> Copied!';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-link me-2"></i> Copy this ShareShuffle link';
+      }, 1800);
+    });
 
     loadShare();
   </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
