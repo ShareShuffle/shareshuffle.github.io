@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ShareShuffle</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <h1>ShareShuffle</h1>
+        <p>Share what’s worth finding.</p>
+      </div>
+    </div>
+
+    <label>Page title</label>
+    <input id="title" type="text">
+
+    <label>URL</label>
+    <input id="url" type="text">
+
+    <label>Your note</label>
+    <textarea id="note" placeholder="I saw this and thought of you..."></textarea>
+
+   <button id="copyBtn">Create Share Link</button>
+
+<button id="copyLinkBtn" style="display:none;">
+  Copy Short Link
+</button>
+
+<button id="emailBtn" style="display:none;">
+  Email This
+</button>
+
+<button id="textBtn" style="display:none;">
+  Text This
+</button>
+
+<button id="voiceBtn" style="display:none;">
+  Open Google Voice
+</button>
+
+    <p id="status"></p>
+  </div>
+
+<script src="popup.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ShareShuffle Shelf</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="A collection of product recommendations shared with ShareShuffle.">
+  <meta property="og:title" content="ShareShuffle Shelf">
+  <meta property="og:description" content="A collection of product recommendations shared with ShareShuffle.">
+  <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --ss-orange:#ff7a18;
+      --ss-gold:#ffc145;
+      --ss-blue:#0d6efd;
+      --ss-cyan:#13c8ff;
+      --ss-navy:#071426;
+      --ss-ink:#102033;
+      --ss-muted:#6b7280;
+      --ss-grad:linear-gradient(135deg,#ff7a18,#ffc145,#13c8ff,#0d6efd);
+      --ss-grad-dark:
+        radial-gradient(circle at 12% 12%,rgba(255,122,24,.42),transparent 30%),
+        radial-gradient(circle at 90% 20%,rgba(19,200,255,.32),transparent 28%),
+        radial-gradient(circle at 50% 100%,rgba(13,110,253,.35),transparent 35%),
+        linear-gradient(135deg,#071426 0%,#102033 100%);
+    }
+
+    body {
+      min-height:100vh;
+      background:var(--ss-grad-dark);
+      color:var(--ss-ink);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+
+    .brand-logo {
+      width:46px;
+      height:46px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      color:white;
+      font-weight:950;
+      background:var(--ss-grad);
+      box-shadow:0 12px 30px rgba(13,110,253,.33);
+    }
+
+    .hero-card {
+      border-radius:34px;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:0 30px 90px rgba(0,0,0,.32);
+      overflow:hidden;
+    }
+
+    .shelf-title {
+      font-size:clamp(2.1rem,8vw,4.8rem);
+      letter-spacing:-.06em;
+      line-height:.92;
+      font-weight:950;
+    }
+
+    .product-card {
+      border:0;
+      border-radius:28px;
+      overflow:hidden;
+      height:100%;
+      box-shadow:0 18px 50px rgba(0,0,0,.18);
+    }
+
+    .product-img-wrap {
+      background:#f5f8ff;
+      min-height:220px;
+      display:grid;
+      place-items:center;
+      border-bottom:1px solid rgba(13,110,253,.08);
+    }
+
+    .product-img {
+      width:100%;
+      max-height:245px;
+      object-fit:contain;
+      padding:16px;
+    }
+
+    .fallback-icon {
+      font-size:4rem;
+      background:var(--ss-grad);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .btn-ss {
+      border:0;
+      color:white;
+      font-weight:900;
+      border-radius:999px;
+      background:var(--ss-grad);
+      box-shadow:0 14px 28px rgba(13,110,253,.22);
+    }
+
+    .small-muted {
+      color:var(--ss-muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="container py-4 py-lg-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
+        <div class="brand-logo">S</div>
+        <div>
+          <div class="fw-bold fs-5 lh-1">ShareShuffle</div>
+          <div class="small text-white-50">Share what’s worth finding</div>
+        </div>
+      </a>
+
+      <button id="copyShelf" class="btn btn-light rounded-pill fw-bold">
+        <i class="fa-solid fa-link me-1"></i> Copy Shelf
+      </button>
+    </div>
+
+    <section class="hero-card p-4 p-lg-5 mb-4">
+      <div class="row align-items-end g-4">
+        <div class="col-lg-8">
+          <div class="text-primary fw-bold mb-2">
+            <i class="fa-solid fa-layer-group me-1"></i>
+            Shared shelf
+          </div>
+          <h1 id="shelfTitle" class="shelf-title mb-3">Loading shelf...</h1>
+          <p id="shelfDescription" class="lead text-secondary mb-0">
+            A collection of recommendations shared with ShareShuffle.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <div id="status" class="text-secondary fw-bold">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div id="items" class="row g-4"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
+      authDomain: "shareshuffle-c7f96.firebaseapp.com",
+      projectId: "shareshuffle-c7f96",
+      storageBucket: "shareshuffle-c7f96.firebasestorage.app",
+      messagingSenderId: "507028011652",
+      appId: "1:507028011652:web:97c161c63b7940af0f60d1",
+      measurementId: "G-C8W9TBP705"
+    };
+
+    const AMAZON_TAG = "shareshuffle-20";
+    const SHARE_BASE_URL = "https://shfl.me/";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(location.search);
+    const slug = params.get("s") || "";
+
+    function titleFromSlug(value) {
+      return value
+        .split("-")
+        .filter(Boolean)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ") || "Shelf";
+    }
+
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function makeAmazonAffiliateUrl(originalUrl) {
+      const url = new URL(originalUrl);
+      url.searchParams.set("tag", AMAZON_TAG);
+      return url.toString();
+    }
+
+    async function loadShelf() {
+      const title = document.getElementById("shelfTitle");
+      const status = document.getElementById("status");
+      const items = document.getElementById("items");
+
+      if (!slug) {
+        title.textContent = "Missing shelf";
+        status.textContent = "No shelf slug found.";
+        return;
+      }
+
+      const shelfName = titleFromSlug(slug);
+      title.textContent = shelfName;
+      document.title = `${shelfName} — ShareShuffle`;
+
+      const q = query(
+        collection(db, "shares"),
+        where("shelfSlug", "==", slug)
+      );
+
+      const snap = await getDocs(q);
+      const docs = [];
+
+      snap.forEach(docSnap => {
+        docs.push({ id: docSnap.id, ...docSnap.data() });
+      });
+
+      docs.sort((a, b) => {
+        const aDate = a.created?.toDate ? a.created.toDate() : new Date(a.created || 0);
+        const bDate = b.created?.toDate ? b.created.toDate() : new Date(b.created || 0);
+        return bDate - aDate;
+      });
+
+      items.innerHTML = "";
+      status.textContent = `${docs.length} item${docs.length === 1 ? "" : "s"}`;
+
+      if (!docs.length) {
+        items.innerHTML = `
+          <div class="col-12">
+            <div class="hero-card p-4 text-center">
+              <h2 class="fw-bold">No items yet</h2>
+              <p class="text-secondary mb-0">Save something to this shelf from the Chrome extension.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      docs.forEach(item => {
+        const shareUrl = `${SHARE_BASE_URL}${item.id}`;
+        const amazonUrl = item.url ? makeAmazonAffiliateUrl(item.url) : "#";
+        const image = item.image || "";
+
+        const card = document.createElement("div");
+        card.className = "col-md-6 col-xl-4";
+        card.innerHTML = `
+          <article class="card product-card">
+            <div class="product-img-wrap">
+              ${image
+                ? `<img class="product-img" src="${escapeHtml(image)}" alt="" onerror="this.outerHTML='<i class=&quot;fa-solid fa-gift fallback-icon&quot;></i>'">`
+                : `<i class="fa-solid fa-gift fallback-icon"></i>`
+              }
+            </div>
+            <div class="card-body p-4">
+              <h2 class="h5 fw-bold mb-2">${escapeHtml(item.title || "Shared find")}</h2>
+              <p class="small-muted mb-3">${escapeHtml(item.note || "I saw this and thought of you.")}</p>
+              <div class="d-grid gap-2">
+                <a class="btn btn-ss" href="${escapeHtml(amazonUrl)}" target="_blank" rel="noopener noreferrer">
+                  <i class="fa-brands fa-amazon me-1"></i> View on Amazon
+                </a>
+                <a class="btn btn-outline-secondary rounded-pill fw-bold" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener noreferrer">
+                  <i class="fa-solid fa-link me-1"></i> Open Share
+                </a>
+              </div>
+            </div>
+          </article>
+        `;
+
+        items.appendChild(card);
+      });
+    }
+
+    document.getElementById("copyShelf").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(window.location.href);
+      const btn = document.getElementById("copyShelf");
+      btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-link me-1"></i> Copy Shelf';
+      }, 1600);
+    });
+
+    loadShelf().catch(error => {
+      console.error(error);
+      document.getElementById("status").textContent = "Could not load shelf.";
+    });
+  </script>
+</body>
+</html>

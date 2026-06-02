@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  width: 380px;
+  width: 360px;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #071426;
   color: #102033;
@@ -46,13 +46,8 @@ label {
   display: block;
   margin-top: 12px;
   margin-bottom: 5px;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 13px;
-}
-
-.optional {
-  color: #6b7280;
-  font-weight: 650;
 }
 
 input,
@@ -64,13 +59,6 @@ textarea {
   padding: 10px 12px;
   font: inherit;
   outline: none;
-  background: white;
-}
-
-input:focus,
-textarea:focus {
-  border-color: #13c8ff;
-  box-shadow: 0 0 0 4px rgba(19, 200, 255, .14);
 }
 
 textarea {
@@ -79,11 +67,6 @@ textarea {
 }
 
 button {
-  font: inherit;
-  cursor: pointer;
-}
-
-.primary-btn {
   width: 100%;
   margin-top: 16px;
   border: 0;
@@ -91,65 +74,18 @@ button {
   padding: 12px;
   color: white;
   font-weight: 900;
+  cursor: pointer;
   background: linear-gradient(135deg, #ff7a18, #ffc145, #13c8ff, #0d6efd);
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-}
-
-.actions {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-.action-btn {
-  border: 1px solid #d8e2f0;
-  border-radius: 18px;
-  background: white;
-  color: #102033;
-  padding: 10px 4px 8px;
-  min-height: 64px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  font-weight: 850;
-  font-size: 12px;
-}
-
-.action-btn i {
-  font-size: 18px;
-  color: #0d6efd;
-}
-
-.action-btn:hover {
-  border-color: #13c8ff;
-  box-shadow: 0 10px 22px rgba(13, 110, 253, .12);
-  transform: translateY(-1px);
-}
-
-.shelf-actions {
-  margin-top: 12px;
-  text-align: center;
-}
-
-.shelf-actions a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #0d6efd;
-  font-weight: 850;
-  text-decoration: none;
 }
 
 #status {
   text-align: center;
-  font-weight: 800;
+  font-weight: 700;
   margin-top: 12px;
-  min-height: 20px;
+}
+
+.secondary-btn {
+  background: white;
+  color: #102033;
+  border: 1px solid #d8e2f0;
 }
