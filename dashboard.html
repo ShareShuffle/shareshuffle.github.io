@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ShareShuffle Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-dark text-light">
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="fw-bold">ShareShuffle Dashboard</h1>
+        <p class="text-secondary mb-0">Views, Amazon clicks, and click-through rate.</p>
+      </div>
+      <a href="/" class="btn btn-outline-light">Home</a>
+    </div>
+
+    <div class="card border-0 shadow rounded-4">
+      <div class="card-body">
+        <div id="status" class="text-secondary mb-3">Loading shares...</div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Views</th>
+                <th>Amazon Clicks</th>
+                <th>CTR</th>
+                <th>Share Link</th>
+              </tr>
+            </thead>
+            <tbody id="sharesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
+      authDomain: "shareshuffle-c7f96.firebaseapp.com",
+      projectId: "shareshuffle-c7f96",
+      storageBucket: "shareshuffle-c7f96.firebasestorage.app",
+      messagingSenderId: "507028011652",
+      appId: "1:507028011652:web:97c161c63b7940af0f60d1",
+      measurementId: "G-C8W9TBP705"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const SHARE_BASE_URL = "https://shareshuffle.com/share.html?id=";
+
+    async function loadDashboard() {
+      const status = document.getElementById("status");
+      const table = document.getElementById("sharesTable");
+
+      try {
+        const q = query(collection(db, "shares"), orderBy("created", "desc"));
+        const snap = await getDocs(q);
+
+        table.innerHTML = "";
+
+        snap.forEach((docSnap) => {
+          const id = docSnap.id;
+          const data = docSnap.data();
+
+          const views = data.views || 0;
+          const clicks = data.amazonClicks || 0;
+          const ctr = views > 0 ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+          const shareUrl = `${SHARE_BASE_URL}${id}`;
+
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td>
+              <div class="fw-bold">${data.title || "Untitled"}</div>
+              <div class="small text-secondary">${id}</div>
+            </td>
+            <td>${views}</td>
+            <td>${clicks}</td>
+            <td>${ctr}</td>
+            <td>
+              <a href="${shareUrl}" target="_blank" rel="noopener noreferrer">
+                Open
+              </a>
+            </td>
+          `;
+
+          table.appendChild(row);
+        });
+
+        status.textContent = `${snap.size} shares loaded.`;
+      } catch (error) {
+        console.error(error);
+        status.textContent = "Could not load dashboard. Check console.";
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
