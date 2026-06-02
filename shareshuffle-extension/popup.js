@@ -2,9 +2,9 @@ console.log("ShareShuffle popup loaded");
 
 const FIREBASE_PROJECT_ID = "shareshuffle-c7f96";
 const FIRESTORE_COLLECTION = "shares";
-const SHARE_BASE_URL =
-  "https://shfl.me/";
-  const FIRESTORE_URL =
+const SHARE_BASE_URL = "https://shfl.me/";
+
+const FIRESTORE_URL =
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${FIRESTORE_COLLECTION}`;
 
 function makeShortId(length = 5) {
@@ -14,6 +14,22 @@ function makeShortId(length = 5) {
   for (let i = 0; i < length; i++) {
     id += chars[Math.floor(Math.random() * chars.length)];
   }
+
+  return id;
+}
+
+async function shareExists(id) {
+  const response = await fetch(`${FIRESTORE_URL}/${id}`);
+
+  return response.ok;
+}
+
+async function createUniqueId() {
+  let id;
+
+  do {
+    id = makeShortId();
+  } while (await shareExists(id));
 
   return id;
 }
@@ -51,25 +67,17 @@ async function createShareDocument(id, data) {
   const url = `${FIRESTORE_URL}?documentId=${id}`;
 
   const body = {
-   fields: {
-  title: { stringValue: data.title || "" },
-  url: { stringValue: data.url || "" },
-  note: { stringValue: data.note || "" },
-  image: { stringValue: data.image || "" },
-  created: { timestampValue: new Date().toISOString() },
-  views: { integerValue: 0 },
-  amazonClicks: { integerValue: 0 }
-}
+    fields: {
+      title: { stringValue: data.title || "" },
+      url: { stringValue: data.url || "" },
+      note: { stringValue: data.note || "" },
+      image: { stringValue: data.image || "" },
+      created: { timestampValue: new Date().toISOString() },
+      views: { integerValue: 0 },
+      amazonClicks: { integerValue: 0 },
+      shares: { integerValue: 0 }
+    }
   };
-
-
-
-
-
-
-
-
-  
 
   const response = await fetch(url, {
     method: "POST",
@@ -94,13 +102,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const copyBtn = document.getElementById("copyBtn");
   const status = document.getElementById("status");
 
-
-
   console.log("DOMContentLoaded fired");
 
-const tab = await getCurrentTab();
+  const tab = await getCurrentTab();
 
-console.log("TAB:", tab);
+  console.log("TAB:", tab);
 
   titleInput.value = tab?.title || "";
   urlInput.value = tab?.url || "";
@@ -111,17 +117,15 @@ console.log("TAB:", tab);
     try {
       status.textContent = "Creating share link...";
 
-      const id = makeShortId();
+      const id = await createUniqueId();
+      const image = await getProductImage(tab.id);
 
-const image = await getProductImage(tab.id);
-
-await createShareDocument(id, {
-  title: titleInput.value,
-  url: urlInput.value,
-  note: noteInput.value,
-  shares: { integerValue: 0 },
-  image
-});
+      await createShareDocument(id, {
+        title: titleInput.value,
+        url: urlInput.value,
+        note: noteInput.value,
+        image
+      });
 
       const shareUrl = `${SHARE_BASE_URL}${id}`;
 
