@@ -7,8 +7,8 @@ const SHARE_BASE_URL =
   const FIRESTORE_URL =
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${FIRESTORE_COLLECTION}`;
 
-function makeShortId(length = 4) {
-  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+function makeShortId(length = 5) {
+  const chars = "23456789abcdefghjklmnpqrstuvwxyz";
   let id = "";
 
   for (let i = 0; i < length; i++) {
