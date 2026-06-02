@@ -2,11 +2,12 @@ console.log("ShareShuffle popup loaded");
 
 const FIREBASE_PROJECT_ID = "shareshuffle-c7f96";
 const FIRESTORE_COLLECTION = "shares";
-const SHARE_BASE_URL = "https://shareshuffle.com/share.html?id=";
-const FIRESTORE_URL =
+const SHARE_BASE_URL =
+  "https://shfl.me/";
+  const FIRESTORE_URL =
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${FIRESTORE_COLLECTION}`;
 
-function makeShortId(length = 6) {
+function makeShortId(length = 4) {
   const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
   let id = "";
 

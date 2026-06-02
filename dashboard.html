@@ -196,8 +196,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const SHARE_BASE_URL = "https://shareshuffle.com/share.html?id=";
-
+const SHARE_BASE_URL =
+  "https://shfl.me/";
+  
     function escapeHtml(value = "") {
       return String(value)
         .replaceAll("&", "&amp;")
