@@ -6,36 +6,166 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --ss-orange:#ff7a18;
+      --ss-gold:#ffc145;
+      --ss-blue:#0d6efd;
+      --ss-cyan:#13c8ff;
+      --ss-navy:#071426;
+      --ss-ink:#102033;
+      --ss-grad:linear-gradient(135deg,#ff7a18,#ffc145,#13c8ff,#0d6efd);
+      --ss-grad-dark:
+        radial-gradient(circle at 12% 12%,rgba(255,122,24,.38),transparent 30%),
+        radial-gradient(circle at 90% 20%,rgba(19,200,255,.32),transparent 28%),
+        linear-gradient(135deg,#071426 0%,#102033 100%);
+    }
+
+    body {
+      min-height:100vh;
+      background:var(--ss-grad-dark);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+
+    .brand-logo {
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      color:white;
+      font-weight:950;
+      background:var(--ss-grad);
+      box-shadow:0 12px 30px rgba(13,110,253,.33);
+    }
+
+    .glass-card {
+      border:1px solid rgba(255,255,255,.65);
+      border-radius:28px;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 30px 90px rgba(0,0,0,.32);
+      overflow:hidden;
+    }
+
+    .metric-card {
+      border-radius:24px;
+      background:white;
+      border:1px solid rgba(13,110,253,.08);
+      box-shadow:0 14px 35px rgba(0,0,0,.1);
+    }
+
+    .metric-number {
+      font-size:2rem;
+      font-weight:950;
+      letter-spacing:-.05em;
+    }
+
+    .table thead th {
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#6b7280;
+    }
+
+    .product-img {
+      width:54px;
+      height:54px;
+      object-fit:contain;
+      background:#f5f8ff;
+      border-radius:14px;
+      border:1px solid rgba(13,110,253,.08);
+    }
+
+    .btn-ss {
+      border:0;
+      color:white;
+      font-weight:800;
+      border-radius:999px;
+      background:var(--ss-grad);
+    }
+
+    .small-muted {
+      color:#6b7280;
+      font-size:.86rem;
+    }
+  </style>
 </head>
 
-<body class="bg-dark text-light">
-  <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h1 class="fw-bold">ShareShuffle Dashboard</h1>
-        <p class="text-secondary mb-0">Views, Amazon clicks, and click-through rate.</p>
+<body>
+  <div class="container py-4 py-lg-5">
+
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4 text-white">
+      <div class="d-flex align-items-center gap-3">
+        <div class="brand-logo">S</div>
+        <div>
+          <h1 class="fw-bold mb-0">ShareShuffle Dashboard</h1>
+          <div class="text-white-50">Views, Amazon clicks, CTR, and share performance.</div>
+        </div>
       </div>
-      <a href="/" class="btn btn-outline-light">Home</a>
+
+      <div class="d-flex gap-2">
+        <button id="refreshBtn" class="btn btn-light rounded-pill fw-bold">
+          <i class="fa-solid fa-rotate me-1"></i> Refresh
+        </button>
+        <a href="/" class="btn btn-outline-light rounded-pill fw-bold">
+          Home
+        </a>
+      </div>
     </div>
 
-    <div class="card border-0 shadow rounded-4">
-      <div class="card-body">
-        <div id="status" class="text-secondary mb-3">Loading shares...</div>
-
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Views</th>
-                <th>Amazon Clicks</th>
-                <th>CTR</th>
-                <th>Share Link</th>
-              </tr>
-            </thead>
-            <tbody id="sharesTable"></tbody>
-          </table>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="metric-card p-3">
+          <div class="small-muted">Shares</div>
+          <div id="totalShares" class="metric-number">—</div>
         </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="metric-card p-3">
+          <div class="small-muted">Views</div>
+          <div id="totalViews" class="metric-number">—</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="metric-card p-3">
+          <div class="small-muted">Amazon Clicks</div>
+          <div id="totalClicks" class="metric-number">—</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="metric-card p-3">
+          <div class="small-muted">Overall CTR</div>
+          <div id="overallCtr" class="metric-number">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="p-4 border-bottom">
+        <div id="status" class="text-secondary">Loading shares...</div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th>Views</th>
+              <th>Clicks</th>
+              <th>CTR</th>
+              <th>Created</th>
+              <th>Share</th>
+              <th>Amazon</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="sharesTable"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -48,7 +178,9 @@
       collection,
       getDocs,
       query,
-      orderBy
+      orderBy,
+      doc,
+      deleteDoc
     } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -66,13 +198,56 @@
 
     const SHARE_BASE_URL = "https://shareshuffle.com/share.html?id=";
 
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(created) {
+      if (!created) return "—";
+
+      try {
+        if (created.toDate) {
+          return created.toDate().toLocaleDateString();
+        }
+
+        return new Date(created).toLocaleDateString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function makeCtr(clicks, views) {
+      return views > 0 ? `${((clicks / views) * 100).toFixed(1)}%` : "0%";
+    }
+
+    async function deleteShare(id, title) {
+      const ok = confirm(`Delete this share?\n\n${title || id}`);
+
+      if (!ok) return;
+
+      await deleteDoc(doc(db, "shares", id));
+      await loadDashboard();
+    }
+
+    window.deleteShare = deleteShare;
+
     async function loadDashboard() {
       const status = document.getElementById("status");
       const table = document.getElementById("sharesTable");
 
       try {
+        status.textContent = "Loading shares...";
+
         const q = query(collection(db, "shares"), orderBy("created", "desc"));
         const snap = await getDocs(q);
+
+        let totalViews = 0;
+        let totalClicks = 0;
 
         table.innerHTML = "";
 
@@ -80,30 +255,71 @@
           const id = docSnap.id;
           const data = docSnap.data();
 
-          const views = data.views || 0;
-          const clicks = data.amazonClicks || 0;
-          const ctr = views > 0 ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
+          const views = Number(data.views || 0);
+          const clicks = Number(data.amazonClicks || 0);
+          const ctr = makeCtr(clicks, views);
           const shareUrl = `${SHARE_BASE_URL}${id}`;
+          const image = data.image || "";
+          const title = data.title || "Untitled";
+          const created = formatDate(data.created);
+
+          totalViews += views;
+          totalClicks += clicks;
 
           const row = document.createElement("tr");
 
           row.innerHTML = `
-            <td>
-              <div class="fw-bold">${data.title || "Untitled"}</div>
-              <div class="small text-secondary">${id}</div>
+            <td style="min-width:330px;">
+              <div class="d-flex align-items-center gap-3">
+                <img
+                  class="product-img"
+                  src="${escapeHtml(image)}"
+                  onerror="this.style.visibility='hidden'"
+                  alt=""
+                >
+                <div>
+                  <div class="fw-bold">${escapeHtml(title)}</div>
+                  <div class="small-muted">${escapeHtml(id)}</div>
+                </div>
+              </div>
             </td>
-            <td>${views}</td>
-            <td>${clicks}</td>
+
+            <td class="fw-bold">${views}</td>
+            <td class="fw-bold">${clicks}</td>
             <td>${ctr}</td>
+            <td>${created}</td>
+
             <td>
-              <a href="${shareUrl}" target="_blank" rel="noopener noreferrer">
+              <a class="btn btn-sm btn-ss px-3" href="${shareUrl}" target="_blank" rel="noopener noreferrer">
                 Open
               </a>
+            </td>
+
+            <td>
+              ${
+                data.url
+                  ? `<a class="btn btn-sm btn-outline-secondary rounded-pill px-3" href="${escapeHtml(data.url)}" target="_blank" rel="noopener noreferrer">Store</a>`
+                  : "—"
+              }
+            </td>
+
+            <td class="text-end">
+              <button
+                class="btn btn-sm btn-outline-danger rounded-pill"
+                onclick="deleteShare('${escapeHtml(id)}', '${escapeHtml(title)}')"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
             </td>
           `;
 
           table.appendChild(row);
         });
+
+        document.getElementById("totalShares").textContent = snap.size;
+        document.getElementById("totalViews").textContent = totalViews;
+        document.getElementById("totalClicks").textContent = totalClicks;
+        document.getElementById("overallCtr").textContent = makeCtr(totalClicks, totalViews);
 
         status.textContent = `${snap.size} shares loaded.`;
       } catch (error) {
@@ -111,6 +327,8 @@
         status.textContent = "Could not load dashboard. Check console.";
       }
     }
+
+    document.getElementById("refreshBtn").addEventListener("click", loadDashboard);
 
     loadDashboard();
   </script>
