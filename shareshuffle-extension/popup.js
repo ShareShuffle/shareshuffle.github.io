@@ -28,19 +28,47 @@ async function getCurrentTab() {
   return tabs[0];
 }
 
+async function getProductImage(tabId) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId },
+    func: () => {
+      const image =
+        document.querySelector("#landingImage")?.src ||
+        document.querySelector("#imgBlkFront")?.src ||
+        document.querySelector('meta[property="og:image"]')?.content ||
+        document.querySelector('meta[name="twitter:image"]')?.content ||
+        "";
+
+      return image;
+    }
+  });
+
+  return results?.[0]?.result || "";
+}
+
 async function createShareDocument(id, data) {
   const url = `${FIRESTORE_URL}?documentId=${id}`;
 
   const body = {
-    fields: {
-      title: { stringValue: data.title || "" },
-      url: { stringValue: data.url || "" },
-      note: { stringValue: data.note || "" },
-      created: { timestampValue: new Date().toISOString() },
-      views: { integerValue: 0 },
-      amazonClicks: { integerValue: 0 }
-    }
+   fields: {
+  title: { stringValue: data.title || "" },
+  url: { stringValue: data.url || "" },
+  note: { stringValue: data.note || "" },
+  image: { stringValue: data.image || "" },
+  created: { timestampValue: new Date().toISOString() },
+  views: { integerValue: 0 },
+  amazonClicks: { integerValue: 0 }
+}
   };
+
+
+
+
+
+
+
+
+  
 
   const response = await fetch(url, {
     method: "POST",
@@ -84,11 +112,15 @@ console.log("TAB:", tab);
 
       const id = makeShortId();
 
-      await createShareDocument(id, {
-        title: titleInput.value,
-        url: urlInput.value,
-        note: noteInput.value
-      });
+const image = await getProductImage(tab.id);
+
+await createShareDocument(id, {
+  title: titleInput.value,
+  url: urlInput.value,
+  note: noteInput.value,
+  shares: { integerValue: 0 },
+  image
+});
 
       const shareUrl = `${SHARE_BASE_URL}${id}`;
 

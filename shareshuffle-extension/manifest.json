@@ -3,7 +3,7 @@
   "name": "ShareShuffle",
   "version": "0.0.1",
   "description": "Save and share product recommendations with personal notes.",
-"permissions": ["activeTab", "tabs", "clipboardWrite"],
+"permissions": ["activeTab", "tabs", "clipboardWrite", "scripting"],
 "host_permissions": [
   "https://firestore.googleapis.com/*"
 ],  
