@@ -83,3 +83,9 @@ button {
   font-weight: 700;
   margin-top: 12px;
 }
+
+.secondary-btn {
+  background: white;
+  color: #102033;
+  border: 1px solid #d8e2f0;
+}

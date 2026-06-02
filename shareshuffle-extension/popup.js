@@ -101,6 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const noteInput = document.getElementById("note");
   const copyBtn = document.getElementById("copyBtn");
   const status = document.getElementById("status");
+  let lastShareUrl = "";
 
   console.log("DOMContentLoaded fired");
 
@@ -129,6 +130,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const shareUrl = `${SHARE_BASE_URL}${id}`;
 
+      lastShareUrl = shareUrl;
+copyLinkBtn.style.display = "block";
+
       const message = [
         noteInput.value || "I saw this and thought of you.",
         "",
@@ -144,5 +148,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error(error);
       status.textContent = "Error. Check console.";
     }
+
+
+
   });
+
+
+copyLinkBtn.addEventListener("click", async () => {
+  if (!lastShareUrl) return;
+
+  await navigator.clipboard.writeText(lastShareUrl);
+
+  status.textContent = "Short link copied.";
+});
+
+
 });
