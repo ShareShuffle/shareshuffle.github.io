@@ -335,8 +335,7 @@ import {
   getDoc,
   updateDoc,
   increment
-}
-from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
@@ -421,7 +420,29 @@ from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       const amazonLink = document.getElementById("amazon");
 
       if (data.url) {
-amazonLink.href = makeAmazonAffiliateUrl(data.url);
+if (data.url) {
+  const affiliateUrl = makeAmazonAffiliateUrl(data.url);
+
+  amazonLink.href = affiliateUrl;
+
+  amazonLink.addEventListener("click", async (event) => {
+    event.preventDefault();
+
+    try {
+      await updateDoc(
+        doc(db, "shares", id),
+        {
+          amazonClicks: increment(1)
+        }
+      );
+    } catch (error) {
+      console.error("Could not track Amazon click:", error);
+    }
+
+    window.open(affiliateUrl, "_blank", "noopener,noreferrer");
+  });
+} else {
+  amazonLink.classList.add("disabled");
 
 amazonLink.addEventListener("click", async () => {
 
