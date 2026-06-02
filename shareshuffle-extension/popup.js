@@ -5,6 +5,7 @@ const FIRESTORE_COLLECTION = "shares";
 const SHELVES_COLLECTION = "shelves";
 const SHARE_BASE_URL = "https://shfl.me/";
 const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
+const SHELF_STORAGE_KEY = "shareShuffleShelves";
 
 const FIRESTORE_URL =
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${FIRESTORE_COLLECTION}`;
@@ -54,8 +55,6 @@ async function getCurrentTab() {
     lastFocusedWindow: true
   });
 
-  console.log("tabs query result:", tabs);
-
   return tabs[0];
 }
 
@@ -63,22 +62,64 @@ async function getProductImage(tabId) {
   const results = await chrome.scripting.executeScript({
     target: { tabId },
     func: () => {
-      const image =
+      return (
         document.querySelector("#landingImage")?.src ||
         document.querySelector("#imgBlkFront")?.src ||
         document.querySelector('meta[property="og:image"]')?.content ||
         document.querySelector('meta[name="twitter:image"]')?.content ||
-        "";
-
-      return image;
+        ""
+      );
     }
   });
 
   return results?.[0]?.result || "";
 }
 
+async function getSavedShelves() {
+  const result = await chrome.storage.local.get([SHELF_STORAGE_KEY]);
+  return result[SHELF_STORAGE_KEY] || [];
+}
+
+async function saveShelfName(name) {
+  const cleanName = (name || "").trim();
+  if (!cleanName) return;
+
+  const shelves = await getSavedShelves();
+
+  const updated = [
+    cleanName,
+    ...shelves.filter(s => s.toLowerCase() !== cleanName.toLowerCase())
+  ].slice(0, 12);
+
+  await chrome.storage.local.set({
+    [SHELF_STORAGE_KEY]: updated
+  });
+}
+
+async function renderShelfPills(shelfNameInput) {
+  const shelfPills = document.getElementById("shelfPills");
+  if (!shelfPills || !shelfNameInput) return;
+
+  const shelves = await getSavedShelves();
+
+  shelfPills.innerHTML = "";
+
+  shelves.forEach((shelf) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "shelf-pill";
+    btn.textContent = shelf;
+
+    btn.addEventListener("click", () => {
+      shelfNameInput.value = shelf;
+    });
+
+    shelfPills.appendChild(btn);
+  });
+}
+
 async function createShelfIfNeeded(shelfName) {
-  const cleanName = shelfName.trim();
+  const cleanName = (shelfName || "").trim();
 
   if (!cleanName) {
     return { shelfName: "", shelfSlug: "", shelfUrl: "" };
@@ -105,7 +146,7 @@ async function createShelfIfNeeded(shelfName) {
     body: JSON.stringify(body)
   });
 
-  // Firestore returns 409 if the shelf already exists. That is fine.
+  // 409 means shelf already exists, which is fine.
   if (!response.ok && response.status !== 409) {
     const errorText = await response.text();
     throw new Error(errorText);
@@ -160,7 +201,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const titleInput = document.getElementById("title");
   const urlInput = document.getElementById("url");
   const noteInput = document.getElementById("note");
-  const shelfNameInput = document.getElementById("shelfName");
+
+  // This accepts either id="shelfName" or id="shelf"
+  const shelfNameInput =
+    document.getElementById("shelfName") ||
+    document.getElementById("shelf");
+
   const copyBtn = document.getElementById("copyBtn");
   const copyLinkBtn = document.getElementById("copyLinkBtn");
   const emailBtn = document.getElementById("emailBtn");
@@ -179,6 +225,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   titleInput.value = tab?.title || "";
   urlInput.value = tab?.url || "";
 
+  await renderShelfPills(shelfNameInput);
+
   copyBtn.addEventListener("click", async () => {
     try {
       status.textContent = "Creating share link...";
@@ -186,7 +234,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const id = await createUniqueId();
       const image = await getProductImage(tab.id);
-      const shelf = await createShelfIfNeeded(shelfNameInput.value || "");
+      const shelf = await createShelfIfNeeded(shelfNameInput?.value || "");
+
+      await saveShelfName(shelfNameInput?.value || "");
+      await renderShelfPills(shelfNameInput);
 
       await createShareDocument(id, {
         title: titleInput.value,
@@ -198,6 +249,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       const shareUrl = `${SHARE_BASE_URL}${id}`;
+
       const message = buildMessage({
         note: noteInput.value,
         shareUrl
@@ -227,6 +279,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   copyLinkBtn.addEventListener("click", async () => {
     if (!lastShareUrl) return;
+
     await navigator.clipboard.writeText(lastShareUrl);
     status.textContent = "Short link copied.";
   });

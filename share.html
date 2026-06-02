@@ -260,6 +260,13 @@
                   Personal recommendation
                 </span>
               </div>
+<div id="shelfLinkWrap" class="mb-3" style="display:none;">
+  <a id="shelfLink" class="badge-ss text-decoration-none" href="#">
+    <i class="fa-solid fa-layer-group"></i>
+    <span id="shelfNameText"></span>
+  </a>
+</div>
+
 
               <h1 id="title" class="title mb-3">
                 Loading...
@@ -393,6 +400,17 @@
       document.title = `${data.title || "Shared find"} — ShareShuffle`;
       document.getElementById("title").innerText = data.title || "Shared find";
       document.getElementById("note").innerText = data.note || "I saw this and thought of you.";
+
+      const shelfLinkWrap = document.getElementById("shelfLinkWrap");
+const shelfLink = document.getElementById("shelfLink");
+const shelfNameText = document.getElementById("shelfNameText");
+
+if (data.shelfName && data.shelfSlug) {
+  shelfNameText.innerText = `More from ${data.shelfName}`;
+  shelfLink.href =
+    `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(data.shelfSlug)}`;
+  shelfLinkWrap.style.display = "block";
+}
 
       const productImage = document.getElementById("productImage");
       const fallbackIcon = document.getElementById("fallbackIcon");
