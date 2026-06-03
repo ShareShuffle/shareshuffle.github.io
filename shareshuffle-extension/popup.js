@@ -219,7 +219,7 @@ function buildMessage({ title, note, shareUrl }) {
       .substring(0, 140);
 
   return [
-    "Shared with Shuffle: ",
+    "🎁 Shared via Shuffle: ",
     "",
     cleanNote,
     cleanProductTitle,
