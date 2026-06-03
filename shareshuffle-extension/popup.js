@@ -187,14 +187,21 @@ async function createShareDocument(id, data) {
   return response.json();
 }
 
-function buildMessage({ note, shareUrl }) {
+function buildMessage({ title, note, shareUrl }) {
+
+  const cleanTitle =
+    (title || "").trim().substring(0, 80);
+
+  const cleanNote =
+    (note || "").trim().substring(0, 140);
+
   return [
-    note || "I saw this and thought of you.",
-    "",
-    shareUrl,
-    "",
-    "Shared with ShareShuffle"
-  ].join("\n");
+    cleanTitle,
+    cleanNote,
+    shareUrl.replace("https://", "")
+  ]
+  .filter(Boolean)
+  .join("\n");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -250,10 +257,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const shareUrl = `${SHARE_BASE_URL}${id}`;
 
-      const message = buildMessage({
-        note: noteInput.value,
-        shareUrl
-      });
+const message = buildMessage({
+  title: titleInput.value,
+  note: noteInput.value,
+  shareUrl
+});
 
       lastShareUrl = shareUrl;
       lastMessage = message;

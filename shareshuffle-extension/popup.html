@@ -17,13 +17,18 @@
     </div>
 
     <label>Page title</label>
-    <input id="title" type="text">
+<input
+  id="title"
+  type="text"
+  maxlength="80"
+>
+
 
     <label>URL</label>
     <input id="url" type="text">
 
     <label>Your note</label>
-    <textarea id="note" placeholder="I saw this and thought of you..."></textarea>
+    <textarea id="note" maxlength="140" placeholder="I saw this and thought of you..."></textarea>
 
     <label>Save to shelf <span class="optional">optional</span></label>
     <input id="shelfName" type="text" placeholder="Bass Gear, Gift Ideas, Route 66...">
@@ -47,13 +52,12 @@
       </button>
 
       <button id="textBtn" class="action-btn" title="Text this">
-        <i class="fa-solid fa-comment-sms"></i>
-        <span>Text</span>
+<i class="fa-solid fa-message"></i>        <span>Messages</span>
       </button>
 
       <button id="voiceBtn" class="action-btn" title="Copy and open Google Voice">
         <i class="fa-solid fa-phone"></i>
-        <span>Voice</span>
+        <span>Google Voice</span>
       </button>
     </div>
 
