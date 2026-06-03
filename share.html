@@ -401,14 +401,13 @@
       document.getElementById("title").innerText = data.title || "Shared find";
       document.getElementById("note").innerText = data.note || "I saw this and thought of you.";
 
-      const shelfLinkWrap = document.getElementById("shelfLinkWrap");
+const shelfLinkWrap = document.getElementById("shelfLinkWrap");
 const shelfLink = document.getElementById("shelfLink");
 const shelfNameText = document.getElementById("shelfNameText");
 
 if (data.shelfName && data.shelfSlug) {
   shelfNameText.innerText = `More from ${data.shelfName}`;
-  shelfLink.href =
-    `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(data.shelfSlug)}`;
+  shelfLink.href = `https://shelfmix.com/${encodeURIComponent(data.shelfSlug)}`;
   shelfLinkWrap.style.display = "block";
 }
 
