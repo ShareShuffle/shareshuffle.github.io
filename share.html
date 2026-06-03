@@ -340,15 +340,14 @@
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getFirestore,
       doc,
       getDoc,
       updateDoc,
       increment
-    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
@@ -361,7 +360,6 @@
     };
 
     const AMAZON_TAG = "shareshuffle-20";
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -369,15 +367,73 @@
     const id = params.get("id");
 
     function makeAmazonAffiliateUrl(originalUrl) {
-      const url = new URL(originalUrl);
-      url.searchParams.set("tag", AMAZON_TAG);
-      return url.toString();
+      try {
+        const url = new URL(originalUrl);
+        url.searchParams.set("tag", AMAZON_TAG);
+        return url.toString();
+      } catch (error) {
+        console.error("Bad product URL:", originalUrl, error);
+        return originalUrl;
+      }
     }
 
     function setLoadingError(message) {
       document.getElementById("title").innerText = message;
       document.getElementById("note").innerText = "This share link could not be loaded.";
-      document.getElementById("amazon").classList.add("disabled");
+      const amazonLink = document.getElementById("amazon");
+      amazonLink.removeAttribute("href");
+      amazonLink.classList.add("disabled");
+    }
+
+    function wireCopyButton() {
+      const copyBtn = document.getElementById("copyPage");
+
+      copyBtn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(window.location.href);
+        copyBtn.innerHTML = '<i class="fa-solid fa-check me-2"></i> Copied!';
+
+        setTimeout(() => {
+          copyBtn.innerHTML = '<i class="fa-solid fa-link me-2"></i> Copy this ShareShuffle link';
+        }, 1800);
+      });
+    }
+
+    function wireAmazonButton({ data, shareRef }) {
+      const amazonLink = document.getElementById("amazon");
+
+      if (!data.url) {
+        amazonLink.removeAttribute("href");
+        amazonLink.classList.add("disabled");
+        return;
+      }
+
+      const affiliateUrl = makeAmazonAffiliateUrl(data.url);
+
+      amazonLink.href = affiliateUrl;
+      amazonLink.target = "_blank";
+      amazonLink.rel = "noopener";
+
+      let tracked = false;
+
+      function trackAmazonClick() {
+        if (tracked) return;
+        tracked = true;
+
+        updateDoc(shareRef, {
+          amazonClicks: increment(1)
+        }).catch((error) => {
+          console.error("Amazon click tracking failed:", error);
+        });
+      }
+
+      // Track slightly before the browser follows the link.
+      // Do not preventDefault, await, or use window.open.
+      amazonLink.addEventListener("pointerdown", trackAmazonClick);
+      amazonLink.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          trackAmazonClick();
+        }
+      });
     }
 
     async function loadShare() {
@@ -396,27 +452,25 @@
 
       const data = snap.data();
 
-      try {
-        await updateDoc(shareRef, {
-          views: increment(1)
-        });
-      } catch (error) {
+      updateDoc(shareRef, {
+        views: increment(1)
+      }).catch((error) => {
         console.error("View tracking failed:", error);
-      }
+      });
 
       document.title = `${data.title || "Shared find"} — ShareShuffle`;
       document.getElementById("title").innerText = data.title || "Shared find";
       document.getElementById("note").innerText = data.note || "I saw this and thought of you.";
 
-const shelfLinkWrap = document.getElementById("shelfLinkWrap");
-const shelfLink = document.getElementById("shelfLink");
-const shelfNameText = document.getElementById("shelfNameText");
+      const shelfLinkWrap = document.getElementById("shelfLinkWrap");
+      const shelfLink = document.getElementById("shelfLink");
+      const shelfNameText = document.getElementById("shelfNameText");
 
-if (data.shelfName && data.shelfSlug) {
-  shelfNameText.innerText = `More from ${data.shelfName}`;
-  shelfLink.href = `https://shelfmix.com/${encodeURIComponent(data.shelfSlug)}`;
-  shelfLinkWrap.style.display = "block";
-}
+      if (data.shelfName && data.shelfSlug) {
+        shelfNameText.innerText = `More from ${data.shelfName}`;
+        shelfLink.href = `https://shelfmix.com/${encodeURIComponent(data.shelfSlug)}`;
+        shelfLinkWrap.style.display = "block";
+      }
 
       const productImage = document.getElementById("productImage");
       const fallbackIcon = document.getElementById("fallbackIcon");
@@ -435,37 +489,14 @@ if (data.shelfName && data.shelfSlug) {
         productImage.src = data.image;
       }
 
-const amazonLink = document.getElementById("amazon");
+      wireAmazonButton({ data, shareRef });
+    }
 
-if (data.url) {
-  const affiliateUrl = makeAmazonAffiliateUrl(data.url);
-
-  amazonLink.href = affiliateUrl;
-  amazonLink.target = "_blank";
-  amazonLink.rel = "noopener";
-
-  amazonLink.addEventListener("click", () => {
-    updateDoc(shareRef, {
-      amazonClicks: increment(1)
-    }).catch((error) => {
-      console.error("Amazon click tracking failed:", error);
+    wireCopyButton();
+    loadShare().catch((error) => {
+      console.error(error);
+      setLoadingError("Error loading share");
     });
-  });
-} else {
-  amazonLink.removeAttribute("href");
-  amazonLink.classList.add("disabled");
-}
-
-    document.getElementById("copyPage").addEventListener("click", async () => {
-      await navigator.clipboard.writeText(window.location.href);
-      const btn = document.getElementById("copyPage");
-      btn.innerHTML = '<i class="fa-solid fa-check me-2"></i> Copied!';
-      setTimeout(() => {
-        btn.innerHTML = '<i class="fa-solid fa-link me-2"></i> Copy this ShareShuffle link';
-      }, 1800);
-    });
-
-    loadShare();
   </script>
 </body>
 </html>
