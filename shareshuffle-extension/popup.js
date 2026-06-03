@@ -187,17 +187,43 @@ async function createShareDocument(id, data) {
   return response.json();
 }
 
+
+
+function unlinkTitle(title = "") {
+  return title
+    .replace(/\.com/gi, "․com")
+    .replace(/\.net/gi, "․net")
+    .replace(/\.org/gi, "․org")
+    .replace(/\.io/gi, "․io")
+    .replace(/\.co/gi, "․co");
+}
+
+function cleanTitle(title = "") {
+  return unlinkTitle(title)
+    .replace(/^Amazon․com\s*\|\s*/i, "")
+    .replace(/^Amazon\.com\s*\|\s*/i, "")
+    .replace(/^eBay․com\s*\|\s*/i, "")
+    .replace(/^Walmart․com\s*\|\s*/i, "")
+    .trim();
+}
+
 function buildMessage({ title, note, shareUrl }) {
 
-  const cleanTitle =
-    (title || "").trim().substring(0, 80);
+  const cleanProductTitle =
+    cleanTitle(title)
+      .substring(0, 80);
 
   const cleanNote =
-    (note || "").trim().substring(0, 140);
+    (note || "")
+      .trim()
+      .substring(0, 140);
 
   return [
-    cleanTitle,
+    "Shared with Shuffle: ",
+    "",
     cleanNote,
+    cleanProductTitle,
+    "",
     shareUrl.replace("https://", "")
   ]
   .filter(Boolean)
