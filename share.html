@@ -435,29 +435,26 @@ if (data.shelfName && data.shelfSlug) {
         productImage.src = data.image;
       }
 
-      const amazonLink = document.getElementById("amazon");
+const amazonLink = document.getElementById("amazon");
 
-      if (data.url) {
-        const affiliateUrl = makeAmazonAffiliateUrl(data.url);
-        amazonLink.href = affiliateUrl;
+if (data.url) {
+  const affiliateUrl = makeAmazonAffiliateUrl(data.url);
 
-        amazonLink.addEventListener("click", async (event) => {
-          event.preventDefault();
+  amazonLink.href = affiliateUrl;
+  amazonLink.target = "_blank";
+  amazonLink.rel = "noopener";
 
-          try {
-            await updateDoc(shareRef, {
-              amazonClicks: increment(1)
-            });
-          } catch (error) {
-            console.error("Amazon click tracking failed:", error);
-          }
-
-          window.open(affiliateUrl, "_blank", "noopener,noreferrer");
-        });
-      } else {
-        amazonLink.classList.add("disabled");
-      }
-    }
+  amazonLink.addEventListener("click", () => {
+    updateDoc(shareRef, {
+      amazonClicks: increment(1)
+    }).catch((error) => {
+      console.error("Amazon click tracking failed:", error);
+    });
+  });
+} else {
+  amazonLink.removeAttribute("href");
+  amazonLink.classList.add("disabled");
+}
 
     document.getElementById("copyPage").addEventListener("click", async () => {
       await navigator.clipboard.writeText(window.location.href);

@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ShareShuffle Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
+<link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 24px;
+      background: #f6f7f9;
+      color: #111;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+
+    .number {
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #111827;
+      color: white;
+    }
+
+    img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    a {
+      color: #2563eb;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>ShareShuffle Admin</h1>
+  <div id="status">Loading...</div>
+
+  <div class="cards">
+    <div class="card">
+      <div>Total Shares</div>
+      <div class="number" id="totalShares">0</div>
+    </div>
+    <div class="card">
+      <div>Total Views</div>
+      <div class="number" id="totalViews">0</div>
+    </div>
+    <div class="card">
+      <div>Amazon Clicks</div>
+      <div class="number" id="totalClicks">0</div>
+    </div>
+    <div class="card">
+      <div>CTR</div>
+      <div class="number" id="ctr">0%</div>
+    </div>
+  </div>
+
+  <h2>Top Shares</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Title</th>
+        <th>Shelf</th>
+        <th>Views</th>
+        <th>Amazon Clicks</th>
+        <th>CTR</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy,
+      limit
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      projectId: "shareshuffle-c7f96"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const SHARE_BASE_URL = "https://shfl.me/";
+
+    function num(value) {
+      return Number(value || 0);
+    }
+
+    function pct(clicks, views) {
+      if (!views) return "0%";
+      return ((clicks / views) * 100).toFixed(1) + "%";
+    }
+
+    async function loadAdmin() {
+      const status = document.getElementById("status");
+      const rows = document.getElementById("rows");
+
+      const q = query(
+        collection(db, "shares"),
+        orderBy("created", "desc"),
+        limit(100)
+      );
+
+      const snapshot = await getDocs(q);
+
+      let totalShares = snapshot.size;
+      let totalViews = 0;
+      let totalClicks = 0;
+
+      const items = [];
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+
+        const views = num(data.views);
+        const amazonClicks = num(data.amazonClicks);
+
+        totalViews += views;
+        totalClicks += amazonClicks;
+
+        items.push({
+          id: doc.id,
+          ...data,
+          views,
+          amazonClicks
+        });
+      });
+
+      items.sort((a, b) => {
+        return b.views - a.views || b.amazonClicks - a.amazonClicks;
+      });
+
+      document.getElementById("totalShares").textContent = totalShares;
+      document.getElementById("totalViews").textContent = totalViews;
+      document.getElementById("totalClicks").textContent = totalClicks;
+      document.getElementById("ctr").textContent = pct(totalClicks, totalViews);
+
+      rows.innerHTML = "";
+
+      items.forEach((item) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${item.image ? `<img src="${item.image}" alt="">` : ""}</td>
+          <td>${item.title || ""}</td>
+          <td>${item.shelfName || ""}</td>
+          <td>${item.views}</td>
+          <td>${item.amazonClicks}</td>
+          <td>${pct(item.amazonClicks, item.views)}</td>
+          <td><a href="${SHARE_BASE_URL}${item.id}" target="_blank" rel="noopener">Open</a></td>
+        `;
+
+        rows.appendChild(tr);
+      });
+
+      status.textContent = `Showing ${items.length} recent shares.`;
+    }
+
+    loadAdmin().catch((error) => {
+      console.error(error);
+      document.getElementById("status").textContent = "Error loading admin.";
+    });
+  </script>
+</body>
+</html>
