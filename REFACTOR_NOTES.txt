@@ -1,0 +1,18 @@
+Irrelevant or move-to-archive candidates:
+- __MACOSX/
+- *.DS_Store
+- .git/ directories
+- shareshuffle-extension/2026-06-02-popup.html
+- shareshuffle-extension/2026-06-02-popup.js
+- shareshuffle-extension/2026-06-02-styles.css
+- shareshuffle-extension/README-ShareShuffle-patch.txt
+- shareshuffle-extension/untitled.txt
+- shareshuffle-extension/untitled-2.txt
+- shareshuffle-extension/i really wwant this
+- shareshuffle-extension/This agent explains why smart people can look at t
+- shareshuffle-shelves-popup-patch/
+- shareshuffle-shelves-popup-patch.zip
+- root favicon-*.ico.png duplicates if /icons/* is canonical
+
+New/updated pages: index.html, investor.html, demo.html, control.html, admin.html, sitemap.html, icons.html, robots.txt, assets/brand.css, shareshuffle-extension/popup.js
+Admin preview password: shuffle

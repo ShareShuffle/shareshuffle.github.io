@@ -189,45 +189,51 @@ async function createShareDocument(id, data) {
 
 
 
-function unlinkTitle(title = "") {
-  return title
-    .replace(/\.com/gi, "․com")
-    .replace(/\.net/gi, "․net")
-    .replace(/\.org/gi, "․org")
-    .replace(/\.io/gi, "․io")
-    .replace(/\.co/gi, "․co");
+function neutralizeText(value = "") {
+  // Make URL/code-looking text visible but non-operational in SMS/email previews.
+  // Examples: Amazon.com -> Amazon․com, https:// -> https꞉⁄⁄
+  return (value || "")
+    .normalize("NFKC")
+    .replace(/\./g, "․")
+    .replace(/:/g, "꞉")
+    .replace(/\//g, "⁄")
+    .replace(/&/g, "＆")
+    .replace(/@/g, "＠")
+    .replace(/\?/g, "？")
+    .replace(/=/g, "＝")
+    .replace(/#/g, "＃")
+    .replace(/%/g, "％")
+    .replace(/\+/g, "＋")
+    .replace(/</g, "‹")
+    .replace(/>/g, "›")
+    .replace(/`/g, "＇")
+    .replace(/\[/g, "［")
+    .replace(/\]/g, "］")
+    .replace(/\{/g, "｛")
+    .replace(/\}/g, "｝");
 }
 
 function cleanTitle(title = "") {
-  return unlinkTitle(title)
+  return neutralizeText(title)
     .replace(/^Amazon․com\s*\|\s*/i, "")
-    .replace(/^Amazon\.com\s*\|\s*/i, "")
     .replace(/^eBay․com\s*\|\s*/i, "")
     .replace(/^Walmart․com\s*\|\s*/i, "")
     .trim();
 }
 
 function buildMessage({ title, note, shareUrl }) {
-
-  const cleanProductTitle =
-    cleanTitle(title)
-      .substring(0, 80);
-
-  const cleanNote =
-    (note || "")
-      .trim()
-      .substring(0, 140);
+  const cleanProductTitle = cleanTitle(title).substring(0, 90);
+  const cleanNote = neutralizeText(note).trim().substring(0, 140);
+  const cleanShareUrl = shareUrl.replace("https://", "").replace("http://", "");
 
   return [
-    "💡 Shared via Shuffle",
-    "",
-    cleanNote,
+    "🎯 Shared via Shuffle",
+    cleanNote ? `📝 ${cleanNote}` : "",
     cleanProductTitle,
-    "",
-    shareUrl.replace("https://", "")
+    `🖇️ ${cleanShareUrl}`
   ]
-  .filter(Boolean)
-  .join("\n");
+    .filter(Boolean)
+    .join("\n");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -273,9 +279,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       await renderShelfPills(shelfNameInput);
 
       await createShareDocument(id, {
-        title: titleInput.value,
+        title: cleanTitle(titleInput.value),
         url: urlInput.value,
-        note: noteInput.value,
+        note: neutralizeText(noteInput.value),
         image,
         shelfName: shelf.shelfName,
         shelfSlug: shelf.shelfSlug

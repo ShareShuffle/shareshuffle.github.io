@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><meta name="robots" content="noindex,nofollow">
   <meta charset="utf-8">
   <title>ShareShuffle Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -91,9 +91,9 @@
       font-size:.86rem;
     }
   </style>
-</head>
+<link rel="stylesheet" href="/assets/brand.css"></head>
 
-<body>
+<body class="admin-bg"><script>(function(){const PASS="shuffle";if(sessionStorage.getItem("ssAdminOK")==="yes")return;document.documentElement.style.visibility="hidden";window.addEventListener("DOMContentLoaded",()=>{document.documentElement.style.visibility="visible";const lock=document.createElement("div");lock.className="lock-screen";lock.innerHTML='<div class="lock-card"><div class="ss-brand" style="margin-bottom:14px"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle Admin</span></div><h2>Admin preview</h2><p style="color:#667085">Light protection for static GitHub Pages. Use Firebase Auth before real launch.</p><input id="ssPass" type="password" placeholder="Password"><button id="ssUnlock">Unlock</button><p id="ssLockStatus" style="color:#b42318;font-weight:800"></p></div>';document.body.appendChild(lock);const tryUnlock=()=>{if(document.getElementById("ssPass").value===PASS){sessionStorage.setItem("ssAdminOK","yes");lock.remove();}else document.getElementById("ssLockStatus").textContent="Nope. Try the project password."};document.getElementById("ssUnlock").addEventListener("click",tryUnlock);document.getElementById("ssPass").addEventListener("keydown",e=>{if(e.key==="Enter")tryUnlock();});});})();</script>
   <div class="container py-4 py-lg-5">
 
     <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4 text-white">
