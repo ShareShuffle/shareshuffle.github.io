@@ -136,7 +136,7 @@ async function createShelfIfNeeded(shelfName) {
     fields: {
       name: { stringValue: cleanName },
       slug: { stringValue: shelfSlug },
-      created: { timestampValue: new Date().toISOString() }
+      created: { timestampValue: serverTimestamp().toISOString() }
     }
   };
 
@@ -166,7 +166,7 @@ async function createShareDocument(id, data) {
       image: { stringValue: data.image || "" },
       shelfName: { stringValue: data.shelfName || "" },
       shelfSlug: { stringValue: data.shelfSlug || "" },
-      created: { timestampValue: new Date().toISOString() },
+      created: { timestampValue: serverTimestamp().toISOString() },
       views: { integerValue: 0 },
       amazonClicks: { integerValue: 0 },
       shares: { integerValue: 0 }
