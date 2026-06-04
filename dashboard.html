@@ -101,7 +101,7 @@
         <div class="brand-logo">S</div>
         <div>
           <h1 class="fw-bold mb-0">ShareShuffle Dashboard</h1>
-          <div class="text-white-50">Views, Amazon clicks, CTR, and share performance.</div>
+          <div class="text-white-50">Views, affiliate clicks, CTR, and share performance.</div>
         </div>
       </div>
 
@@ -132,7 +132,7 @@
 
       <div class="col-6 col-lg-3">
         <div class="metric-card p-3">
-          <div class="small-muted">Amazon Clicks</div>
+          <div class="small-muted">Affiliate Clicks</div>
           <div id="totalClicks" class="metric-number">—</div>
         </div>
       </div>
@@ -160,7 +160,7 @@
               <th>CTR</th>
               <th>Created</th>
               <th>Share</th>
-              <th>Amazon</th>
+              <th>Store</th>
               <th></th>
             </tr>
           </thead>
@@ -178,9 +178,7 @@
       collection,
       getDocs,
       query,
-      orderBy,
-      doc,
-      deleteDoc
+      orderBy
     } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -226,16 +224,7 @@ const SHARE_BASE_URL =
       return views > 0 ? `${((clicks / views) * 100).toFixed(1)}%` : "0%";
     }
 
-    async function deleteShare(id, title) {
-      const ok = confirm(`Delete this share?\n\n${title || id}`);
-
-      if (!ok) return;
-
-      await deleteDoc(doc(db, "shares", id));
-      await loadDashboard();
-    }
-
-    window.deleteShare = deleteShare;
+    // Deletes are disabled by Firestore rules during public preview.
 
     async function loadDashboard() {
       const status = document.getElementById("status");
@@ -305,12 +294,7 @@ const SHARE_BASE_URL =
             </td>
 
             <td class="text-end">
-              <button
-                class="btn btn-sm btn-outline-danger rounded-pill"
-                onclick="deleteShare('${escapeHtml(id)}', '${escapeHtml(title)}')"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
+              <span class="small-muted">Locked</span>
             </td>
           `;
 

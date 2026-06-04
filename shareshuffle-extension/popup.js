@@ -7,8 +7,42 @@ const SHARE_BASE_URL = "https://shfl.me/";
 const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
 const SHELF_STORAGE_KEY = "shareShuffleShelves";
 
-function firestoreTimestamp() {
-  return new Date().toISOString();
+const FIRESTORE_DOCUMENTS_ROOT =
+  `projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+
+const FIRESTORE_COMMIT_URL =
+  `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:commit`;
+
+async function commitCreateDocument(collectionName, documentId, fields, serverTimestampFields = []) {
+  const write = {
+    update: {
+      name: `${FIRESTORE_DOCUMENTS_ROOT}/${collectionName}/${documentId}`,
+      fields
+    },
+    currentDocument: { exists: false }
+  };
+
+  if (serverTimestampFields.length) {
+    write.updateTransforms = serverTimestampFields.map((fieldPath) => ({
+      fieldPath,
+      setToServerValue: "REQUEST_TIME"
+    }));
+  }
+
+  const response = await fetch(FIRESTORE_COMMIT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ writes: [write] })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    const error = new Error(errorText);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
 }
 
 
@@ -206,61 +240,54 @@ async function createShelfIfNeeded(shelfName) {
     return { shelfName: "", shelfSlug: "", shelfUrl: "" };
   }
 
-  const body = {
-    fields: {
-      name: { stringValue: cleanName },
-      slug: { stringValue: shelfSlug },
-      created: { timestampValue: firestoreTimestamp() }
+  // If the shelf already exists, read succeeds and we can continue.
+  // A 404 here is normal for a brand-new shelf.
+  try {
+    const existing = await fetch(`${SHELVES_URL}/${encodeURIComponent(shelfSlug)}`);
+    if (existing.ok) {
+      return { shelfName: cleanName, shelfSlug, shelfUrl };
     }
+  } catch (error) {
+    console.warn("Shelf existence check failed; attempting create anyway", error);
+  }
+
+  const fields = {
+    name: { stringValue: cleanName },
+    slug: { stringValue: shelfSlug },
+    description: { stringValue: "" },
+    image: { stringValue: "" },
+    coverImage: { stringValue: "" },
+    ownerUuid: { stringValue: "local-extension-user" }
   };
 
-  const response = await fetch(`${SHELVES_URL}?documentId=${encodeURIComponent(shelfSlug)}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-
-  // 409 means shelf already exists, which is fine.
-  if (!response.ok && response.status !== 409) {
-    const errorText = await response.text();
-    throw new Error(errorText);
+  try {
+    await commitCreateDocument(SHELVES_COLLECTION, shelfSlug, fields, ["created"]);
+  } catch (error) {
+    // If the shelf already exists or shelf creation is temporarily blocked,
+    // still allow the share to be created with shelfName/shelfSlug.
+    console.warn("Shelf could not be created. Continuing with share anyway.", error.message || error);
   }
 
   return { shelfName: cleanName, shelfSlug, shelfUrl };
 }
 
 async function createShareDocument(id, data) {
-  const url = `${FIRESTORE_URL}?documentId=${id}`;
-
-  const body = {
-    fields: {
-      title: { stringValue: data.title || "" },
-      url: { stringValue: data.url || "" },
-      originalUrl: { stringValue: data.originalUrl || data.url || "" },
-      merchant: { stringValue: data.merchant || "direct" },
-      note: { stringValue: data.note || "" },
-      image: { stringValue: data.image || "" },
-      shelfName: { stringValue: data.shelfName || "" },
-      shelfSlug: { stringValue: data.shelfSlug || "" },
-      created: { timestampValue: firestoreTimestamp() },
-      views: { integerValue: 0 },
-      amazonClicks: { integerValue: 0 },
-      shares: { integerValue: 0 }
-    }
+  const fields = {
+    title: { stringValue: data.title || "" },
+    url: { stringValue: data.url || "" },
+    originalUrl: { stringValue: data.originalUrl || data.url || "" },
+    merchant: { stringValue: data.merchant || "direct" },
+    affiliateApplied: { booleanValue: Boolean(data.affiliateApplied) },
+    note: { stringValue: data.note || "" },
+    image: { stringValue: data.image || "" },
+    shelfName: { stringValue: data.shelfName || "" },
+    shelfSlug: { stringValue: data.shelfSlug || "" },
+    views: { integerValue: 0 },
+    amazonClicks: { integerValue: 0 },
+    shares: { integerValue: 0 }
   };
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
-
-  return response.json();
+  return commitCreateDocument(FIRESTORE_COLLECTION, id, fields, ["created"]);
 }
 
 
@@ -363,6 +390,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         url: affiliateUrl,
         originalUrl,
         merchant,
+        affiliateApplied: affiliateUrl !== originalUrl,
         note: neutralizeText(noteInput.value),
         image,
         shelfName: shelf.shelfName,

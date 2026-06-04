@@ -54,11 +54,16 @@ body {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  color: white;
-  font-weight: 900;
-  font-size: 28px;
   background: linear-gradient(135deg, #13c8ff, #0d6efd, #ff2fb3, #ff7a18);
   box-shadow: 0 10px 25px rgba(13, 110, 253, .25);
+  overflow: hidden;
+}
+
+.logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
 }
 
 h1 {
