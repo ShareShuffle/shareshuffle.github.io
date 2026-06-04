@@ -1,2 +1,126 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ShareShuffle.com | Share product recommendations, shelves, and short links</title><meta name="description" content="ShareShuffle helps people save and send product recommendations with personal notes, clean short links, and curated ShelfMix collections."><meta name="robots" content="index,follow"><link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png"><link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png"><link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png"><link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png"><link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png"><link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png"><link rel="apple-touch-icon" href="/icons/icon512.png"><meta name="theme-color" content="#071426"><link rel="stylesheet" href="/assets/brand.css"><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet"></head>
-<body><nav class="ss-nav"><div class="ss-nav-inner"><a class="ss-brand" href="/"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle</span></a><div class="ss-links"><a href="/">Home</a><a href="/demo.html">Demo</a><a href="/investor.html">Investor</a><a href="https://shelfmix.com">ShelfMix</a></div></div></nav><section class="ss-hero"><div class="ss-container ss-grid"><div><span class="ss-eyebrow"><i class="fa-solid fa-shuffle"></i> Share what’s worth finding</span><h1 class="ss-title">A better way to share recommendations.</h1><p class="ss-subtitle">ShareShuffle turns messy product links into clean, personal recommendations. Build a shelf, add a note, and send a short link that feels like advice from a friend — not affiliate spam.</p><p><a class="ss-btn" href="/demo.html"><i class="fa-solid fa-play"></i> Try the demo</a> <a class="ss-btn secondary" href="/investor.html"><i class="fa-solid fa-chart-line"></i> Brand story</a></p><p class="pill"><i class="fa-solid fa-layer-group"></i> ShareShuffle + SHFL.ME + ShelfMix</p></div><div class="ss-demo-card"><div class="phone"><div class="pill"><i class="fa-solid fa-layer-group"></i> Rich’s Bass Gear</div><h3>Yamaha BB735A</h3><div class="product"><img src="/icons/icon128.png" alt=""><div><strong>Favorite bass gear for church, recording, and live performance.</strong><br><span style="color:#667085">shfl.me/bass</span></div></div><p style="margin-top:14px">🎯 Shared via Shuffle<br>“This is the bass I’d recommend first.”</p></div></div></div></section><section class="section"><div class="ss-container"><h2>Not a social network. Not a shopping site.</h2><p class="ss-subtitle">ShareShuffle is recommendation infrastructure for clean share links, curated shelves, Amazon affiliate-friendly product pages, and lightweight tools for musicians, gear nerds, church tech teams, creators, and people who send “you should check this out” links.</p><div class="cards"><div class="metric"><span class="pill"><i class="fa-solid fa-link"></i> SHFL.ME</span><h3>Short links</h3><p>Readable share links for individual products and future shelf slugs.</p></div><div class="metric"><span class="pill"><i class="fa-solid fa-layer-group"></i> ShelfMix</span><h3>Collections</h3><p>Recommendation pages like Worship Bass Essentials, Recording Gear Shelf, and Church Tech Shelf.</p></div><div class="metric"><span class="pill"><i class="fa-brands fa-chrome"></i> Extension</span><h3>Fast capture</h3><p>The Chrome extension grabs title, image, URL, note, shelf, and generates a shareable link.</p></div></div></div></section><section class="section" style="background:white"><div class="ss-container"><h2>Join the early list</h2><p class="ss-subtitle">Get updates when ShareShuffle opens for musicians, bass players, and early shelf builders.</p><form action="mailto:rchwms@gmail.com" method="post" enctype="text/plain" class="ss-card" style="display:flex;gap:10px;flex-wrap:wrap"><input name="email" type="email" placeholder="you@example.com" style="flex:1;min-width:240px;border:1px solid #d8e2f0;border-radius:999px;padding:14px"><button class="ss-btn" type="submit"><i class="fa-solid fa-envelope"></i> Email me</button></form></div></section><footer class="ss-footer"><div class="ss-container">ShareShuffle.com · SHFL.ME · ShelfMix.com · Product recommendations with context.</div></footer></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ShareShuffle.com | Share product recommendations, shelves, and short links</title><meta name="description" content="ShareShuffle helps people save and send product recommendations with personal notes, clean short links, and curated ShelfMix collections."><meta name="robots" content="index,follow"><link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png"><link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png"><link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png"><link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png"><link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png"><link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png"><link rel="apple-touch-icon" href="/icons/icon512.png"><meta name="theme-color" content="#071426"><link rel="stylesheet" href="/assets/brand.css"><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+
+// Import the functions you need from the SDKs you need
+
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
+  authDomain: "shareshuffle-c7f96.firebaseapp.com",
+  projectId: "shareshuffle-c7f96",
+  storageBucket: "shareshuffle-c7f96.firebasestorage.app",
+  messagingSenderId: "507028011652",
+  appId: "1:507028011652:web:97c161c63b7940af0f60d1",
+  measurementId: "G-C8W9TBP705"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  function cleanText(value) {
+    return String(value || "")
+      .trim()
+      .replace(/[<>]/g, "")
+      .slice(0, 500);
+  }
+
+  async function handleWaitlistSubmit(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const button = form.querySelector("button[type='submit']");
+    const status = form.querySelector(".waitlist-status");
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    const data = {
+      email: cleanText(form.email.value).toLowerCase(),
+      firstName: cleanText(form.firstName?.value),
+      source: form.dataset.source || "unknown",
+      interestType: cleanText(form.interestType?.value),
+      favoriteRecommendation: cleanText(form.favoriteRecommendation?.value),
+      createdAt: serverTimestamp(),
+      pageUrl: window.location.href
+    };
+
+    if (!data.email || !data.email.includes("@")) {
+      status.textContent = "Please enter a valid email address.";
+      button.disabled = false;
+      button.textContent = "Join the List";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "waitlist"), data);
+      form.reset();
+      status.textContent = "You're on the list. We’ll only email when there’s something worth sharing.";
+      button.textContent = "Joined!";
+    } catch (error) {
+      console.error(error);
+      status.textContent = "Something went wrong. Please try again.";
+      button.disabled = false;
+      button.textContent = "Join the List";
+    }
+  }
+
+  document.querySelectorAll(".ss-waitlist-form").forEach((form) => {
+    form.addEventListener("submit", handleWaitlistSubmit);
+  });
+</script>
+
+</head>
+<body><nav class="ss-nav"><div class="ss-nav-inner"><a class="ss-brand" href="/"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle</span></a><div class="ss-links"><a href="/">Home</a><a href="/demo.html">Demo</a><a href="/investor.html">Investor</a><a href="https://shelfmix.com">ShelfMix</a></div></div></nav><section class="ss-hero"><div class="ss-container ss-grid"><div><span class="ss-eyebrow"><i class="fa-solid fa-shuffle"></i> Share what’s worth finding</span><h1 class="ss-title">A better way to share recommendations.</h1><p class="ss-subtitle">ShareShuffle turns messy product links into clean, personal recommendations. Build a shelf, add a note, and send a short link that feels like advice from a friend — not affiliate spam.</p><p><a class="ss-btn" href="/demo.html"><i class="fa-solid fa-play"></i> Try the demo</a> <a class="ss-btn secondary" href="/investor.html"><i class="fa-solid fa-chart-line"></i> Brand story</a></p><p class="pill"><i class="fa-solid fa-layer-group"></i> ShareShuffle + SHFL.ME + ShelfMix</p></div><div class="ss-demo-card"><div class="phone"><div class="pill"><i class="fa-solid fa-layer-group"></i> Rich’s Bass Gear</div><h3>Yamaha BB735A</h3><div class="product"><img src="/icons/icon128.png" alt=""><div><strong>Favorite bass gear for church, recording, and live performance.</strong><br><span style="color:#667085">shfl.me/bass</span></div></div><p style="margin-top:14px">🎯 Shared via Shuffle<br>“This is the bass I’d recommend first.”</p></div></div></div></section><section class="section"><div class="ss-container"><h2>Not a social network. Not a shopping site.</h2><p class="ss-subtitle">ShareShuffle is recommendation infrastructure for clean share links, curated shelves, Amazon affiliate-friendly product pages, and lightweight tools for musicians, gear nerds, church tech teams, creators, and people who send “you should check this out” links.</p><div class="cards"><div class="metric"><span class="pill"><i class="fa-solid fa-link"></i> SHFL.ME</span><h3>Short links</h3><p>Readable share links for individual products and future shelf slugs.</p></div><div class="metric"><span class="pill"><i class="fa-solid fa-layer-group"></i> ShelfMix</span><h3>Collections</h3><p>Recommendation pages like Worship Bass Essentials, Recording Gear Shelf, and Church Tech Shelf.</p></div><div class="metric"><span class="pill"><i class="fa-brands fa-chrome"></i> Extension</span><h3>Fast capture</h3><p>The Chrome extension grabs title, image, URL, note, shelf, and generates a shareable link.</p></div></div></div></section><section class="section" style="background:white"><div class="ss-container"><h2>Join the early list</h2><p class="ss-subtitle">Get updates when ShareShuffle opens for musicians, bass players, and early shelf builders.</p><form action="mailto:rchwms@gmail.com" method="post" enctype="text/plain" class="ss-card" style="display:flex;gap:10px;flex-wrap:wrap"><input name="email" type="email" placeholder="you@example.com" style="flex:1;min-width:240px;border:1px solid #d8e2f0;border-radius:999px;padding:14px"><button class="ss-btn" type="submit"><i class="fa-solid fa-envelope"></i> Email me</button></form></div></section><section class="ss-waitlist-card">
+  <h2>Stop sharing products. Share your shelf.</h2>
+  <p>
+    Join the ShareShuffle early list and help shape a better way to share real recommendations.
+  </p>
+
+  <form class="ss-waitlist-form" data-source="homepage">
+    <input name="firstName" type="text" placeholder="First name" />
+
+    <input name="email" type="email" placeholder="Email address" required />
+
+    <select name="interestType">
+      <option value="">What kind of shelf would you build?</option>
+      <option value="bass-gear">Bass gear that actually sounds good</option>
+      <option value="worship-tech">Church tech / worship team essentials</option>
+      <option value="recording-setup">Home recording gear that doesn’t bankrupt me</option>
+      <option value="dad-approved">Stuff I keep recommending to other dads</option>
+      <option value="teacher-classroom">Teacher/classroom favorites</option>
+      <option value="gifts">Gift ideas for impossible people</option>
+      <option value="travel">Road trip / travel gear</option>
+      <option value="kitchen">Kitchen things I swear by</option>
+      <option value="books-media">Books, music, movies, and rabbit holes</option>
+      <option value="pet-stuff">Pet stuff my animal actually uses</option>
+      <option value="weirdly-specific">A weirdly specific shelf only I understand</option>
+      <option value="other">Something else</option>
+    </select>
+
+    <input
+      name="favoriteRecommendation"
+      type="text"
+      placeholder="What’s one thing you recommend all the time?"
+    />
+
+    <button type="submit">Join the List</button>
+
+    <p class="waitlist-status" aria-live="polite"></p>
+  </form>
+</section><footer class="ss-footer"><div class="ss-container">ShareShuffle.com · SHFL.ME · ShelfMix.com · Product recommendations with context.</div></footer></body></html>

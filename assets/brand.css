@@ -1,2 +1,72 @@
 
 :root{--ss-orange:#ff7a18;--ss-gold:#ffc145;--ss-blue:#0d6efd;--ss-cyan:#13c8ff;--ss-navy:#071426;--ss-ink:#102033;--ss-muted:#667085;--ss-cloud:#f5f8ff;--ss-grad:linear-gradient(135deg,#ff7a18 0%,#ffc145 28%,#13c8ff 64%,#0d6efd 100%);--ss-grad-dark:radial-gradient(circle at 10% 10%,rgba(255,122,24,.35),transparent 32%),radial-gradient(circle at 90% 20%,rgba(19,200,255,.32),transparent 28%),linear-gradient(135deg,#071426 0%,#102033 100%);--ss-shadow:0 24px 70px rgba(7,20,38,.16);--ss-radius:28px}*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ss-ink);background:var(--ss-cloud)}a{color:#0d6efd}.ss-nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(16px);background:rgba(255,255,255,.88);border-bottom:1px solid rgba(13,110,253,.10)}.ss-nav-inner{max-width:1120px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:18px}.ss-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ss-ink);font-weight:950}.ss-logo{width:42px;height:42px;border-radius:14px;background:var(--ss-grad);display:grid;place-items:center;color:white;box-shadow:0 10px 30px rgba(13,110,253,.25)}.ss-logo img{width:26px;height:26px}.ss-links{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.ss-links a{font-weight:800;text-decoration:none;color:var(--ss-ink);font-size:14px;padding:8px 10px;border-radius:999px}.ss-links a:hover{background:#eef6ff}.ss-btn{display:inline-flex;align-items:center;gap:.5rem;border:0;background:var(--ss-grad);color:white!important;text-decoration:none;font-weight:900;border-radius:999px;padding:.9rem 1.2rem;box-shadow:0 16px 34px rgba(13,110,253,.22);cursor:pointer}.ss-btn.secondary{background:white;color:var(--ss-ink)!important;border:1px solid rgba(13,110,253,.16);box-shadow:none}.ss-hero{padding:86px 20px 60px;background:radial-gradient(circle at 15% 20%,rgba(255,193,69,.36),transparent 24%),radial-gradient(circle at 80% 15%,rgba(19,200,255,.28),transparent 26%),linear-gradient(180deg,#fff 0%,#f5f8ff 100%)}.ss-container{max-width:1120px;margin:auto}.ss-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px;align-items:center}.ss-eyebrow{display:inline-flex;gap:.55rem;align-items:center;padding:.5rem .8rem;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(13,110,253,.12);box-shadow:0 10px 30px rgba(7,20,38,.06);font-weight:900;color:#1c4ed8;font-size:.88rem}.ss-title{font-size:clamp(2.5rem,7vw,5.8rem);line-height:.92;letter-spacing:-.06em;margin:22px 0 18px;font-weight:1000}.ss-subtitle{font-size:clamp(1.1rem,2vw,1.45rem);line-height:1.45;color:var(--ss-muted);max-width:760px}.ss-card{background:rgba(255,255,255,.92);border:1px solid rgba(13,110,253,.10);border-radius:var(--ss-radius);box-shadow:var(--ss-shadow);padding:24px}.ss-demo-card{background:var(--ss-grad-dark);color:white;border-radius:34px;padding:24px;box-shadow:0 30px 90px rgba(7,20,38,.30);position:relative;overflow:hidden}.phone{position:relative;z-index:1;background:white;color:var(--ss-ink);border-radius:26px;padding:18px;box-shadow:0 16px 50px rgba(0,0,0,.22)}.product{display:flex;gap:12px;align-items:center;background:#f5f8ff;border-radius:18px;padding:12px}.product img{width:64px;height:64px;border-radius:14px;object-fit:cover}.pill{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem .7rem;border-radius:999px;background:#eef6ff;color:#1c4ed8;font-weight:900;font-size:.82rem}.section{padding:64px 20px}.section h2{font-size:clamp(2rem,4vw,3.2rem);line-height:1;margin:0 0 14px;font-weight:1000;letter-spacing:-.04em}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.metric{background:white;border:1px solid rgba(13,110,253,.10);border-radius:22px;padding:18px;box-shadow:0 10px 30px rgba(7,20,38,.06);text-decoration:none;color:var(--ss-ink)}.metric .num{font-size:2rem;font-weight:1000}.ss-footer{padding:36px 20px;background:#071426;color:rgba(255,255,255,.76)}.truncate-one{display:block;max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.admin-bg{background:var(--ss-grad-dark);min-height:100vh}.admin-shell{max-width:1180px;margin:auto;padding:28px 18px}.admin-panel{background:rgba(255,255,255,.96);border-radius:28px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.26)}.table-wrap{overflow:auto;border-radius:18px;border:1px solid #e5edf7}table{width:100%;border-collapse:collapse;background:white}th,td{padding:12px;border-bottom:1px solid #e5edf7;text-align:left;font-size:14px;vertical-align:middle}th{background:#071426;color:white}td img.icon-preview,td img.thumb{width:48px;height:48px;object-fit:cover;border-radius:12px}.lock-screen{position:fixed;inset:0;background:var(--ss-grad-dark);z-index:9999;display:grid;place-items:center;padding:20px}.lock-card{max-width:420px;width:100%;background:white;border-radius:28px;padding:24px;box-shadow:0 30px 90px rgba(0,0,0,.35)}.lock-card input{width:100%;border:1px solid #d8e2f0;border-radius:14px;padding:12px;font:inherit}.lock-card button{margin-top:12px;width:100%;border:0;border-radius:999px;padding:12px;background:var(--ss-grad);color:white;font-weight:900}@media(max-width:760px){.ss-grid{grid-template-columns:1fr}.ss-links{display:none}.ss-title{font-size:3.2rem}.truncate-one{max-width:260px}}
+
+
+  .ss-waitlist-card {
+    max-width: 720px;
+    margin: 48px auto;
+    padding: 32px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #151522, #24243a);
+    color: #fff;
+    box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  }
+
+  .ss-waitlist-card h2 {
+    margin: 0 0 10px;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1;
+  }
+
+  .ss-waitlist-card p {
+    color: rgba(255,255,255,.78);
+    font-size: 1.05rem;
+  }
+
+  .ss-waitlist-form {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .ss-waitlist-form input,
+  .ss-waitlist-form select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 16px;
+    padding: 15px 16px;
+    font-size: 1rem;
+    background: rgba(255,255,255,.09);
+    color: #fff;
+  }
+
+  .ss-waitlist-form input::placeholder {
+    color: rgba(255,255,255,.55);
+  }
+
+  .ss-waitlist-form select option {
+    color: #111;
+  }
+
+  .ss-waitlist-form button {
+    border: 0;
+    border-radius: 999px;
+    padding: 16px 22px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    background: #67e8f9;
+    color: #111827;
+  }
+
+  .ss-waitlist-form button:disabled {
+    opacity: .65;
+    cursor: wait;
+  }
+
+  .waitlist-status {
+    min-height: 24px;
+    margin: 4px 0 0;
+    font-size: .95rem;
+  }
