@@ -274,6 +274,13 @@
   </a>
 </div>
 
+<a
+  class="btn btn-outline-secondary share-link-btn"
+  href="${escapeHtml(shareUrl)}"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+
 
               <h1 id="title" class="title mb-3">
                 Loading...
@@ -497,6 +504,18 @@
       console.error(error);
       setLoadingError("Error loading share");
     });
+
+    if (share.shelfSlug) {
+  shelfBacklink.classList.remove("d-none");
+
+  shelfBacklink.innerHTML = `
+    <a href="/shelf.html?s=${encodeURIComponent(share.shelfSlug)}">
+      <i class="fa-solid fa-layer-group"></i>
+      From ${escapeHtml(share.shelfName || "this shelf")}
+      <span>View full shelf</span>
+    </a>
+  `;
+}
   </script>
 </body>
 </html>

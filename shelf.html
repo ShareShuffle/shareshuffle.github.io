@@ -42,17 +42,22 @@
       font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
 
-    .brand-logo {
-      width:46px;
-      height:46px;
-      border-radius:15px;
-      display:grid;
-      place-items:center;
-      color:white;
-      font-weight:950;
-      background:var(--ss-grad);
-      box-shadow:0 12px 30px rgba(13,110,253,.33);
-    }
+.brand-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ss-grad);
+  box-shadow: 0 12px 30px rgba(13, 110, 253, 0.33);
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
     .hero-card {
       border-radius:34px;
@@ -112,13 +117,93 @@
     .small-muted {
       color:var(--ss-muted);
     }
+
+    .shelf-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 14px;
+  padding: 8px 13px;
+
+  border-radius: 999px;
+  background: rgba(13, 110, 253, 0.08);
+  color: #0d6efd;
+
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.hero-card {
+  position: relative;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  right: -90px;
+  bottom: -120px;
+
+  width: 280px;
+  height: 280px;
+
+  border-radius: 999px;
+  background: rgba(19, 200, 255, 0.16);
+  filter: blur(2px);
+}
+
+.hero-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.product-card {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.24);
+}
+
+.product-title {
+  font-size: 1.1rem;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.share-link-btn {
+  border-radius: 999px;
+  font-weight: 850;
+}
+
+.shelf-count-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  background: #f5f8ff;
+  color: #102033;
+
+  font-weight: 850;
+}
   </style>
 </head>
 <body>
   <main class="container py-4 py-lg-5">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
-        <div class="brand-logo">S</div>
+        <div class="brand-logo">
+  <img
+    src="/icons/icon128.png"
+    alt="ShareShuffle"
+  />
+</div>
         <div>
           <div class="fw-bold fs-5 lh-1">ShareShuffle</div>
           <div class="small text-white-50">Share what’s worth finding</div>
@@ -133,17 +218,23 @@
     <section class="hero-card p-4 p-lg-5 mb-4">
       <div class="row align-items-end g-4">
         <div class="col-lg-8">
-          <div class="text-primary fw-bold mb-2">
-            <i class="fa-solid fa-layer-group me-1"></i>
-            Shared shelf
-          </div>
+          <div class="shelf-eyebrow">
+  <i class="fa-solid fa-layer-group"></i>
+  ShelfMix Collection
+</div>
           <h1 id="shelfTitle" class="shelf-title mb-3">Loading shelf...</h1>
           <p id="shelfDescription" class="lead text-secondary mb-0">
             A collection of recommendations shared with ShareShuffle.
           </p>
         </div>
         <div class="col-lg-4 text-lg-end">
-          <div id="status" class="text-secondary fw-bold">Loading...</div>
+          <div
+  id="status"
+  class="shelf-count-pill"
+>
+  <i class="fa-solid fa-box-open"></i>
+  Loading...
+</div>
         </div>
       </div>
     </section>
@@ -240,7 +331,10 @@
       });
 
       items.innerHTML = "";
-      status.textContent = `${docs.length} item${docs.length === 1 ? "" : "s"}`;
+      status.innerHTML = `
+  <i class="fa-solid fa-box-open"></i>
+  ${docs.length} item${docs.length === 1 ? "" : "s"}
+`;
 
       if (!docs.length) {
         items.innerHTML = `
@@ -270,15 +364,20 @@
               }
             </div>
             <div class="card-body p-4">
-              <h2 class="h5 fw-bold mb-2">${escapeHtml(item.title || "Shared find")}</h2>
+              <h2 class="product-title fw-bold mb-2">
+  ${escapeHtml(item.title || "Shared find")}
+</h2>
               <p class="small-muted mb-3">${escapeHtml(item.note || "I saw this and thought of you.")}</p>
               <div class="d-grid gap-2">
                 <a class="btn btn-ss" href="${escapeHtml(amazonUrl)}" target="_blank" rel="noopener noreferrer">
                   <i class="fa-brands fa-amazon me-1"></i> View on Amazon
                 </a>
-                <a class="btn btn-outline-secondary rounded-pill fw-bold" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener noreferrer">
-                  <i class="fa-solid fa-link me-1"></i> Open Share
-                </a>
+                <a
+  class="btn btn-outline-secondary share-link-btn"
+  href="${escapeHtml(shareUrl)}"
+  target="_blank"
+  rel="noopener noreferrer"
+>
               </div>
             </div>
           </article>

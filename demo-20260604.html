@@ -8,7 +8,7 @@
       content="width=device-width, initial-scale=1"
     />
 
-    <title>ShareShuffle Demo | From Product Link to Trusted Shelf</title>
+    <title>ShareShuffle Demo | How Sharing Becomes a Shelf</title>
 
     <meta
       name="description"
@@ -178,10 +178,6 @@
         color: white;
       }
 
-      .demo-card.dark .text-secondary {
-        color: rgba(255, 255, 255, 0.68) !important;
-      }
-
       .btn-ss {
         border: 0;
         color: white;
@@ -222,15 +218,11 @@
 
       .address {
         flex: 1;
-        min-width: 0;
         padding: 8px 12px;
         border-radius: 999px;
         background: white;
         color: #667085;
         font-size: 0.9rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .extension-button {
@@ -381,7 +373,6 @@
       }
 
       .shelf-mini-card {
-        height: 100%;
         border-radius: 22px;
         background: #f5f8ff;
         border: 1px solid rgba(13, 110, 253, 0.08);
@@ -404,92 +395,10 @@
         box-shadow: 0 16px 44px rgba(7, 20, 38, 0.08);
       }
 
-      .problem-tile {
-        height: 100%;
-        border: 0;
-        border-radius: 28px;
-        background: white;
-        box-shadow: 0 18px 60px rgba(7, 20, 38, 0.08);
-      }
-
-      .problem-arrow {
-        width: 46px;
-        height: 46px;
-        display: grid;
-        place-items: center;
-        border-radius: 999px;
-        background: var(--ss-grad);
-        color: white;
-        box-shadow: 0 14px 30px rgba(13, 110, 253, 0.2);
-      }
-
-      .try-panel {
-        border-radius: 34px;
-        background: var(--ss-grad-dark);
-        color: white;
-        box-shadow: 0 30px 90px rgba(7, 20, 38, 0.24);
-        overflow: hidden;
-      }
-
-      .try-form-card {
-        border-radius: 28px;
-        background: rgba(255, 255, 255, 0.96);
-        color: var(--ss-ink);
-        box-shadow: 0 20px 70px rgba(7, 20, 38, 0.18);
-      }
-
-      .try-output {
-        min-height: 220px;
-        white-space: pre-wrap;
-        border-radius: 22px;
-        background: #071426;
-        color: white;
-        padding: 18px;
-        font-size: 0.98rem;
-        line-height: 1.45;
-      }
-
-      .output-card {
-        height: 100%;
-        border: 0;
-        border-radius: 26px;
-        box-shadow: 0 18px 50px rgba(7, 20, 38, 0.1);
-      }
-
-      .output-pre {
-        white-space: pre-wrap;
-        margin: 0;
-        min-height: 190px;
-        padding: 18px;
-        border-radius: 20px;
-        background: #f8fafc;
-        color: var(--ss-ink);
-        font-size: 0.95rem;
-        line-height: 1.45;
-      }
-
       .footer-dark {
         padding: 36px 0;
         background: var(--ss-navy);
         color: rgba(255, 255, 255, 0.72);
-      }
-
-      @media (max-width: 575px) {
-        .demo-hero {
-          padding: 58px 0 42px;
-        }
-
-        .section-pad {
-          padding: 48px 0;
-        }
-
-        .hero-title {
-          font-size: clamp(3rem, 18vw, 4.5rem);
-        }
-
-        .product-page {
-          padding: 18px;
-        }
       }
     </style>
   </head>
@@ -586,27 +495,19 @@
 
         <div class="d-flex flex-wrap gap-2">
           <a
-            href="#problem"
-            class="btn btn-ss btn-lg px-4"
-          >
-            <i class="fa-solid fa-circle-question me-2"></i>
-            Why it exists
-          </a>
-
-          <a
             href="#walkthrough"
-            class="btn btn-light btn-lg rounded-pill fw-bold px-4"
+            class="btn btn-ss btn-lg px-4"
           >
             <i class="fa-solid fa-play me-2"></i>
             Walk through the flow
           </a>
 
           <a
-            href="#try-it"
-            class="btn btn-outline-light btn-lg rounded-pill fw-bold px-4"
+            href="/investor.html"
+            class="btn btn-light btn-lg rounded-pill fw-bold px-4"
           >
-            <i class="fa-solid fa-keyboard me-2"></i>
-            Try it yourself
+            <i class="fa-solid fa-chart-line me-2"></i>
+            Why it matters
           </a>
         </div>
       </div>
@@ -614,104 +515,8 @@
 
     <main>
       <section
-        id="problem"
-        class="section-pad"
-      >
-        <div class="container">
-          <div class="row align-items-center g-4 mb-4">
-            <div class="col-lg-7">
-              <div class="eyebrow">
-                <i class="fa-solid fa-bolt"></i>
-                The problem
-              </div>
-
-              <h2 class="display-heading fs-1 mb-3">
-                People already recommend products every day.
-              </h2>
-
-              <p class="lead text-secondary mb-0">
-                Text messages. Email. Church groups. Bands. Parents. Friends.
-                Those recommendations usually disappear. ShareShuffle turns
-                recommendations into reusable assets.
-              </p>
-            </div>
-
-            <div class="col-lg-5">
-              <div class="demo-card dark p-4 p-lg-5">
-                <h3 class="display-heading fs-2 mb-3">
-                  Recommendation infrastructure.
-                </h3>
-
-                <p class="text-secondary mb-0">
-                  Not just another link shortener. Not just another shopping
-                  list. A lightweight layer for context, sharing, discovery, and
-                  affiliate-friendly destinations.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="row g-4 align-items-stretch">
-            <div class="col-lg-4">
-              <div class="problem-tile p-4">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="problem-arrow">
-                    <i class="fa-solid fa-message"></i>
-                  </div>
-
-                  <h3 class="h4 fw-bold mb-0">
-                    Text message
-                  </h3>
-                </div>
-
-                <p class="text-secondary mb-0">
-                  A recommendation gets sent once, then buried in a conversation.
-                </p>
-              </div>
-            </div>
-
-            <div class="col-lg-4">
-              <div class="problem-tile p-4">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="problem-arrow">
-                    <i class="fa-solid fa-link"></i>
-                  </div>
-
-                  <h3 class="h4 fw-bold mb-0">
-                    ShareShuffle link
-                  </h3>
-                </div>
-
-                <p class="text-secondary mb-0">
-                  The product gets a clean page with a note, image, and short link.
-                </p>
-              </div>
-            </div>
-
-            <div class="col-lg-4">
-              <div class="problem-tile p-4">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="problem-arrow">
-                    <i class="fa-solid fa-layer-group"></i>
-                  </div>
-
-                  <h3 class="h4 fw-bold mb-0">
-                    ShelfMix collection
-                  </h3>
-                </div>
-
-                <p class="text-secondary mb-0">
-                  One good recommendation becomes part of a reusable shelf.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
         id="walkthrough"
-        class="section-pad pt-0"
+        class="section-pad"
       >
         <div class="container">
           <div class="row align-items-end g-4 mb-4">
@@ -834,24 +639,6 @@
                 5. ShelfMix
               </button>
             </li>
-
-            <li
-              class="nav-item"
-              role="presentation"
-            >
-              <button
-                class="nav-link"
-                id="try-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#try"
-                type="button"
-                role="tab"
-                aria-controls="try"
-                aria-selected="false"
-              >
-                6. Try It Yourself
-              </button>
-            </li>
           </ul>
 
           <div class="tab-content">
@@ -910,7 +697,6 @@
                             <i class="fa-solid fa-star text-warning"></i>
                             <i class="fa-solid fa-star text-warning"></i>
                             <i class="fa-solid fa-star-half-stroke text-warning"></i>
-
                             <span class="text-secondary">
                               4.6
                             </span>
@@ -1035,7 +821,6 @@
                       <div class="col-md-4">
                         <div class="p-3 rounded-4 bg-light">
                           <strong>Title</strong>
-
                           <p class="small text-secondary mb-0">
                             Human-readable
                           </p>
@@ -1045,7 +830,6 @@
                       <div class="col-md-4">
                         <div class="p-3 rounded-4 bg-light">
                           <strong>Note</strong>
-
                           <p class="small text-secondary mb-0">
                             Personal context
                           </p>
@@ -1055,7 +839,6 @@
                       <div class="col-md-4">
                         <div class="p-3 rounded-4 bg-light">
                           <strong>Shelf</strong>
-
                           <p class="small text-secondary mb-0">
                             Reusable collection
                           </p>
@@ -1273,7 +1056,7 @@
                       The shelf is the product.
                     </h3>
 
-                    <p class="fs-5 text-secondary">
+                    <p class="fs-5 text-white-50">
                       A single recommendation becomes a doorway into a curated
                       collection. That is where discovery, trust, and monetization
                       get stronger.
@@ -1290,7 +1073,7 @@
 
                 <div class="col-lg-7">
                   <div class="demo-card p-4">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
                       <div>
                         <span class="badge text-bg-info rounded-pill mb-2">
                           ShelfMix Collection
@@ -1314,11 +1097,9 @@
                       <div class="col-md-4">
                         <div class="shelf-mini-card p-3">
                           <i class="fa-solid fa-guitar fs-2 text-primary mb-3"></i>
-
                           <h4 class="h6 fw-bold">
                             Studio Bass Preamp DI
                           </h4>
-
                           <p class="small text-secondary mb-0">
                             Compact direct tone.
                           </p>
@@ -1328,11 +1109,9 @@
                       <div class="col-md-4">
                         <div class="shelf-mini-card p-3">
                           <i class="fa-solid fa-sliders fs-2 text-primary mb-3"></i>
-
                           <h4 class="h6 fw-bold">
                             Always-On Compressor
                           </h4>
-
                           <p class="small text-secondary mb-0">
                             Smooth worship bass.
                           </p>
@@ -1342,11 +1121,9 @@
                       <div class="col-md-4">
                         <div class="shelf-mini-card p-3">
                           <i class="fa-solid fa-headphones fs-2 text-primary mb-3"></i>
-
                           <h4 class="h6 fw-bold">
                             Wired IEM Essentials
                           </h4>
-
                           <p class="small text-secondary mb-0">
                             Simple stage setup.
                           </p>
@@ -1363,183 +1140,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <div
-              id="try"
-              class="tab-pane fade"
-              role="tabpanel"
-              aria-labelledby="try-tab"
-            >
-              <div class="try-panel p-4 p-lg-5">
-                <div class="row g-4 align-items-start">
-                  <div class="col-lg-5">
-                    <div class="eyebrow">
-                      <i class="fa-solid fa-keyboard"></i>
-                      Try it yourself
-                    </div>
-
-                    <h3 class="display-heading fs-1 mb-3">
-                      Turn a product into a share.
-                    </h3>
-
-                    <p class="fs-5 text-white-50 mb-0">
-                      This front-end demo shows the customer flow without needing
-                      the extension. Type a product, add a note, and see how
-                      ShareShuffle could format it for text, email, and social.
-                    </p>
-                  </div>
-
-                  <div class="col-lg-7">
-                    <div class="try-form-card p-4">
-                      <label
-                        class="form-label fw-bold"
-                        for="demoTitle"
-                      >
-                        Product title
-                      </label>
-
-                      <input
-                        id="demoTitle"
-                        class="form-control form-control-lg rounded-4 mb-3"
-                        value="Amazon.com | Yamaha BB735A 5-String Bass Guitar"
-                      />
-
-                      <label
-                        class="form-label fw-bold"
-                        for="demoNote"
-                      >
-                        Note
-                      </label>
-
-                      <textarea
-                        id="demoNote"
-                        class="form-control rounded-4 mb-3"
-                        rows="4"
-                      >This is the bass I’d recommend first.</textarea>
-
-                      <label
-                        class="form-label fw-bold"
-                        for="demoUrl"
-                      >
-                        Short link
-                      </label>
-
-                      <input
-                        id="demoUrl"
-                        class="form-control form-control-lg rounded-4 mb-3"
-                        value="https://shfl.me/bass"
-                      />
-
-                      <button
-                        id="makeDemo"
-                        class="btn btn-ss btn-lg px-4"
-                        type="button"
-                      >
-                        <i class="fa-solid fa-shuffle me-1"></i>
-                        Build message
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row g-4 mt-1">
-                <div class="col-lg-4">
-                  <div class="card output-card">
-                    <div class="card-body p-4">
-                      <div class="link-chip mb-3">
-                        <i class="fa-solid fa-message"></i>
-                        Text message
-                      </div>
-
-                      <pre
-                        id="textOutput"
-                        class="output-pre"
-                      ></pre>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-lg-4">
-                  <div class="card output-card">
-                    <div class="card-body p-4">
-                      <div class="link-chip mb-3">
-                        <i class="fa-solid fa-envelope"></i>
-                        Email
-                      </div>
-
-                      <pre
-                        id="emailOutput"
-                        class="output-pre"
-                      ></pre>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-lg-4">
-                  <div class="card output-card">
-                    <div class="card-body p-4">
-                      <div class="link-chip mb-3">
-                        <i class="fa-solid fa-bullhorn"></i>
-                        Social post
-                      </div>
-
-                      <pre
-                        id="socialOutput"
-                        class="output-pre"
-                      ></pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="alert alert-secondary rounded-4 mt-4 mb-0">
-                <strong>Safety detail:</strong>
-                titles and notes are neutralized so obvious URL/code characters
-                remain visible but are less likely to become operational links.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="try-it"
-        class="section-pad pt-0"
-      >
-        <div class="container">
-          <div class="demo-card p-4 p-lg-5">
-            <div class="row align-items-center g-4">
-              <div class="col-lg-7">
-                <div class="eyebrow">
-                  <i class="fa-solid fa-hand-pointer"></i>
-                  Customer-facing demo
-                </div>
-
-                <h2 class="display-heading fs-1 mb-3">
-                  Want the interactive part first?
-                </h2>
-
-                <p class="lead text-secondary mb-0">
-                  The full walkthrough tells the investor story. The Try It
-                  Yourself tab gives customers something to type, click, and
-                  understand quickly.
-                </p>
-              </div>
-
-              <div class="col-lg-5 text-lg-end">
-                <button
-                  class="btn btn-ss btn-lg px-4"
-                  type="button"
-                  data-bs-toggle="pill"
-                  data-bs-target="#try"
-                  aria-controls="try"
-                >
-                  <i class="fa-solid fa-keyboard me-2"></i>
-                  Open Try It Yourself
-                </button>
               </div>
             </div>
           </div>
@@ -1611,6 +1211,9 @@
           </div>
         </div>
       </section>
+
+
+      
     </main>
 
     <footer class="footer-dark">
@@ -1628,93 +1231,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      function neutralizeText(value = "") {
-        return value
-          .normalize("NFKC")
-          .replace(/\./g, "․")
-          .replace(/:/g, "꞉")
-          .replace(/\//g, "⁄")
-          .replace(/&/g, "＆")
-          .replace(/@/g, "＠")
-          .replace(/\?/g, "？")
-          .replace(/=/g, "＝")
-          .replace(/#/g, "＃")
-          .replace(/%/g, "％")
-          .replace(/\+/g, "＋")
-          .replace(/</g, "‹")
-          .replace(/>/g, "›")
-          .replace(/`/g, "＇")
-          .replace(/\[/g, "［")
-          .replace(/\]/g, "］")
-          .replace(/\{/g, "｛")
-          .replace(/\}/g, "｝");
-      }
-
-      function cleanTitle(value) {
-        return neutralizeText(value)
-          .replace(/^Amazon․com\s*\|\s*/i, "")
-          .trim();
-      }
-
-      function cleanDisplayLink(value) {
-        return String(value || "")
-          .trim()
-          .replace(/^https?:\/\//i, "");
-      }
-
-      function buildDemoMessages() {
-        const rawTitle = document.getElementById("demoTitle").value;
-        const rawNote = document.getElementById("demoNote").value;
-        const rawUrl = document.getElementById("demoUrl").value;
-
-        const title = cleanTitle(rawTitle).slice(0, 90);
-        const note = neutralizeText(rawNote).trim().slice(0, 160);
-        const link = cleanDisplayLink(rawUrl);
-
-        const textMessage = [
-          "🎯 Shared via ShareShuffle",
-          note ? `📝 ${note}` : "",
-          title,
-          `🖇️ ${link}`
-        ]
-          .filter(Boolean)
-          .join("\n\n");
-
-        const emailMessage = [
-          "Subject:",
-          `${title} recommendation`,
-          "",
-          "Body:",
-          note || "I thought this was worth sharing.",
-          "",
-          title,
-          link,
-          "",
-          "You can also view the full shelf for more recommendations."
-        ].join("\n");
-
-        const socialMessage = [
-          "My current recommendation:",
-          "",
-          title,
-          "",
-          note || "Worth checking out.",
-          "",
-          link
-        ].join("\n");
-
-        document.getElementById("textOutput").textContent = textMessage;
-        document.getElementById("emailOutput").textContent = emailMessage;
-        document.getElementById("socialOutput").textContent = socialMessage;
-      }
-
-      const makeDemoButton = document.getElementById("makeDemo");
-
-      if (makeDemoButton) {
-        makeDemoButton.addEventListener("click", buildDemoMessages);
-        buildDemoMessages();
-      }
-
       const tooltipTriggerList = document.querySelectorAll(
         '[data-bs-toggle="tooltip"]'
       );
