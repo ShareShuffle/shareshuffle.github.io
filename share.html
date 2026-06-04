@@ -366,22 +366,77 @@
       measurementId: "G-C8W9TBP705"
     };
 
-    const AMAZON_TAG = "shareshuffle-20";
+    const AFFILIATE_CONFIG = {
+      amazon: { tag: "shareshuffle-20" },
+      walmart: {
+        publisherId: "1936697",
+        campaignId: "565706",
+        creativeId: "9383",
+        sourceId: "imp_000011112222333344"
+      }
+    };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
 
-    function makeAmazonAffiliateUrl(originalUrl) {
+    function getAffiliateMerchant(originalUrl = "") {
+      try {
+        const hostname = new URL(originalUrl).hostname.replace(/^www\./, "").toLowerCase();
+
+        if (hostname === "amazon.com" || hostname.endsWith(".amazon.com")) return "amazon";
+        if (hostname === "walmart.com" || hostname.endsWith(".walmart.com")) return "walmart";
+        if (hostname.includes("goto.walmart.com")) return "walmart";
+
+        return "direct";
+      } catch {
+        return "direct";
+      }
+    }
+
+    function buildAmazonAffiliateUrl(originalUrl) {
       try {
         const url = new URL(originalUrl);
-        url.searchParams.set("tag", AMAZON_TAG);
+        url.searchParams.set("tag", AFFILIATE_CONFIG.amazon.tag);
         return url.toString();
       } catch (error) {
-        console.error("Bad product URL:", originalUrl, error);
+        console.error("Bad Amazon URL:", originalUrl, error);
         return originalUrl;
       }
+    }
+
+    function buildWalmartAffiliateUrl(originalUrl) {
+      try {
+        const destinationUrl = new URL(originalUrl);
+
+        if (destinationUrl.hostname.includes("goto.walmart.com")) {
+          return destinationUrl.toString();
+        }
+
+        const { publisherId, campaignId, creativeId, sourceId } = AFFILIATE_CONFIG.walmart;
+        const redirectUrl = new URL(`https://goto.walmart.com/c/${publisherId}/${campaignId}/${creativeId}`);
+        redirectUrl.searchParams.set("u", destinationUrl.toString());
+
+        if (sourceId) {
+          redirectUrl.searchParams.set("subId1", sourceId);
+        }
+
+        return redirectUrl.toString();
+      } catch (error) {
+        console.error("Bad Walmart URL:", originalUrl, error);
+        return originalUrl;
+      }
+    }
+
+    function buildAffiliateUrl(originalUrl = "") {
+      const merchant = getAffiliateMerchant(originalUrl);
+
+      if (merchant === "amazon") return buildAmazonAffiliateUrl(originalUrl);
+      if (merchant === "walmart") return buildWalmartAffiliateUrl(originalUrl);
+
+      return originalUrl;
     }
 
     function setLoadingError(message) {
@@ -405,7 +460,7 @@
       });
     }
 
-    function wireAmazonButton({ data, shareRef }) {
+    function wireAffiliateButton({ data, shareRef }) {
       const amazonLink = document.getElementById("amazon");
 
       if (!data.url) {
@@ -414,7 +469,7 @@
         return;
       }
 
-      const affiliateUrl = makeAmazonAffiliateUrl(data.url);
+      const affiliateUrl = buildAffiliateUrl(data.url);
 
       amazonLink.href = affiliateUrl;
       amazonLink.target = "_blank";
@@ -422,23 +477,23 @@
 
       let tracked = false;
 
-      function trackAmazonClick() {
+      function trackAffiliateClick() {
         if (tracked) return;
         tracked = true;
 
         updateDoc(shareRef, {
           amazonClicks: increment(1)
         }).catch((error) => {
-          console.error("Amazon click tracking failed:", error);
+          console.error("Affiliate click tracking failed:", error);
         });
       }
 
       // Track slightly before the browser follows the link.
       // Do not preventDefault, await, or use window.open.
-      amazonLink.addEventListener("pointerdown", trackAmazonClick);
+      amazonLink.addEventListener("pointerdown", trackAffiliateClick);
       amazonLink.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
-          trackAmazonClick();
+          trackAffiliateClick();
         }
       });
     }
@@ -496,7 +551,7 @@
         productImage.src = data.image;
       }
 
-      wireAmazonButton({ data, shareRef });
+      wireAffiliateButton({ data, shareRef });
     }
 
     wireCopyButton();

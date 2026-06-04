@@ -347,12 +347,7 @@ from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       measurementId: "G-C8W9TBP705"
     };
 
-    const AMAZON_TAG = "shareshuffle-20";await updateDoc(
-  doc(db, "shares", id),
-  {
-    views: increment(1)
-  }
-);
+    const AMAZON_TAG = "shareshuffle-20";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -360,10 +355,45 @@ from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
 
-    function makeAmazonAffiliateUrl(originalUrl) {
-      const url = new URL(originalUrl);
-      url.searchParams.set("tag", AMAZON_TAG);
-      return url.toString();
+    const AFFILIATE_CONFIG = {
+      amazon: { tag: "shareshuffle-20" },
+      walmart: { publisherId: "1936697", campaignId: "565706", creativeId: "9383", sourceId: "imp_000011112222333344" }
+    };
+
+    function getAffiliateMerchant(originalUrl = "") {
+      try {
+        const hostname = new URL(originalUrl).hostname.replace(/^www\./, "").toLowerCase();
+        if (hostname === "amazon.com" || hostname.endsWith(".amazon.com")) return "amazon";
+        if (hostname === "walmart.com" || hostname.endsWith(".walmart.com")) return "walmart";
+        if (hostname.includes("goto.walmart.com")) return "walmart";
+        return "direct";
+      } catch {
+        return "direct";
+      }
+    }
+
+    function buildAffiliateUrl(originalUrl = "") {
+      try {
+        const merchant = getAffiliateMerchant(originalUrl);
+        if (merchant === "amazon") {
+          const url = new URL(originalUrl);
+          url.searchParams.set("tag", AFFILIATE_CONFIG.amazon.tag);
+          return url.toString();
+        }
+        if (merchant === "walmart") {
+          const destinationUrl = new URL(originalUrl);
+          if (destinationUrl.hostname.includes("goto.walmart.com")) return destinationUrl.toString();
+          const { publisherId, campaignId, creativeId, sourceId } = AFFILIATE_CONFIG.walmart;
+          const redirectUrl = new URL(`https://goto.walmart.com/c/${publisherId}/${campaignId}/${creativeId}`);
+          redirectUrl.searchParams.set("u", destinationUrl.toString());
+          if (sourceId) redirectUrl.searchParams.set("subId1", sourceId);
+          return redirectUrl.toString();
+        }
+        return originalUrl;
+      } catch (error) {
+        console.error("Bad product URL:", originalUrl, error);
+        return originalUrl;
+      }
     }
 
     function setLoadingError(message) {
@@ -420,7 +450,7 @@ from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
       const amazonLink = document.getElementById("amazon");
 
       if (data.url) {
-amazonLink.href = makeAmazonAffiliateUrl(data.url);
+amazonLink.href = buildAffiliateUrl(data.url);
 
 amazonLink.addEventListener("click", async () => {
 

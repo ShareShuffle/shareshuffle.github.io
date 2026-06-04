@@ -7,6 +7,76 @@ const SHARE_BASE_URL = "https://shfl.me/";
 const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
 const SHELF_STORAGE_KEY = "shareShuffleShelves";
 
+
+const AFFILIATE_CONFIG = {
+  amazon: {
+    tag: "shareshuffle-20"
+  },
+  walmart: {
+    publisherId: "1936697",
+    campaignId: "565706",
+    creativeId: "9383",
+    sourceId: "imp_000011112222333344"
+  }
+};
+
+function getAffiliateMerchant(originalUrl = "") {
+  try {
+    const hostname = new URL(originalUrl).hostname.replace(/^www\./, "").toLowerCase();
+
+    if (hostname === "amazon.com" || hostname.endsWith(".amazon.com")) return "amazon";
+    if (hostname === "walmart.com" || hostname.endsWith(".walmart.com")) return "walmart";
+
+    return "direct";
+  } catch {
+    return "direct";
+  }
+}
+
+function buildAmazonAffiliateUrl(originalUrl) {
+  try {
+    const url = new URL(originalUrl);
+    url.searchParams.set("tag", AFFILIATE_CONFIG.amazon.tag);
+    return url.toString();
+  } catch (error) {
+    console.error("Bad Amazon URL:", originalUrl, error);
+    return originalUrl;
+  }
+}
+
+function buildWalmartAffiliateUrl(originalUrl) {
+  try {
+    const destinationUrl = new URL(originalUrl);
+
+    // Avoid wrapping an already-affiliated Walmart redirect.
+    if (destinationUrl.hostname.includes("goto.walmart.com")) {
+      return destinationUrl.toString();
+    }
+
+    const { publisherId, campaignId, creativeId, sourceId } = AFFILIATE_CONFIG.walmart;
+    const redirectUrl = new URL(`https://goto.walmart.com/c/${publisherId}/${campaignId}/${creativeId}`);
+    redirectUrl.searchParams.set("u", destinationUrl.toString());
+
+    if (sourceId) {
+      redirectUrl.searchParams.set("subId1", sourceId);
+    }
+
+    return redirectUrl.toString();
+  } catch (error) {
+    console.error("Bad Walmart URL:", originalUrl, error);
+    return originalUrl;
+  }
+}
+
+function buildAffiliateUrl(originalUrl = "") {
+  const merchant = getAffiliateMerchant(originalUrl);
+
+  if (merchant === "amazon") return buildAmazonAffiliateUrl(originalUrl);
+  if (merchant === "walmart") return buildWalmartAffiliateUrl(originalUrl);
+
+  return originalUrl;
+}
+
 const FIRESTORE_URL =
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${FIRESTORE_COLLECTION}`;
 
@@ -162,6 +232,8 @@ async function createShareDocument(id, data) {
     fields: {
       title: { stringValue: data.title || "" },
       url: { stringValue: data.url || "" },
+      originalUrl: { stringValue: data.originalUrl || data.url || "" },
+      merchant: { stringValue: data.merchant || "direct" },
       note: { stringValue: data.note || "" },
       image: { stringValue: data.image || "" },
       shelfName: { stringValue: data.shelfName || "" },
@@ -278,9 +350,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       await saveShelfName(shelfNameInput?.value || "");
       await renderShelfPills(shelfNameInput);
 
+      const originalUrl = urlInput.value;
+      const affiliateUrl = buildAffiliateUrl(originalUrl);
+      const merchant = getAffiliateMerchant(originalUrl);
+
       await createShareDocument(id, {
         title: cleanTitle(titleInput.value),
-        url: urlInput.value,
+        url: affiliateUrl,
+        originalUrl,
+        merchant,
         note: neutralizeText(noteInput.value),
         image,
         shelfName: shelf.shelfName,
