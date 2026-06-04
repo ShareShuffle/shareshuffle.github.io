@@ -1,6 +1,24 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ShareShuffle.com | Brand, business model, and investor overview</title><meta name="description" content="ShareShuffle brand and investor overview: recommendation shelves, SHFL.ME links, ShelfMix collections, affiliate revenue, and low-spam monetization."><meta name="robots" content="index,follow"><link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png"><link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png"><link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png"><link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png"><link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png"><link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png"><link rel="apple-touch-icon" href="/icons/icon512.png"><meta name="theme-color" content="#071426"><link rel="stylesheet" href="/assets/brand.css"><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShareShuffle.com | Brand, business model, and investor overview</title>
+    <meta name="description" content="ShareShuffle brand and investor overview: recommendation shelves, SHFL.ME links, ShelfMix collections, affiliate revenue, and low-spam monetization.">
+    <meta name="robots" content="index,follow">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+    <link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
+    <link rel="apple-touch-icon" href="/icons/icon512.png">
+    <meta name="theme-color" content="#071426">
+    <link rel="stylesheet" href="/assets/brand.css">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import {
     getFirestore,
     collection,
@@ -11,7 +29,6 @@
 
 // Import the functions you need from the SDKs you need
 
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -29,7 +46,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
   function cleanText(value) {
@@ -84,38 +100,94 @@ const analytics = getAnalytics(app);
   });
 </script>
 </head>
-<body><nav class="ss-nav"><div class="ss-nav-inner"><a class="ss-brand" href="/"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle</span></a><div class="ss-links"><a href="/">Home</a><a href="/demo.html">Demo</a><a href="/investor.html">Investor</a><a href="https://shelfmix.com">ShelfMix</a></div></div></nav><section class="ss-hero"><div class="ss-container"><span class="ss-eyebrow"><i class="fa-solid fa-chart-line"></i> Brand / investor notes</span><h1 class="ss-title">The shelf is the product.</h1><p class="ss-subtitle">ShareShuffle is a low-friction recommendation layer for commerce: people share trusted shelves and individual product links; ShareShuffle owns the destination, analytics, and affiliate monetization.</p></div></section><section class="section"><div class="ss-container"><div class="cards"><div class="metric"><span class="pill"><i class="fa-solid fa-bullseye"></i> Initial wedge</span><h3>Bass players and musicians</h3><p>Rich’s Bass Gear, Worship Bass Essentials, Church Tech Shelf, Recording Gear Shelf.</p></div><div class="metric"><span class="pill"><i class="fa-solid fa-coins"></i> Revenue</span><h3>Affiliate-first</h3><p>Platform owner receives affiliate revenue. No creator commissions at launch, reducing spam incentives.</p></div><div class="metric"><span class="pill"><i class="fa-solid fa-shield-halved"></i> Trust</span><h3>Visible, not weaponized</h3><p>Notes and titles are sanitized so gambling, spam, and executable-looking URLs are visible but not clickable.</p></div></div></div></section><section class="section" style="background:white"><div class="ss-container"><h2>Brand architecture</h2><div class="cards"><div class="metric"><h3><img src="/icons/icon32.png" alt="" style="width:28px;vertical-align:middle"> ShareShuffle</h3><p>Company/product brand and Chrome extension.</p></div><div class="metric"><h3><i class="fa-solid fa-link"></i> SHFL.ME</h3><p>Transport layer and short-link domain.</p></div><div class="metric"><h3><i class="fa-solid fa-layer-group"></i> ShelfMix</h3><p>Destination brand for public but unlisted recommendation shelves.</p></div></div></div></section><section class="ss-waitlist-card ss-investor-card">
-  <h2>Interested in ShareShuffle?</h2>
-  <p>
-    We’re building a recommendation platform around shelves, short links, affiliate commerce, and real human taste.
-  </p>
 
-  <form class="ss-waitlist-form" data-source="investor">
-    <input name="firstName" type="text" placeholder="First name" />
+<body>
+    <nav class="ss-nav">
+        <div class="ss-nav-inner"><a class="ss-brand" href="/"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle</span></a>
+            <div class="ss-links"><a href="/">Home</a><a href="/demo.html">Demo</a><a href="/investor.html">Investor</a><a href="https://shelfmix.com">ShelfMix</a></div>
+        </div>
+    </nav>
+    <section class="ss-hero">
+        <div class="ss-container"><span class="ss-eyebrow"><i class="fa-solid fa-chart-line"></i> Brand / investor notes</span>
+            <h1 class="ss-title">The shelf is the product.</h1>
+            <p class="ss-subtitle">ShareShuffle is a low-friction recommendation layer for commerce: people share trusted shelves and individual product links; ShareShuffle owns the destination, analytics, and affiliate monetization.</p>
+        </div>
+    </section>
+    <section class="section">
+        <div class="ss-container">
+            <div class="cards">
+                <div class="metric"><span class="pill"><i class="fa-solid fa-bullseye"></i> Initial wedge</span>
+                    <h3>Bass players and musicians</h3>
+                    <p>Rich’s Bass Gear, Worship Bass Essentials, Church Tech Shelf, Recording Gear Shelf.</p>
+                </div>
+                <div class="metric"><span class="pill"><i class="fa-solid fa-coins"></i> Revenue</span>
+                    <h3>Affiliate-first</h3>
+                    <p>Platform owner receives affiliate revenue. No creator commissions at launch, reducing spam incentives.</p>
+                </div>
+                <div class="metric"><span class="pill"><i class="fa-solid fa-shield-halved"></i> Trust</span>
+                    <h3>Visible, not weaponized</h3>
+                    <p>Notes and titles are sanitized so gambling, spam, and executable-looking URLs are visible but not clickable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section" style="background:white">
+        <div class="ss-container">
+            <h2>Brand architecture</h2>
+            <div class="cards">
+                <div class="metric">
+                    <h3><img src="/icons/icon32.png" alt="" style="width:28px;vertical-align:middle"> ShareShuffle</h3>
+                    <p>Company/product brand and Chrome extension.</p>
+                </div>
+                <div class="metric">
+                    <h3><i class="fa-solid fa-link"></i> SHFL.ME</h3>
+                    <p>Transport layer and short-link domain.</p>
+                </div>
+                <div class="metric">
+                    <h3><i class="fa-solid fa-layer-group"></i> ShelfMix</h3>
+                    <p>Destination brand for public but unlisted recommendation shelves.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="ss-waitlist-card ss-investor-card">
+        <h2>Interested in ShareShuffle?</h2>
+        <p>
+            ShareShuffle helps people organize and share trusted recommendations through shelves, short links, and curated collections. We're looking for advisors, partners, investors, and early believers.
+        </p>
+        <ul class="investor-highlights">
+            <li>Chrome extension already working</li>
+            <li>Firebase-backed platform live</li>
+            <li>Short-link domain secured: SHFL.ME</li>
+            <li>ShelfMix collection platform in development</li>
+        </ul>
+        <p class="pill">
+            <i class="fa-solid fa-envelope"></i>
+            We read every submission personally.
+        </p>
+        <form class="ss-waitlist-form" data-source="investor">
+            <input name="firstName" type="text" placeholder="First name" />
+            <input name="email" type="email" placeholder="Email address" required />
+            <select name="interestType">
+                <option value="">How would you like to be involved?</option>
+                <option value="angel">Potential investor</option>
+                <option value="advisor">Advisor or mentor</option>
+                <option value="partnership">Strategic partnership</option>
+                <option value="creator">Creator or curator</option>
+                <option value="affiliate">Affiliate commerce</option>
+                <option value="press">Media / podcast</option>
+                <option value="enterprise">Business use case</option>
+                <option value="church">Church / nonprofit use case</option>
+                <option value="curious">Just keeping an eye on things</option>
+            </select>
+            <input name="favoriteRecommendation" type="text" placeholder="Tell us a little about yourself" />
+            <button type="submit">Request Updates</button>
+            <p class="waitlist-status" aria-live="polite"></p>
+        </form>
+    </section>
+    <footer class="ss-footer">
+        <div class="ss-container">Insider note: no memberships, mobile app, AI recommendations, social feed, or revenue sharing until the core shelf flow proves itself.</div>
+    </footer>
+</body>
 
-    <input name="email" type="email" placeholder="Email address" required />
-
-    <select name="interestType">
-      <option value="">What are you interested in?</option>
-      <option value="angel">Angel investing</option>
-      <option value="advisor">Advising / mentorship</option>
-      <option value="affiliate">Affiliate commerce</option>
-      <option value="creator-economy">Creator economy</option>
-      <option value="retail-media">Retail media / recommendation platforms</option>
-      <option value="brand-partnerships">Brand partnerships</option>
-      <option value="church-nonprofit">Churches / nonprofits / community use</option>
-      <option value="press">Press / podcast / interview</option>
-      <option value="just-curious">Just curious</option>
-    </select>
-
-    <input
-      name="favoriteRecommendation"
-      type="text"
-      placeholder="Optional note, intro, or question"
-    />
-
-    <button type="submit">Request Updates</button>
-
-    <p class="waitlist-status" aria-live="polite"></p>
-  </form>
-</section><footer class="ss-footer"><div class="ss-container">Insider note: no memberships, mobile app, AI recommendations, social feed, or revenue sharing until the core shelf flow proves itself.</div></footer></body></html>
+</html>
