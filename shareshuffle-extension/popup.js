@@ -7,6 +7,10 @@ const SHARE_BASE_URL = "https://shfl.me/";
 const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
 const SHELF_STORAGE_KEY = "shareShuffleShelves";
 
+function firestoreTimestamp() {
+  return new Date().toISOString();
+}
+
 
 const AFFILIATE_CONFIG = {
   amazon: {
@@ -206,7 +210,7 @@ async function createShelfIfNeeded(shelfName) {
     fields: {
       name: { stringValue: cleanName },
       slug: { stringValue: shelfSlug },
-      created: { timestampValue: serverTimestamp().toISOString() }
+      created: { timestampValue: firestoreTimestamp() }
     }
   };
 
@@ -238,7 +242,7 @@ async function createShareDocument(id, data) {
       image: { stringValue: data.image || "" },
       shelfName: { stringValue: data.shelfName || "" },
       shelfSlug: { stringValue: data.shelfSlug || "" },
-      created: { timestampValue: serverTimestamp().toISOString() },
+      created: { timestampValue: firestoreTimestamp() },
       views: { integerValue: 0 },
       amazonClicks: { integerValue: 0 },
       shares: { integerValue: 0 }
