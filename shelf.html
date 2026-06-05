@@ -339,9 +339,30 @@
 
       title = title.replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay)\s*[:\-–]\s*/i, "");
       title = title.replace(/\s*[:|]\s*(Amazon|Walmart|Target|Best Buy|eBay)(?:\.com)?\s*$/i, "");
-      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury)\s*$/i, "");
+      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury|Sports\s*&\s*Outdoors|Tools\s*&\s*Home Improvement|Office Products|Beauty\s*&\s*Personal Care|Health\s*&\s*Household|Toys\s*&\s*Games|Patio,\s*Lawn\s*&\s*Garden|Automotive)\s*$/i, "");
 
       return title || "Shared find";
+    }
+
+    function smartTruncate(value = "", maxLength = 96) {
+      const text = String(value || "").replace(/\s+/g, " ").trim();
+      if (text.length <= maxLength) return text;
+      const slice = text.slice(0, Math.max(0, maxLength - 1));
+      const lastSpace = slice.lastIndexOf(" ");
+      const trimmed = lastSpace > 40 ? slice.slice(0, lastSpace) : slice;
+      return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
+    }
+
+    function buildShareMessage({ title, note, shareUrl }) {
+      const cleanTitle = smartTruncate(title, 90);
+      const cleanNote = smartTruncate(note || "", 140);
+      const cleanShareUrl = shareUrl.replace("https://", "").replace("http://", "");
+      return [
+        "🔗 Shared via ShareShuffle",
+        cleanNote ? `💬 ${cleanNote}` : "",
+        cleanTitle ? `🛍️ ${cleanTitle}` : "",
+        `👉 ${cleanShareUrl}`
+      ].filter(Boolean).join("\n");
     }
 
 
@@ -398,11 +419,12 @@
 
       docs.forEach(item => {
         const shareUrl = `${SHARE_BASE_URL}${item.id}`;
-        const displayTitle = cleanProductTitle(item.title || "Shared find");
-        const displayNote = item.note || "I saw this and thought of you.";
-        const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
+        const displayTitle = smartTruncate(cleanProductTitle(item.title || "Shared find"), 96);
+        const displayNote = smartTruncate(item.note || "I saw this and thought of you.", 120);
+        const outboundMessage = buildShareMessage({ title: displayTitle, note: displayNote, shareUrl });
+        const shareText = encodeURIComponent(outboundMessage);
         const emailSubject = encodeURIComponent(displayTitle);
-        const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
+        const emailBody = encodeURIComponent(outboundMessage);
         const image = item.image || "";
 
 

@@ -192,7 +192,9 @@
       collection,
       getDocs,
       query,
-      orderBy
+      orderBy,
+      doc,
+      deleteDoc
     } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -225,7 +227,7 @@ const SHARE_BASE_URL =
     function cleanProductTitle(value = "") {
       let title = String(value).trim();
       title = title.replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay)\s*[:\-–]\s*/i, "");
-      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury)\s*$/i, "");
+      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury|Sports\s*&\s*Outdoors|Tools\s*&\s*Home Improvement|Office Products|Beauty\s*&\s*Personal Care|Health\s*&\s*Household|Toys\s*&\s*Games|Patio,\s*Lawn\s*&\s*Garden|Automotive)\s*$/i, "");
       return title || "Untitled";
     }
 
@@ -247,7 +249,13 @@ const SHARE_BASE_URL =
       return views > 0 ? `${((clicks / views) * 100).toFixed(1)}%` : "0%";
     }
 
-    // Deletes are disabled by Firestore rules during public preview.
+    async function removeShare(id, title) {
+      const ok = confirm(`Remove this share from shelves?\n\n${title}\n\nThis deletes the share document. If Firestore rules still block deletes, update rules or delete it in Firebase.`);
+      if (!ok) return;
+
+      await deleteDoc(doc(db, "shares", id));
+      await loadDashboard();
+    }
 
     async function loadDashboard() {
       const status = document.getElementById("status");
@@ -317,7 +325,9 @@ const SHARE_BASE_URL =
             </td>
 
             <td class="text-end">
-              <span class="small-muted">Locked</span>
+              <button class="btn btn-sm btn-outline-danger rounded-pill px-3 delete-share-btn" data-id="${escapeHtml(id)}" data-title="${escapeHtml(title)}">
+                Remove
+              </button>
             </td>
           `;
 
@@ -335,6 +345,22 @@ const SHARE_BASE_URL =
         status.textContent = "Could not load dashboard. Check console.";
       }
     }
+
+    document.addEventListener("click", async (event) => {
+      const btn = event.target.closest(".delete-share-btn");
+      if (!btn) return;
+
+      try {
+        btn.disabled = true;
+        btn.textContent = "Removing...";
+        await removeShare(btn.dataset.id, btn.dataset.title || "this share");
+      } catch (error) {
+        console.error(error);
+        alert("Could not remove this share. Your current Firestore rules may still block deletes.");
+        btn.disabled = false;
+        btn.textContent = "Remove";
+      }
+    });
 
     document.getElementById("refreshBtn").addEventListener("click", loadDashboard);
 

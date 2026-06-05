@@ -1,0 +1,11 @@
+ShareShuffle delete/remove note
+
+The dashboard now includes a Remove button for duplicate shares.
+
+Important: the current production Firestore rules may still have:
+
+  allow delete: if false;
+
+under /shares/{shareId}. If so, the Remove button will show an error until rules are updated.
+
+Do NOT enable public deletes on the live site without real auth. For a temporary admin-only preview, use the Firebase console manually or add Firebase Auth and restrict deletes to admin users.

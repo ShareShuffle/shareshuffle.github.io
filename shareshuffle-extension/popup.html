@@ -33,10 +33,10 @@
     <label>URL</label>
     <input id="url" type="text">
 
-    <label>Your note</label>
+    <label>Your note <span class="optional">(optional)</span></label>
     <textarea id="note" maxlength="140" placeholder="I saw this and thought of you..."></textarea>
 
-    <label>Save to shelf <span class="optional">optional</span></label>
+    <label>Save to shelf <span class="optional">(optional)</span></label>
     <input id="shelfName" type="text" placeholder="Bass Gear, Gift Ideas, Route 66...">
 
     <div id="shelfPills" class="shelf-pills"></div>
@@ -72,6 +72,15 @@
         <i class="fa-solid fa-layer-group"></i>
         Open Shelf
       </a>
+    </div>
+
+    <div id="lastSharePanel" class="last-share-panel" style="display:none;">
+      <div class="last-share-label">Last share ready</div>
+      <div id="lastShareTitle" class="last-share-title"></div>
+      <button id="newShareBtn" class="ghost-btn" type="button">
+        <i class="fa-solid fa-plus"></i>
+        New Share
+      </button>
     </div>
 
     <p id="status"></p>

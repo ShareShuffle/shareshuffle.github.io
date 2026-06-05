@@ -6,6 +6,7 @@ const SHELVES_COLLECTION = "shelves";
 const SHARE_BASE_URL = "https://shfl.me/";
 const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
 const SHELF_STORAGE_KEY = "shareShuffleShelves";
+const LAST_SHARE_STORAGE_KEY = "shareShuffleLastShare";
 
 const FIRESTORE_DOCUMENTS_ROOT =
   `projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
@@ -324,16 +325,41 @@ function cleanTitle(title = "") {
     .trim();
 }
 
+
+function smartTruncate(value = "", maxLength = 90) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= maxLength) return text;
+
+  const slice = text.slice(0, Math.max(0, maxLength - 1));
+  const lastSpace = slice.lastIndexOf(" ");
+  const trimmed = lastSpace > 40 ? slice.slice(0, lastSpace) : slice;
+
+  return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
+}
+
+async function saveLastShare(payload) {
+  await chrome.storage.local.set({ [LAST_SHARE_STORAGE_KEY]: payload });
+}
+
+async function getLastShare() {
+  const result = await chrome.storage.local.get([LAST_SHARE_STORAGE_KEY]);
+  return result[LAST_SHARE_STORAGE_KEY] || null;
+}
+
+async function clearLastShare() {
+  await chrome.storage.local.remove([LAST_SHARE_STORAGE_KEY]);
+}
+
 function buildMessage({ title, note, shareUrl }) {
-  const cleanProductTitle = cleanTitle(title).substring(0, 90);
-  const cleanNote = neutralizeText(note).trim().substring(0, 140);
+  const cleanProductTitle = smartTruncate(cleanTitle(title), 90);
+  const cleanNote = smartTruncate(neutralizeText(note).trim(), 140);
   const cleanShareUrl = shareUrl.replace("https://", "").replace("http://", "");
 
   return [
-    "🎯 Shared via Shuffle",
-    cleanNote ? `📝 ${cleanNote}` : "",
-    cleanProductTitle,
-    `🖇️ ${cleanShareUrl}`
+    "🔗 Shared via ShareShuffle",
+    cleanNote ? `💬 ${cleanNote}` : "",
+    cleanProductTitle ? `🛍️ ${cleanProductTitle}` : "",
+    `👉 ${cleanShareUrl}`
   ]
     .filter(Boolean)
     .join("\n");
@@ -358,14 +384,44 @@ document.addEventListener("DOMContentLoaded", async () => {
   const shelfActions = document.getElementById("shelfActions");
   const openShelf = document.getElementById("openShelf");
   const status = document.getElementById("status");
+  const lastSharePanel = document.getElementById("lastSharePanel");
+  const lastShareTitle = document.getElementById("lastShareTitle");
+  const newShareBtn = document.getElementById("newShareBtn");
 
   let lastShareUrl = "";
   let lastMessage = "";
+  let lastShelfUrl = "";
 
   const tab = await getCurrentTab();
 
   titleInput.value = tab?.title || "";
   urlInput.value = tab?.url || "";
+
+  const savedLastShare = await getLastShare();
+  if (savedLastShare && savedLastShare.originalUrl === (tab?.url || "")) {
+    titleInput.value = savedLastShare.title || titleInput.value;
+    noteInput.value = savedLastShare.note || "";
+    if (shelfNameInput) shelfNameInput.value = savedLastShare.shelfName || "";
+
+    lastShareUrl = savedLastShare.shareUrl || "";
+    lastMessage = savedLastShare.message || "";
+    lastShelfUrl = savedLastShare.shelfUrl || "";
+
+    if (lastShareUrl && lastMessage) {
+      actions.style.display = "grid";
+      status.textContent = "Last share restored.";
+    }
+
+    if (lastShelfUrl) {
+      openShelf.href = lastShelfUrl;
+      shelfActions.style.display = "block";
+    }
+
+    if (lastSharePanel) {
+      lastSharePanel.style.display = "block";
+      lastShareTitle.textContent = cleanTitle(savedLastShare.title || "Shared find");
+    }
+  }
 
   await renderShelfPills(shelfNameInput);
 
@@ -407,11 +463,29 @@ const message = buildMessage({
 
       lastShareUrl = shareUrl;
       lastMessage = message;
+      lastShelfUrl = shelf.shelfUrl || "";
+
+      await saveLastShare({
+        id,
+        title: titleInput.value,
+        note: noteInput.value,
+        originalUrl,
+        shareUrl,
+        message,
+        shelfName: shelf.shelfName,
+        shelfSlug: shelf.shelfSlug,
+        shelfUrl: shelf.shelfUrl || ""
+      });
 
       await navigator.clipboard.writeText(message);
 
       actions.style.display = "grid";
       status.textContent = `Copied: ${id}`;
+
+      if (lastSharePanel) {
+        lastSharePanel.style.display = "block";
+        lastShareTitle.textContent = cleanTitle(titleInput.value || "Shared find");
+      }
 
       if (shelf.shelfUrl) {
         openShelf.href = shelf.shelfUrl;
@@ -448,6 +522,18 @@ const message = buildMessage({
 
     const body = encodeURIComponent(lastMessage);
     window.open(`sms:?&body=${body}`);
+  });
+
+  newShareBtn?.addEventListener("click", async () => {
+    await clearLastShare();
+    lastShareUrl = "";
+    lastMessage = "";
+    lastShelfUrl = "";
+    noteInput.value = "";
+    actions.style.display = "none";
+    shelfActions.style.display = "none";
+    if (lastSharePanel) lastSharePanel.style.display = "none";
+    status.textContent = "Ready for a new share.";
   });
 
   voiceBtn.addEventListener("click", async () => {
