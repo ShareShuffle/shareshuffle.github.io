@@ -127,10 +127,11 @@
     }
 
     .title {
-      font-size: clamp(1.5rem, 7vw, 2.45rem);
-      font-weight: 950;
-      letter-spacing: -.045em;
-      line-height: 1.02;
+      font-size: clamp(1.45rem, 5.4vw, 2.05rem);
+      font-weight: 800;
+      letter-spacing: -.025em;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
     }
 
     .note-card {
@@ -157,7 +158,7 @@
       padding: 1rem 1.1rem;
       color: white;
       font-weight: 950;
-      font-size: 1.12rem;
+      font-size: 1.02rem;
       background: var(--ss-grad);
       box-shadow: 0 18px 38px rgba(13,110,253,.28);
     }
@@ -251,6 +252,34 @@
   color: #0d6efd;
   box-shadow: 0 8px 20px rgba(13,110,253,.16);
 }
+
+
+/* ShareShuffle polish pass: readable headings, clamped card content, stronger action targets */
+.brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+.product-title,
+.title,
+.shelf-title { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.clamp-2,
+.clamp-3,
+.clamp-4 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-2 { -webkit-line-clamp: 2; }
+.clamp-3 { -webkit-line-clamp: 3; }
+.clamp-4 { -webkit-line-clamp: 4; }
+.affiliate-disclosure {
+  margin: 12px 0 0;
+  color: #334155;
+  font-size: .86rem;
+  line-height: 1.35;
+}
+.share-action-btn { transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease; }
+.share-action-btn:hover { transform: translateY(-1px) scale(1.08); }
+
+.note-card #note { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+
   </style>
 </head>
 
@@ -311,12 +340,11 @@
                                     </div>
                                 </div>
                                 <div class="d-grid gap-2 mb-3">
-                                   <p>Links may include affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
                                     <a id="storeLink" class="btn cta-btn" href="#" target="_blank" rel="noopener noreferrer">
                                         <i id="storeIcon" class="fa-solid fa-cart-shopping me-2"></i>
                                         <span id="storeText">View Product</span>
                                     </a>
-
+                                    <p class="affiliate-disclosure">Links may include affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
                                     <button id="copyPage" class="btn secondary-btn" type="button">
                                         <i class="fa-solid fa-link me-2"></i>
                                         Copy this ShareShuffle link
@@ -326,7 +354,7 @@
 
 <div class="share-actions mt-3">
   <button
-    class="share-action-btn"
+    class="share-action-btn copy-share-btn"
     id="copyShareBtn"
     type="button"
     title="Copy link"
@@ -423,6 +451,18 @@
 
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
+
+
+    function cleanProductTitle(value = "") {
+      let title = String(value).trim();
+
+      title = title.replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay)\s*[:\-–]\s*/i, "");
+      title = title.replace(/\s*[:|]\s*(Amazon|Walmart|Target|Best Buy|eBay)(?:\.com)?\s*$/i, "");
+      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury)\s*$/i, "");
+
+      return title || "Shared find";
+    }
+
 
     function getAffiliateMerchant(originalUrl = "") {
       try {
@@ -582,8 +622,10 @@ const shareText = encodeURIComponent(
   `Check this out: ${shareUrl}`
 );
 
+const displayTitle = cleanProductTitle(data.title || "Shared find");
+
 const emailSubject = encodeURIComponent(
-  data.title || "Shared find"
+  displayTitle
 );
 
 const emailBody = encodeURIComponent(
@@ -599,14 +641,16 @@ document.getElementById("voiceShareBtn").href =
 document.getElementById("emailShareBtn").href =
   `mailto:?subject=${emailSubject}&body=${emailBody}`;
 
+document.getElementById("copyShareBtn").dataset.url = shareUrl;
+
       updateDoc(shareRef, {
         views: increment(1)
       }).catch((error) => {
         console.error("View tracking failed:", error);
       });
 
-      document.title = `${data.title || "Shared find"} — ShareShuffle`;
-      document.getElementById("title").innerText = data.title || "Shared find";
+      document.title = `${displayTitle} — ShareShuffle`;
+      document.getElementById("title").innerText = displayTitle;
       document.getElementById("note").innerText = data.note || "I saw this and thought of you.";
 
       const shelfLinkWrap = document.getElementById("shelfLinkWrap");
@@ -615,7 +659,7 @@ document.getElementById("emailShareBtn").href =
 
       if (data.shelfName && data.shelfSlug) {
         shelfNameText.innerText = `More from ${data.shelfName}`;
-        shelfLink.href = `https://shelfmix.com/${encodeURIComponent(data.shelfSlug)}`;
+        shelfLink.href = `/shelf.html?s=${encodeURIComponent(data.shelfSlug)}`;
         shelfLinkWrap.style.display = "block";
       }
 

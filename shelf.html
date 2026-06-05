@@ -50,13 +50,7 @@
   box-shadow: 0 12px 30px rgba(13, 110, 253, 0.33);
 }
 
-/*
-.brand-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-*/
+
 
     .hero-card {
       border-radius:34px;
@@ -67,10 +61,10 @@
     }
 
     .shelf-title {
-      font-size:clamp(2.1rem,8vw,4.8rem);
-      letter-spacing:-.06em;
-      line-height:.92;
-      font-weight:950;
+      font-size:clamp(2rem,6vw,3.9rem);
+      letter-spacing:-.035em;
+      line-height:1;
+      font-weight:800;
     }
 
     .product-card {
@@ -168,9 +162,10 @@
 }
 
 .product-title {
-  font-size: 1.1rem;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
+  font-size: 1.02rem;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  min-height: 3.7em;
 }
 
 .share-link-btn {
@@ -213,11 +208,40 @@
   font-size: 1rem;
 }
 
+.product-card .card-body { min-height: 350px; }
+.product-card .small-muted { min-height: 3.2em; }
+
 .share-action-btn:hover {
   transform: translateY(-1px);
   color: #0d6efd;
   box-shadow: 0 8px 20px rgba(13,110,253,.16);
 }
+
+
+
+/* ShareShuffle polish pass: readable headings, clamped card content, stronger action targets */
+.brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+.product-title,
+.title,
+.shelf-title { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.clamp-2,
+.clamp-3,
+.clamp-4 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-2 { -webkit-line-clamp: 2; }
+.clamp-3 { -webkit-line-clamp: 3; }
+.clamp-4 { -webkit-line-clamp: 4; }
+.affiliate-disclosure {
+  margin: 12px 0 0;
+  color: #334155;
+  font-size: .86rem;
+  line-height: 1.35;
+}
+.share-action-btn { transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease; }
+.share-action-btn:hover { transform: translateY(-1px) scale(1.08); }
 
   </style>
 </head>
@@ -247,7 +271,7 @@
                     </div>
                     <h1 id="shelfTitle" class="shelf-title mb-3">Loading shelf...</h1>
                     <p id="shelfDescription" class="lead text-secondary mb-0">
-                        A collection of recommendations shared with ShareShuffle. Some product links may be affiliate links. As an Amazon Associate I earn from qualifying purchases.
+                        A collection of recommendations shared with ShareShuffle.
                     </p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
@@ -310,6 +334,17 @@
         .replaceAll("'", "&#039;");
     }
 
+    function cleanProductTitle(value = "") {
+      let title = String(value).trim();
+
+      title = title.replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay)\s*[:\-–]\s*/i, "");
+      title = title.replace(/\s*[:|]\s*(Amazon|Walmart|Target|Best Buy|eBay)(?:\.com)?\s*$/i, "");
+      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury)\s*$/i, "");
+
+      return title || "Shared find";
+    }
+
+
     async function loadShelf() {
       const title = document.getElementById("shelfTitle");
       const status = document.getElementById("status");
@@ -363,9 +398,11 @@
 
       docs.forEach(item => {
         const shareUrl = `${SHARE_BASE_URL}${item.id}`;
+        const displayTitle = cleanProductTitle(item.title || "Shared find");
+        const displayNote = item.note || "I saw this and thought of you.";
         const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
-const emailSubject = encodeURIComponent(item.title || "Shared find");
-const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
+        const emailSubject = encodeURIComponent(displayTitle);
+        const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
         const image = item.image || "";
 
 
@@ -397,12 +434,12 @@ const storeUrl = item.url || "#";
                 : `<i class="fa-solid fa-gift fallback-icon"></i>`
               }
             </div>
-            <div class="card-body p-4">
-              <h2 class="product-title fw-bold mb-2">
-  ${escapeHtml(item.title || "Shared find")}
+            <div class="card-body p-4 d-flex flex-column">
+              <h2 class="product-title fw-bold mb-2 clamp-3">
+  ${escapeHtml(displayTitle)}
 </h2>
-              <p class="small-muted mb-3">${escapeHtml(item.note || "I saw this and thought of you.")}</p>
-              <div class="d-grid gap-2">
+              <p class="small-muted mb-3 clamp-2">${escapeHtml(displayNote)}</p>
+              <div class="d-grid gap-2 mt-auto">
   <a
     class="btn btn-ss"
     href="${escapeHtml(storeUrl)}"
@@ -462,7 +499,7 @@ const storeUrl = item.url || "#";
     <i class="fa-solid fa-envelope"></i>
   </a>
 </div>
-<p>Some product links may be affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
+<p class="affiliate-disclosure">Some product links may be affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
             </div>
           </article>
         `;

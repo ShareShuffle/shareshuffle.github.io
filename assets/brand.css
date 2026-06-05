@@ -492,3 +492,18 @@ td img.thumb {
   color: #6b7280;
   font-weight: 700;
 }
+
+/* Admin / pitch polish */
+.admin-shell { max-width: 1220px; }
+.admin-panel { padding: 28px; border: 1px solid rgba(255,255,255,.72); }
+.admin-panel h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1; letter-spacing: -.03em; font-weight: 800; margin: 18px 0 12px; }
+.admin-panel h2 { font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.02em; font-weight: 800; }
+.metric { transition: transform 160ms ease, box-shadow 160ms ease; }
+.metric:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(7,20,38,.10); }
+.metric .num { font-size: 1.85rem; font-weight: 800; letter-spacing: -.025em; }
+.table-wrap table { table-layout: fixed; }
+th:first-child, td:first-child { width: 72px; }
+th:nth-child(2), td:nth-child(2) { width: 45%; }
+.truncate-one { max-width: 100%; font-weight: 800; }
+td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7; }
+.admin-panel a { font-weight: 800; }

@@ -57,9 +57,9 @@
     }
 
     .metric-number {
-      font-size:2rem;
-      font-weight:950;
-      letter-spacing:-.05em;
+      font-size:1.75rem;
+      font-weight:800;
+      letter-spacing:-.025em;
     }
 
     .table thead th {
@@ -90,6 +90,20 @@
       color:#6b7280;
       font-size:.86rem;
     }
+
+
+    .dashboard-title {
+      max-width: 560px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.2;
+    }
+    .glass-card { border-radius: 30px; }
+    .metric-card { transition: transform 160ms ease, box-shadow 160ms ease; }
+    .metric-card:hover { transform: translateY(-2px); box-shadow:0 20px 45px rgba(0,0,0,.14); }
+
   </style>
 <link rel="stylesheet" href="/assets/brand.css"></head>
 
@@ -100,7 +114,7 @@
       <div class="d-flex align-items-center gap-3">
         <div class="brand-logo">S</div>
         <div>
-          <h1 class="fw-bold mb-0">ShareShuffle Dashboard</h1>
+          <h1 class="fw-bold mb-0" style="font-weight:800;letter-spacing:-.025em;">ShareShuffle Dashboard</h1>
           <div class="text-white-50">Views, affiliate clicks, CTR, and share performance.</div>
         </div>
       </div>
@@ -206,6 +220,15 @@ const SHARE_BASE_URL =
         .replaceAll("'", "&#039;");
     }
 
+
+
+    function cleanProductTitle(value = "") {
+      let title = String(value).trim();
+      title = title.replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay)\s*[:\-–]\s*/i, "");
+      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury)\s*$/i, "");
+      return title || "Untitled";
+    }
+
     function formatDate(created) {
       if (!created) return "—";
 
@@ -250,7 +273,7 @@ const SHARE_BASE_URL =
           const ctr = makeCtr(clicks, views);
           const shareUrl = `${SHARE_BASE_URL}${id}`;
           const image = data.image || "";
-          const title = data.title || "Untitled";
+          const title = cleanProductTitle(data.title || "Untitled");
           const created = formatDate(data.created);
 
           totalViews += views;
@@ -268,7 +291,7 @@ const SHARE_BASE_URL =
                   alt=""
                 >
                 <div>
-                  <div class="fw-bold">${escapeHtml(title)}</div>
+                  <div class="fw-bold dashboard-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
                   <div class="small-muted">${escapeHtml(id)}</div>
                 </div>
               </div>
