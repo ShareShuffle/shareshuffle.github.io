@@ -289,9 +289,7 @@
     const params = new URLSearchParams(location.search);
     const slug = params.get("s") || "";
 
-const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
-const emailSubject = encodeURIComponent(item.title || "Shared find");
-const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
+
 
     function titleFromSlug(value) {
       return value
@@ -363,6 +361,9 @@ const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareU
 
       docs.forEach(item => {
         const shareUrl = `${SHARE_BASE_URL}${item.id}`;
+        const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
+const emailSubject = encodeURIComponent(item.title || "Shared find");
+const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
         const image = item.image || "";
 
 
@@ -422,23 +423,7 @@ const storeUrl = item.url || "#";
                 <button class="share-item-btn">Share Item</button>
 <button class="copy-link-btn">Copy Link</button>
 
-<div class="share-actions mt-3">
-  <button class="share-action-btn" data-action="copy">
-    <i class="fa-solid fa-link"></i>
-  </button>
 
-  <a class="share-action-btn" data-action="sms" href="#">
-    <i class="fa-solid fa-comment-sms"></i>
-  </a>
-
-  <a class="share-action-btn" data-action="voice" href="#">
-    <i class="fa-brands fa-google"></i>
-  </a>
-
-  <a class="share-action-btn" data-action="email" href="#">
-    <i class="fa-solid fa-envelope"></i>
-  </a>
-</div>
 
                 <div class="share-actions mt-3">
   <button

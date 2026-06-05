@@ -319,29 +319,12 @@
                                     </button>
                                 </div>
 
-<div class="share-actions mt-3">
-  <button class="share-action-btn" data-action="copy">
-    <i class="fa-solid fa-link"></i>
-  </button>
-
-  <a class="share-action-btn" data-action="sms" href="#">
-    <i class="fa-solid fa-comment-sms"></i>
-  </a>
-
-  <a class="share-action-btn" data-action="voice" href="#">
-    <i class="fa-brands fa-google"></i>
-  </a>
-
-  <a class="share-action-btn" data-action="email" href="#">
-    <i class="fa-solid fa-envelope"></i>
-  </a>
-</div>
 
 <div class="share-actions mt-3">
   <button
-    class="share-action-btn copy-share-btn"
+    class="share-action-btn"
+    id="copyShareBtn"
     type="button"
-    data-url="${escapeHtml(shareUrl)}"
     title="Copy link"
   >
     <i class="fa-solid fa-link"></i>
@@ -349,7 +332,8 @@
 
   <a
     class="share-action-btn"
-    href="sms:?&body=${shareText}"
+    id="smsShareBtn"
+    href="#"
     title="Message"
   >
     <i class="fa-solid fa-comment-sms"></i>
@@ -357,7 +341,8 @@
 
   <a
     class="share-action-btn"
-    href="https://voice.google.com/u/0/messages?item=${encodeURIComponent(shareUrl)}"
+    id="voiceShareBtn"
+    href="#"
     target="_blank"
     rel="noopener noreferrer"
     title="Google Voice"
@@ -367,12 +352,14 @@
 
   <a
     class="share-action-btn"
-    href="mailto:?subject=${emailSubject}&body=${emailBody}"
+    id="emailShareBtn"
+    href="#"
     title="Email"
   >
     <i class="fa-solid fa-envelope"></i>
   </a>
 </div>
+
 
 
                                 <div class="trust-row d-flex flex-wrap justify-content-center gap-3 py-2">
@@ -586,6 +573,29 @@ function wireAffiliateButton({ data, shareRef }) {
 
       const data = snap.data();
 
+      const shareUrl = window.location.href;
+
+const shareText = encodeURIComponent(
+  `Check this out: ${shareUrl}`
+);
+
+const emailSubject = encodeURIComponent(
+  data.title || "Shared find"
+);
+
+const emailBody = encodeURIComponent(
+  `I thought you might like this:\n\n${shareUrl}`
+);
+
+document.getElementById("smsShareBtn").href =
+  `sms:?&body=${shareText}`;
+
+document.getElementById("voiceShareBtn").href =
+  `https://voice.google.com/u/0/messages`;
+
+document.getElementById("emailShareBtn").href =
+  `mailto:?subject=${emailSubject}&body=${emailBody}`;
+
       updateDoc(shareRef, {
         views: increment(1)
       }).catch((error) => {
@@ -607,6 +617,9 @@ function wireAffiliateButton({ data, shareRef }) {
       }
 
       const productImage = document.getElementById("productImage");
+       const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
+const emailSubject = encodeURIComponent(item.title || "Shared find");
+const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
       const fallbackIcon = document.getElementById("fallbackIcon");
 
       if (data.image) {
@@ -632,9 +645,7 @@ function wireAffiliateButton({ data, shareRef }) {
       setLoadingError("Error loading share");
     });
 
-   const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
-const emailSubject = encodeURIComponent(item.title || "Shared find");
-const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
+  
 document.addEventListener("click", async (event) => {
   const btn = event.target.closest(".copy-share-btn");
   if (!btn) return;
