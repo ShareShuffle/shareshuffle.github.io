@@ -66,3 +66,55 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
   updateExtensionBadge(tab.id, tab.url);
 });
+
+
+async function updateExtensionBadge(tabId, url) {
+  const liked = isLikedSite(url);
+
+  //await chrome.action.setIcon({
+   // tabId,
+   // path: liked
+     // ? {
+       //   16: "icons/icon16a.png",
+         // 24: "icons/icon24a.png",
+    //      32: "icons/icon32a.png",
+      //    64: "icons/icon64a.png"
+        //}
+     // : {
+        //  16: "icons/icon16.png",
+         // 24: "icons/icon24.png",
+        //  32: "icons/icon32.png",
+        //  64: "icons/icon64.png"
+       // }
+ // });
+
+  await chrome.action.setBadgeText({
+    tabId,
+    // text: liked ? "●" : "" // not going to use a circle for now
+    text: liked ? "✓" : "" // trying the word share
+    // text: liked ? "link" : ""
+    // text: liked ? "·" : ""
+   });
+
+  await chrome.action.setBadgeTextColor({
+  tabId,
+   color: "#ffffff"
+   });
+
+   await chrome.action.setBadgeBackgroundColor({
+   tabId,
+  color: "#228800"
+   });
+
+
+
+  await chrome.action.setTitle({
+    tabId,
+    title: liked
+      ? "ShareShuffle supports this site: "
+      : "ShareShuffle: "
+  });
+}
+
+
+
