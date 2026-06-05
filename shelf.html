@@ -1,25 +1,22 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>ShareShuffle Shelf</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <meta name="description" content="A collection of product recommendations shared with ShareShuffle.">
-  <meta property="og:title" content="ShareShuffle Shelf">
-  <meta property="og:description" content="A collection of product recommendations shared with ShareShuffle.">
-  <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    :root {
+    <meta charset="utf-8">
+    <title>ShareShuffle Shelf</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A collection of product recommendations shared with ShareShuffle.">
+    <meta property="og:title" content="ShareShuffle Shelf">
+    <meta property="og:description" content="A collection of product recommendations shared with ShareShuffle.">
+    <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
       --ss-orange:#ff7a18;
       --ss-gold:#ffc145;
       --ss-blue:#0d6efd;
@@ -194,58 +191,49 @@
 }
   </style>
 </head>
+
 <body>
-  <main class="container py-4 py-lg-5">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
-        <div class="brand-logo">
-  <img
-    src="/icons/icon128.png"
-    alt="ShareShuffle"
-  />
-</div>
-        <div>
-          <div class="fw-bold fs-5 lh-1">ShareShuffle</div>
-          <div class="small text-white-50">Share what’s worth finding</div>
+    <main class="container py-4 py-lg-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
+                <div class="brand-logo">
+                    <img src="/icons/icon128.png" alt="ShareShuffle" />
+                </div>
+                <div>
+                    <div class="fw-bold fs-5 lh-1">ShareShuffle</div>
+                    <div class="small text-white-50">Share what’s worth finding</div>
+                </div>
+            </a>
+            <button id="copyShelf" class="btn btn-light rounded-pill fw-bold">
+                <i class="fa-solid fa-link me-1"></i> Copy Shelf
+            </button>
         </div>
-      </a>
-
-      <button id="copyShelf" class="btn btn-light rounded-pill fw-bold">
-        <i class="fa-solid fa-link me-1"></i> Copy Shelf
-      </button>
-    </div>
-
-    <section class="hero-card p-4 p-lg-5 mb-4">
-      <div class="row align-items-end g-4">
-        <div class="col-lg-8">
-          <div class="shelf-eyebrow">
-  <i class="fa-solid fa-layer-group"></i>
-  ShelfMix Collection
-</div>
-          <h1 id="shelfTitle" class="shelf-title mb-3">Loading shelf...</h1>
-          <p id="shelfDescription" class="lead text-secondary mb-0">
-            A collection of recommendations shared with ShareShuffle.
-          </p>
-        </div>
-        <div class="col-lg-4 text-lg-end">
-          <div
-  id="status"
-  class="shelf-count-pill"
->
-  <i class="fa-solid fa-box-open"></i>
-  Loading...
-</div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div id="items" class="row g-4"></div>
-    </section>
-  </main>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        <section class="hero-card p-4 p-lg-5 mb-4">
+            <div class="row align-items-end g-4">
+                <div class="col-lg-8">
+                    <div class="shelf-eyebrow">
+                        <i class="fa-solid fa-layer-group"></i>
+                        ShelfMix Collection
+                    </div>
+                    <h1 id="shelfTitle" class="shelf-title mb-3">Loading shelf...</h1>
+                    <p id="shelfDescription" class="lead text-secondary mb-0">
+                        A collection of recommendations shared with ShareShuffle.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div id="status" class="shelf-count-pill">
+                        <i class="fa-solid fa-box-open"></i>
+                        Loading...
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div id="items" class="row g-4"></div>
+        </section>
+    </main>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
     import {
       getFirestore,
@@ -265,7 +253,6 @@
       measurementId: "G-C8W9TBP705"
     };
 
-    const AMAZON_TAG = "shareshuffle-20";
     const SHARE_BASE_URL = "https://shfl.me/";
 
     const app = initializeApp(firebaseConfig);
@@ -289,12 +276,6 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-    }
-
-    function makeAmazonAffiliateUrl(originalUrl) {
-      const url = new URL(originalUrl);
-      url.searchParams.set("tag", AMAZON_TAG);
-      return url.toString();
     }
 
     async function loadShelf() {
@@ -353,6 +334,24 @@
         const amazonUrl = item.url ? makeAmazonAffiliateUrl(item.url) : "#";
         const image = item.image || "";
 
+
+const merchant = (item.merchant || "").toLowerCase();
+
+const storeName =
+  merchant === "walmart" ? "Walmart" :
+  merchant === "target" ? "Target" :
+  merchant === "bestbuy" ? "Best Buy" :
+  merchant === "ebay" ? "eBay" :
+  "Amazon";
+
+const storeIcon =
+  merchant === "walmart"
+    ? '<i class="fa-solid fa-store me-1"></i>'
+    : '<i class="fa-brands fa-amazon me-1"></i>';
+
+const storeUrl = item.url || "#";
+
+
         const card = document.createElement("div");
         card.className = "col-md-6 col-xl-4";
         card.innerHTML = `
@@ -369,16 +368,25 @@
 </h2>
               <p class="small-muted mb-3">${escapeHtml(item.note || "I saw this and thought of you.")}</p>
               <div class="d-grid gap-2">
-                <a class="btn btn-ss" href="${escapeHtml(amazonUrl)}" target="_blank" rel="noopener noreferrer">
-                  <i class="fa-brands fa-amazon me-1"></i> View on Amazon
-                </a>
-                <a
-  class="btn btn-outline-secondary share-link-btn"
-  href="${escapeHtml(shareUrl)}"
-  target="_blank"
-  rel="noopener noreferrer"
->
-              </div>
+  <a
+    class="btn btn-ss"
+    href="${escapeHtml(storeUrl)}"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    ${storeIcon} View on ${storeName}
+  </a>
+
+  <a
+    class="btn btn-outline-secondary share-link-btn"
+    href="${escapeHtml(shareUrl)}"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <i class="fa-solid fa-share-nodes me-1"></i>
+    Open Share Page
+  </a>
+</div>
             </div>
           </article>
         `;
@@ -402,4 +410,5 @@
     });
   </script>
 </body>
+
 </html>

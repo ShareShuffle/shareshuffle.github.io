@@ -91,7 +91,7 @@ async function updateExtensionBadge(tabId, url) {
   await chrome.action.setBadgeText({
     tabId,
     // text: liked ? "●" : "" // not going to use a circle for now
-    text: liked ? "✓" : "" // trying the word share
+    text: liked ? " +" : "" // needs the space to center correctly
     // text: liked ? "link" : ""
     // text: liked ? "·" : ""
    });
