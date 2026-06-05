@@ -1,0 +1,43 @@
+ShareShuffle support form note
+
+The new /support/index.html page writes support requests to:
+
+  supportMessages
+
+The production Firestore rules must allow public creates for that collection or the form will show an error.
+Do not allow public reads, updates, or deletes.
+
+Add this block inside:
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    ...
+  }
+}
+
+##### SUPPORT RULES BLOCK #####
+
+match /supportMessages/{messageId} {
+  allow create: if
+    request.resource.data.keys().hasOnly([
+      "name",
+      "email",
+      "category",
+      "subject",
+      "message",
+      "pageUrl",
+      "userAgent",
+      "createdAt"
+    ])
+    && isString(request.resource.data.name, 120)
+    && isString(request.resource.data.email, 254)
+    && request.resource.data.email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+    && isString(request.resource.data.category, 80)
+    && isString(request.resource.data.subject, 160)
+    && isString(request.resource.data.message, 3000)
+    && isString(request.resource.data.pageUrl, 500)
+    && isString(request.resource.data.userAgent, 500)
+    && request.resource.data.createdAt == request.time;
+
+  allow read, update, delete: if false;
+}

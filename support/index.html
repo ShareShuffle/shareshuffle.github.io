@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support — ShareShuffle</title>
+  <meta name="description" content="Get help with ShareShuffle, ShelfMix collections, product recommendation links, and the Chrome extension.">
+  <meta name="robots" content="index,follow">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+  <link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
+  <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
+  <link rel="apple-touch-icon" href="/icons/icon512.png">
+  <meta name="theme-color" content="#071426">
+
+  <meta property="og:title" content="Support — ShareShuffle">
+  <meta property="og:description" content="Questions, bug reports, and help for ShareShuffle and ShelfMix.">
+  <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shareshuffle.com/support/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="/assets/brand.css">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background:
+        radial-gradient(circle at 10% 8%, rgba(255,122,24,.22), transparent 28%),
+        radial-gradient(circle at 92% 14%, rgba(19,200,255,.24), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f5f8ff 48%, #eef6ff 100%);
+    }
+
+    .support-hero {
+      padding: 72px 20px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .support-hero::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      right: -190px;
+      top: 10px;
+      border-radius: 999px;
+      background: rgba(13,110,253,.10);
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    .support-title {
+      font-family: "League Spartan", Inter, system-ui, sans-serif;
+      font-size: clamp(2.65rem, 7vw, 5.4rem);
+      line-height: .9;
+      letter-spacing: -.045em;
+      font-weight: 700;
+      margin: 18px 0 16px;
+      max-width: 850px;
+    }
+
+    .support-lede {
+      font-size: clamp(1.08rem, 2vw, 1.35rem);
+      line-height: 1.5;
+      color: var(--ss-muted);
+      max-width: 780px;
+      margin: 0 0 22px;
+    }
+
+    .support-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 24px;
+      align-items: start;
+      padding: 0 20px 70px;
+    }
+
+    .support-panel {
+      position: relative;
+      background: rgba(255,255,255,.94);
+      border: 1px solid rgba(13,110,253,.12);
+      border-radius: 30px;
+      box-shadow: 0 24px 70px rgba(7,20,38,.13);
+      padding: 26px;
+      overflow: hidden;
+    }
+
+    .support-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 5px;
+      background: var(--ss-grad);
+    }
+
+    .support-card-title {
+      font-family: "League Spartan", Inter, system-ui, sans-serif;
+      letter-spacing: -.025em;
+      font-size: 1.9rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    .support-muted {
+      color: var(--ss-muted);
+      line-height: 1.45;
+    }
+
+    .support-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .support-item {
+      display: flex;
+      gap: 13px;
+      padding: 16px;
+      border-radius: 20px;
+      background: #f5f8ff;
+      border: 1px solid rgba(13,110,253,.08);
+    }
+
+    .support-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: white;
+      background: var(--ss-grad);
+      box-shadow: 0 12px 26px rgba(13,110,253,.18);
+    }
+
+    .support-item strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 1rem;
+    }
+
+    .support-form {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .support-form label {
+      font-weight: 850;
+      font-size: .9rem;
+      color: var(--ss-ink);
+    }
+
+    .support-form input,
+    .support-form select,
+    .support-form textarea {
+      width: 100%;
+      border: 1px solid rgba(13,110,253,.18);
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 13px;
+      font: inherit;
+      outline: none;
+      color: var(--ss-ink);
+    }
+
+    .support-form input:focus,
+    .support-form select:focus,
+    .support-form textarea:focus {
+      border-color: rgba(13,110,253,.55);
+      box-shadow: 0 0 0 4px rgba(13,110,253,.10);
+    }
+
+    .support-form textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .support-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .support-status {
+      min-height: 22px;
+      color: var(--ss-muted);
+      font-weight: 750;
+      margin: 0;
+    }
+
+    .support-status.success {
+      color: #087f5b;
+    }
+
+    .support-status.error {
+      color: #b42318;
+    }
+
+    .support-email-card {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 22px;
+      background: var(--ss-grad-dark);
+      color: white;
+    }
+
+    .support-email-card a {
+      color: white;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .faq-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .faq {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(13,110,253,.10);
+    }
+
+    .faq strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .fine-print {
+      font-size: .86rem;
+      color: var(--ss-muted);
+      line-height: 1.45;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .support-grid {
+        grid-template-columns: 1fr;
+      }
+      .support-row {
+        grid-template-columns: 1fr;
+      }
+      .support-hero {
+        padding-top: 48px;
+      }
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
+      authDomain: "shareshuffle-c7f96.firebaseapp.com",
+      projectId: "shareshuffle-c7f96",
+      storageBucket: "shareshuffle-c7f96.firebasestorage.app",
+      messagingSenderId: "507028011652",
+      appId: "1:507028011652:web:97c161c63b7940af0f60d1",
+      measurementId: "G-C8W9TBP705"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function cleanText(value, maxLength = 1000) {
+      return String(value || "")
+        .trim()
+        .replace(/[<>]/g, "")
+        .slice(0, maxLength);
+    }
+
+    function isValidEmail(value) {
+      return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
+    }
+
+    async function handleSupportSubmit(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const button = form.querySelector("button[type='submit']");
+      const status = form.querySelector(".support-status");
+
+      status.className = "support-status";
+      status.textContent = "";
+
+      const data = {
+        name: cleanText(form.name.value, 120),
+        email: cleanText(form.email.value, 254).toLowerCase(),
+        category: cleanText(form.category.value, 80),
+        subject: cleanText(form.subject.value, 160),
+        message: cleanText(form.message.value, 3000),
+        pageUrl: window.location.href,
+        userAgent: navigator.userAgent.slice(0, 500),
+        createdAt: serverTimestamp()
+      };
+
+      if (!isValidEmail(data.email)) {
+        status.classList.add("error");
+        status.textContent = "Please enter a valid email address.";
+        return;
+      }
+
+      if (!data.message || data.message.length < 8) {
+        status.classList.add("error");
+        status.textContent = "Please add a short message so we know how to help.";
+        return;
+      }
+
+      button.disabled = true;
+      button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+
+      try {
+        await addDoc(collection(db, "supportMessages"), data);
+        form.reset();
+        status.classList.add("success");
+        status.textContent = "Thanks — your support request was saved. We’ll follow up by email.";
+        button.innerHTML = '<i class="fa-solid fa-check"></i> Sent';
+      } catch (error) {
+        console.error(error);
+        status.classList.add("error");
+        status.textContent = "Something went wrong. You can also email support@shareshuffle.com.";
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send support request';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("supportForm")?.addEventListener("submit", handleSupportSubmit);
+    });
+  </script>
+</head>
+
+<body>
+  <nav class="ss-nav">
+    <div class="ss-nav-inner">
+      <a class="ss-brand" href="/">
+        <span class="ss-logo"><img src="/icons/icon32.png" alt=""></span>
+        <span>ShareShuffle</span>
+      </a>
+      <div class="ss-links">
+        <a href="/">Home</a>
+        <a href="/demo.html">Demo</a>
+        <a href="/investor.html">Investor</a>
+        <a href="https://shelfmix.com">ShelfMix</a>
+        <a href="/support/">Support</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="support-hero">
+      <div class="ss-container">
+        <span class="ss-eyebrow"><i class="fa-solid fa-life-ring"></i> ShareShuffle support</span>
+        <h1 class="support-title">Need help sharing something worth finding?</h1>
+        <p class="support-lede">Questions, bugs, Chrome extension issues, shelf cleanup, affiliate link concerns, or ideas for making recommendations easier to share — send them here.</p>
+        <p>
+          <a class="ss-btn" href="#supportForm"><i class="fa-solid fa-paper-plane"></i> Contact support</a>
+          <a class="ss-btn secondary" href="mailto:support@shareshuffle.com"><i class="fa-solid fa-envelope"></i> support@shareshuffle.com</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="ss-container support-grid">
+      <div class="support-panel">
+        <h2 class="support-card-title">How we can help</h2>
+        <p class="support-muted">ShareShuffle is currently focused on clean product recommendations, short links, and ShelfMix collections. The fastest way to get help is to include the page, product, shelf, or share link involved.</p>
+
+        <div class="support-list">
+          <div class="support-item">
+            <span class="support-icon"><i class="fa-solid fa-puzzle-piece"></i></span>
+            <div><strong>Chrome extension help</strong><span class="support-muted">Install issues, popup behavior, supported-store badges, copy buttons, or share creation.</span></div>
+          </div>
+          <div class="support-item">
+            <span class="support-icon"><i class="fa-solid fa-layer-group"></i></span>
+            <div><strong>ShelfMix collections</strong><span class="support-muted">Missing items, duplicate recommendations, shelf links, or collection display issues.</span></div>
+          </div>
+          <div class="support-item">
+            <span class="support-icon"><i class="fa-solid fa-link"></i></span>
+            <div><strong>Share links</strong><span class="support-muted">Short links, merchant buttons, product images, notes, SMS, email, or Google Voice sharing.</span></div>
+          </div>
+          <div class="support-item">
+            <span class="support-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <div><strong>Privacy or affiliate questions</strong><span class="support-muted">Ask what data is stored, how links work, or how affiliate disclosures are shown.</span></div>
+          </div>
+        </div>
+
+        <div class="support-email-card">
+          <strong>Prefer email?</strong><br>
+          Reach us directly at <a href="mailto:support@shareshuffle.com">support@shareshuffle.com</a>.
+        </div>
+      </div>
+
+      <div class="support-panel">
+        <h2 class="support-card-title">Send a support request</h2>
+        <p class="support-muted">This form saves your request securely so we can follow up. Please do not include passwords, account credentials, or private payment information.</p>
+
+        <form id="supportForm" class="support-form" data-source="support-page">
+          <div class="support-row">
+            <div>
+              <label for="name">Name (optional)</label>
+              <input id="name" name="name" autocomplete="name" placeholder="Your name">
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+            </div>
+          </div>
+
+          <div class="support-row">
+            <div>
+              <label for="category">Topic</label>
+              <select id="category" name="category">
+                <option value="Chrome Extension">Chrome Extension</option>
+                <option value="Share Link">Share Link</option>
+                <option value="ShelfMix Collection">ShelfMix Collection</option>
+                <option value="Affiliate or Privacy">Affiliate or Privacy</option>
+                <option value="Bug Report">Bug Report</option>
+                <option value="Idea or Feedback">Idea or Feedback</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="subject">Subject (optional)</label>
+              <input id="subject" name="subject" placeholder="What is this about?">
+            </div>
+          </div>
+
+          <div>
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Tell us what happened. Include the share link, shelf name, or page URL if it helps." required></textarea>
+          </div>
+
+          <button class="ss-btn" type="submit"><i class="fa-solid fa-paper-plane"></i> Send support request</button>
+          <p class="support-status" aria-live="polite"></p>
+          <p class="fine-print">Support requests may include your email address, message, browser user agent, and this page URL so we can troubleshoot and respond.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="ss-container" style="padding:0 20px 74px;">
+      <div class="support-panel">
+        <h2 class="support-card-title">Quick answers</h2>
+        <div class="faq-grid">
+          <div class="faq"><strong>What does ShareShuffle save?</strong><span class="support-muted">Product URLs, titles, images, notes you write, and optional shelf information used to create share links and collections.</span></div>
+          <div class="faq"><strong>Can links include affiliate tracking?</strong><span class="support-muted">Yes. Some links may be affiliate links. As an Amazon Associate, ShareShuffle earns from qualifying purchases.</span></div>
+          <div class="faq"><strong>Do I need an account to open a share?</strong><span class="support-muted">No. Shared pages and public shelves are designed to open without requiring an account.</span></div>
+          <div class="faq"><strong>What is ShelfMix?</strong><span class="support-muted">ShelfMix is the collection layer for ShareShuffle — a place to gather related recommendations into reusable shelves.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
