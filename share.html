@@ -224,6 +224,33 @@
         max-height: 260px;
       }
     }
+
+    .share-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(13,110,253,.12);
+}
+
+.share-action-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(13,110,253,.18);
+  background: #fff;
+  color: #102033;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.share-action-btn:hover {
+  transform: translateY(-1px);
+  color: #0d6efd;
+  box-shadow: 0 8px 20px rgba(13,110,253,.16);
+}
   </style>
 </head>
 
@@ -291,6 +318,63 @@
                                         Copy this ShareShuffle link
                                     </button>
                                 </div>
+
+<div class="share-actions mt-3">
+  <button class="share-action-btn" data-action="copy">
+    <i class="fa-solid fa-link"></i>
+  </button>
+
+  <a class="share-action-btn" data-action="sms" href="#">
+    <i class="fa-solid fa-comment-sms"></i>
+  </a>
+
+  <a class="share-action-btn" data-action="voice" href="#">
+    <i class="fa-brands fa-google"></i>
+  </a>
+
+  <a class="share-action-btn" data-action="email" href="#">
+    <i class="fa-solid fa-envelope"></i>
+  </a>
+</div>
+
+<div class="share-actions mt-3">
+  <button
+    class="share-action-btn copy-share-btn"
+    type="button"
+    data-url="${escapeHtml(shareUrl)}"
+    title="Copy link"
+  >
+    <i class="fa-solid fa-link"></i>
+  </button>
+
+  <a
+    class="share-action-btn"
+    href="sms:?&body=${shareText}"
+    title="Message"
+  >
+    <i class="fa-solid fa-comment-sms"></i>
+  </a>
+
+  <a
+    class="share-action-btn"
+    href="https://voice.google.com/u/0/messages?item=${encodeURIComponent(shareUrl)}"
+    target="_blank"
+    rel="noopener noreferrer"
+    title="Google Voice"
+  >
+    <i class="fa-brands fa-google"></i>
+  </a>
+
+  <a
+    class="share-action-btn"
+    href="mailto:?subject=${emailSubject}&body=${emailBody}"
+    title="Email"
+  >
+    <i class="fa-solid fa-envelope"></i>
+  </a>
+</div>
+
+
                                 <div class="trust-row d-flex flex-wrap justify-content-center gap-3 py-2">
                                     <span><i class="fa-solid fa-lock me-1"></i> No account needed</span>
                                     <span><i class="fa-solid fa-note-sticky me-1"></i> Shared with context</span>
@@ -548,7 +632,22 @@ function wireAffiliateButton({ data, shareRef }) {
       setLoadingError("Error loading share");
     });
 
-   
+   const shareText = encodeURIComponent(`Check this out: ${shareUrl}`);
+const emailSubject = encodeURIComponent(item.title || "Shared find");
+const emailBody = encodeURIComponent(`I thought you might like this:\n\n${shareUrl}`);
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest(".copy-share-btn");
+  if (!btn) return;
+
+  await navigator.clipboard.writeText(btn.dataset.url);
+
+  const oldHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+
+  setTimeout(() => {
+    btn.innerHTML = oldHtml;
+  }, 1300);
+});
   </script>
 </body>
 
