@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+<link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
+<link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
+  <title>ShareShuffle</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="logo"><img src="icons/icon128.png" alt="ShareShuffle logo"></div>
+      <div>
+        <h1>ShareShuffle</h1>
+        <p>Share what’s worth finding.</p>
+      </div>
+    </div>
+
+    <label>Page title</label>
+<input
+  id="title"
+  type="text"
+  maxlength="80"
+>
+
+
+    <label>URL</label>
+    <input id="url" type="text">
+
+    <label>Your note <span class="optional">(optional)</span></label>
+    <textarea id="note" maxlength="140" placeholder="I saw this and thought of you..."></textarea>
+
+    <label>Save to shelf <span class="optional">(optional)</span></label>
+    <input id="shelfName" type="text" placeholder="Bass Gear, Gift Ideas, Route 66...">
+
+    <div id="shelfPills" class="shelf-pills"></div>
+
+    <button id="copyBtn" class="primary-btn">
+      <i class="fa-solid fa-shuffle"></i>
+      Create Share Link
+    </button>
+
+    <div id="actions" class="actions" style="display:none;">
+      <button id="copyLinkBtn" class="action-btn" title="Copy short link">
+        <i class="fa-solid fa-link"></i>
+        <span>Link</span>
+      </button>
+
+      <button id="emailBtn" class="action-btn" title="Email this">
+        <i class="fa-solid fa-envelope"></i>
+        <span>Email</span>
+      </button>
+
+      <button id="textBtn" class="action-btn" title="Text this">
+<i class="fa-solid fa-message"></i>        <span>Messages</span>
+      </button>
+
+      <button id="voiceBtn" class="action-btn" title="Copy and open Google Voice">
+        <i class="fa-solid fa-phone"></i>
+        <span>Google Voice</span>
+      </button>
+    </div>
+
+    <div id="shelfActions" class="shelf-actions" style="display:none;">
+      <a id="openShelf" href="#" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-layer-group"></i>
+        Open Shelf
+      </a>
+    </div>
+
+    <div id="lastSharePanel" class="last-share-panel" style="display:none;">
+      <div class="last-share-label">Last share ready</div>
+      <div id="lastShareTitle" class="last-share-title"></div>
+      <button id="newShareBtn" class="ghost-btn" type="button">
+        <i class="fa-solid fa-plus"></i>
+        New Share
+      </button>
+    </div>
+
+    <p id="status"></p>
+    <p>Links may include affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
