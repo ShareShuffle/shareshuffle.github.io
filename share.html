@@ -1,37 +1,33 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>ShareShuffle — Shared Product Recommendation</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
-<link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
-<link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
-<link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
-
-  <!-- Default social preview -->
-  <meta name="description" content="A product recommendation shared with ShareShuffle. Save, organize, and share shopping finds with personal notes.">
-  <meta property="og:title" content="ShareShuffle — Shared Product Recommendation">
-  <meta property="og:description" content="Someone shared a product recommendation with you on ShareShuffle.">
-  <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
-  <meta property="og:url" content="https://shareshuffle.com">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <!-- Favicons -->
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
-  <link rel="apple-touch-icon" href="/icons/icon180.png">
-
-  <!-- Bootstrap + Font Awesome -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    :root {
+    <meta charset="utf-8">
+    <title>ShareShuffle — Shared Product Recommendation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+    <link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
+    <!-- Default social preview -->
+    <meta name="description" content="A product recommendation shared with ShareShuffle. Save, organize, and share shopping finds with personal notes.">
+    <meta property="og:title" content="ShareShuffle — Shared Product Recommendation">
+    <meta property="og:description" content="Someone shared a product recommendation with you on ShareShuffle.">
+    <meta property="og:image" content="https://shareshuffle.com/icons/icon512.png">
+    <meta property="og:url" content="https://shareshuffle.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+    <link rel="apple-touch-icon" href="/icons/icon180.png">
+    <!-- Bootstrap + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
       --ss-orange: #ff7a18;
       --ss-gold: #ffc145;
       --ss-blue: #0d6efd;
@@ -232,122 +228,94 @@
 </head>
 
 <body>
-  <main class="page-wrap">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-xl-6 col-lg-7 col-md-9">
-
-          <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-            <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
-              <div class="brand-logo">S</div>
-              <div>
-                <div class="fw-black fw-bold fs-5 lh-1">ShareShuffle</div>
-                <div class="small text-white-50">Share what’s worth finding</div>
-              </div>
-            </a>
-
-            <span class="badge rounded-pill text-bg-light">
-              <i class="fa-solid fa-shuffle me-1"></i> Shared find
-            </span>
-          </div>
-
-          <article class="share-card">
-
-            <div class="product-shell">
-              <div class="product-img-box">
-                <i id="fallbackIcon" class="fa-solid fa-gift fallback-icon"></i>
-                <img id="productImage" src="" alt="Shared product image">
-              </div>
-            </div>
-
-            <div class="card-body p-4 p-sm-5">
-              <div class="mb-3">
-                <span class="badge-ss">
-                  <i class="fa-solid fa-user-check"></i>
-                  Personal recommendation
-                </span>
-              </div>
-<div id="shelfLinkWrap" class="mb-3" style="display:none;">
-  <a id="shelfLink" class="badge-ss text-decoration-none" href="#">
-    <i class="fa-solid fa-layer-group"></i>
-    <span id="shelfNameText"></span>
-  </a>
-</div>
-
-<a
-  class="btn btn-outline-secondary share-link-btn"
-  href="${escapeHtml(shareUrl)}"
-  target="_blank"
-  rel="noopener noreferrer"
->
-
-
-              <h1 id="title" class="title mb-3">
-                Loading...
-              </h1>
-
-              <div class="note-card p-3 p-sm-4 mb-4">
-                <div class="d-flex gap-3">
-                  <div class="quote-mark">
-                    <i class="fa-solid fa-quote-left"></i>
-                  </div>
-                  <div>
-                    <div class="small text-secondary fw-bold mb-1">Why this was shared</div>
-                    <p id="note" class="mb-0 fs-5">
-                      Loading recommendation...
-                    </p>
-                  </div>
+    <main class="page-wrap">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-6 col-lg-7 col-md-9">
+                    <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                        <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
+                            <div class="brand-logo">S</div>
+                            <div>
+                                <div class="fw-black fw-bold fs-5 lh-1">ShareShuffle</div>
+                                <div class="small text-white-50">Share what’s worth finding</div>
+                            </div>
+                        </a>
+                        <span class="badge rounded-pill text-bg-light">
+                            <i class="fa-solid fa-shuffle me-1"></i> Shared find
+                        </span>
+                    </div>
+                    <article class="share-card">
+                        <div class="product-shell">
+                            <div class="product-img-box">
+                                <i id="fallbackIcon" class="fa-solid fa-gift fallback-icon"></i>
+                                <img id="productImage" src="" alt="Shared product image">
+                            </div>
+                        </div>
+                        <div class="card-body p-4 p-sm-5">
+                            <div class="mb-3">
+                                <span class="badge-ss">
+                                    <i class="fa-solid fa-user-check"></i>
+                                    Personal recommendation
+                                </span>
+                            </div>
+                            <div id="shelfLinkWrap" class="mb-3" style="display:none;">
+                                <a id="shelfLink" class="badge-ss text-decoration-none" href="#">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                    <span id="shelfNameText"></span>
+                                </a>
+                            </div>
+                            <a class="btn btn-outline-secondary share-link-btn" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener noreferrer">
+                                <h1 id="title" class="title mb-3">
+                                    Loading...
+                                </h1>
+                                <div class="note-card p-3 p-sm-4 mb-4">
+                                    <div class="d-flex gap-3">
+                                        <div class="quote-mark">
+                                            <i class="fa-solid fa-quote-left"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-secondary fw-bold mb-1">Why this was shared</div>
+                                            <p id="note" class="mb-0 fs-5">
+                                                Loading recommendation...
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2 mb-3">
+                                    <a id="storeLink" class="btn cta-btn" href="#" target="_blank" rel="noopener noreferrer">
+                                        <i id="storeIcon" class="fa-solid fa-cart-shopping me-2"></i>
+                                        <span id="storeText">View Product</span>
+                                    </a>
+                                    <button id="copyPage" class="btn secondary-btn" type="button">
+                                        <i class="fa-solid fa-link me-2"></i>
+                                        Copy this ShareShuffle link
+                                    </button>
+                                </div>
+                                <div class="trust-row d-flex flex-wrap justify-content-center gap-3 py-2">
+                                    <span><i class="fa-solid fa-lock me-1"></i> No account needed</span>
+                                    <span><i class="fa-solid fa-note-sticky me-1"></i> Shared with context</span>
+                                    <span><i class="fa-solid fa-mobile-screen-button me-1"></i> Mobile friendly</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex align-items-start gap-2 text-secondary small">
+                                    <i class="fa-solid fa-circle-info mt-1"></i>
+                                    <div>
+                                        As an Amazon Associate I earn from qualifying purchases.
+                                        Product details, pricing, and availability may change on Amazon.
+                                    </div>
+                                </div>
+                        </div>
+                    </article>
+                    <div class="text-center mt-4 footer-small">
+                        Create your own product recommendation links at
+                        <a href="/" class="tiny-link">ShareShuffle.com</a>
+                    </div>
                 </div>
-              </div>
-
-              <div class="d-grid gap-2 mb-3">
-                <a
-                  id="amazon"
-                  class="btn cta-btn"
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i class="fa-brands fa-amazon me-2"></i>
-                  View Product on Amazon
-                </a>
-
-                <button id="copyPage" class="btn secondary-btn" type="button">
-                  <i class="fa-solid fa-link me-2"></i>
-                  Copy this ShareShuffle link
-                </button>
-              </div>
-
-              <div class="trust-row d-flex flex-wrap justify-content-center gap-3 py-2">
-                <span><i class="fa-solid fa-lock me-1"></i> No account needed</span>
-                <span><i class="fa-solid fa-note-sticky me-1"></i> Shared with context</span>
-                <span><i class="fa-solid fa-mobile-screen-button me-1"></i> Mobile friendly</span>
-              </div>
-
-              <hr>
-
-              <div class="d-flex align-items-start gap-2 text-secondary small">
-                <i class="fa-solid fa-circle-info mt-1"></i>
-                <div>
-                  As an Amazon Associate I earn from qualifying purchases.
-                  Product details, pricing, and availability may change on Amazon.
-                </div>
-              </div>
             </div>
-          </article>
-
-          <div class="text-center mt-4 footer-small">
-            Create your own product recommendation links at
-            <a href="/" class="tiny-link">ShareShuffle.com</a>
-          </div>
-
         </div>
-      </div>
-    </div>
-  </main>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    </main>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getFirestore,
       doc,
@@ -442,9 +410,9 @@
     function setLoadingError(message) {
       document.getElementById("title").innerText = message;
       document.getElementById("note").innerText = "This share link could not be loaded.";
-      const amazonLink = document.getElementById("amazon");
-      amazonLink.removeAttribute("href");
-      amazonLink.classList.add("disabled");
+      const storeLink = document.getElementById("storeLink");
+storeLink.removeAttribute("href");
+storeLink.classList.add("disabled");
     }
 
     function wireCopyButton() {
@@ -460,43 +428,63 @@
       });
     }
 
-    function wireAffiliateButton({ data, shareRef }) {
-      const amazonLink = document.getElementById("amazon");
+    function getStoreName(merchant = "") {
+  const m = merchant.toLowerCase();
 
-      if (!data.url) {
-        amazonLink.removeAttribute("href");
-        amazonLink.classList.add("disabled");
-        return;
-      }
+  if (m === "amazon") return "Amazon";
+  if (m === "walmart") return "Walmart";
+  if (m === "target") return "Target";
+  if (m === "bestbuy") return "Best Buy";
+  if (m === "ebay") return "eBay";
 
-      const affiliateUrl = buildAffiliateUrl(data.url);
+  return "Store";
+}
 
-      amazonLink.href = affiliateUrl;
-      amazonLink.target = "_blank";
-      amazonLink.rel = "noopener";
+function wireAffiliateButton({ data, shareRef }) {
+  const storeLink = document.getElementById("storeLink");
+  const storeIcon = document.getElementById("storeIcon");
+  const storeText = document.getElementById("storeText");
 
-      let tracked = false;
+  if (!data.url) {
+    storeLink.removeAttribute("href");
+    storeLink.classList.add("disabled");
+    return;
+  }
 
-      function trackAffiliateClick() {
-        if (tracked) return;
-        tracked = true;
+  const merchant = (data.merchant || getAffiliateMerchant(data.originalUrl || data.url)).toLowerCase();
+  const storeName = getStoreName(merchant);
 
-        updateDoc(shareRef, {
-          amazonClicks: increment(1)
-        }).catch((error) => {
-          console.error("Affiliate click tracking failed:", error);
-        });
-      }
+  storeLink.href = data.url;
+  storeLink.target = "_blank";
+  storeLink.rel = "noopener";
 
-      // Track slightly before the browser follows the link.
-      // Do not preventDefault, await, or use window.open.
-      amazonLink.addEventListener("pointerdown", trackAffiliateClick);
-      amazonLink.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          trackAffiliateClick();
-        }
-      });
+  storeText.textContent = `View on ${storeName}`;
+
+  storeIcon.className =
+    merchant === "amazon"
+      ? "fa-brands fa-amazon me-2"
+      : "fa-solid fa-cart-shopping me-2";
+
+  let tracked = false;
+
+  function trackAffiliateClick() {
+    if (tracked) return;
+    tracked = true;
+
+    updateDoc(shareRef, {
+      amazonClicks: increment(1)
+    }).catch((error) => {
+      console.error("Affiliate click tracking failed:", error);
+    });
+  }
+
+  storeLink.addEventListener("pointerdown", trackAffiliateClick);
+  storeLink.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      trackAffiliateClick();
     }
+  });
+}
 
     async function loadShare() {
       if (!id) {
@@ -560,17 +548,8 @@
       setLoadingError("Error loading share");
     });
 
-    if (share.shelfSlug) {
-  shelfBacklink.classList.remove("d-none");
-
-  shelfBacklink.innerHTML = `
-    <a href="/shelf.html?s=${encodeURIComponent(share.shelfSlug)}">
-      <i class="fa-solid fa-layer-group"></i>
-      From ${escapeHtml(share.shelfName || "this shelf")}
-      <span>View full shelf</span>
-    </a>
-  `;
-}
+   
   </script>
 </body>
+
 </html>
