@@ -331,7 +331,6 @@
 
       docs.forEach(item => {
         const shareUrl = `${SHARE_BASE_URL}${item.id}`;
-        const amazonUrl = item.url ? makeAmazonAffiliateUrl(item.url) : "#";
         const image = item.image || "";
 
 
@@ -345,9 +344,10 @@ const storeName =
   "Amazon";
 
 const storeIcon =
-  merchant === "walmart"
-    ? '<i class="fa-solid fa-store me-1"></i>'
-    : '<i class="fa-brands fa-amazon me-1"></i>';
+  merchant === "amazon"
+    ? '<i class="fa-brands fa-amazon me-1"></i>'
+    : '<i class="fa-solid fa-cart-shopping me-1"></i>';
+    
 
 const storeUrl = item.url || "#";
 
@@ -387,6 +387,8 @@ const storeUrl = item.url || "#";
     Open Share Page
   </a>
 </div>
+                <button class="share-item-btn">Share Item</button>
+<button class="copy-link-btn">Copy Link</button>
             </div>
           </article>
         `;
