@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
-<head><meta name="robots" content="noindex,nofollow">
-  <meta charset="utf-8">
-  <title>ShareShuffle Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    :root {
+<head>
+    <meta name="robots" content="noindex,nofollow">
+    <meta charset="utf-8">
+    <title>ShareShuffle Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
       --ss-orange:#ff7a18;
       --ss-gold:#ffc145;
       --ss-blue:#0d6efd;
@@ -118,94 +118,95 @@ h1 {
 .small-muted { max-height: 2.8em; overflow: hidden; }
 
 </style>
-<link rel="stylesheet" href="/assets/brand.css">
+    <link rel="stylesheet" href="/assets/brand.css">
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#0d6efd">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="ShareShuffle">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="/icons/icon512.png">
+    <link rel="manifest" href="/manifest.json">
+
+<meta name="theme-color" content="#0f172a">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ShareShuffle">
+
+<link rel="apple-touch-icon" href="/icons/icon180-iphone.png">
 </head>
 
-<body class="admin-bg"><script>(function(){const PASS="shuffle";if(sessionStorage.getItem("ssAdminOK")==="yes")return;document.documentElement.style.visibility="hidden";window.addEventListener("DOMContentLoaded",()=>{document.documentElement.style.visibility="visible";const lock=document.createElement("div");lock.className="lock-screen";lock.innerHTML='<div class="lock-card"><div class="ss-brand" style="margin-bottom:14px"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle Admin</span></div><h2>Admin preview</h2><p style="color:#667085">Light protection for static GitHub Pages. Use Firebase Auth before real launch.</p><input id="ssPass" type="password" placeholder="Password"><button id="ssUnlock">Unlock</button><p id="ssLockStatus" style="color:#b42318;font-weight:800"></p></div>';document.body.appendChild(lock);const tryUnlock=()=>{if(document.getElementById("ssPass").value===PASS){sessionStorage.setItem("ssAdminOK","yes");lock.remove();}else document.getElementById("ssLockStatus").textContent="Nope. Try the project password."};document.getElementById("ssUnlock").addEventListener("click",tryUnlock);document.getElementById("ssPass").addEventListener("keydown",e=>{if(e.key==="Enter")tryUnlock();});});})();</script>
-  <div class="container py-4 py-lg-5">
-
-    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4 text-white">
-      <div class="d-flex align-items-center gap-3">
-        <div class="brand-logo">S</div>
-        <div>
-          <h1 class="fw-bold mb-0" style="font-weight:800;letter-spacing:-.025em;">ShareShuffle Dashboard</h1>
-          <div class="text-white-50">Views, affiliate clicks, CTR, and share performance.</div>
+<body class="admin-bg">
+    <script>(function(){const PASS="shuffle";if(sessionStorage.getItem("ssAdminOK")==="yes")return;document.documentElement.style.visibility="hidden";window.addEventListener("DOMContentLoaded",()=>{document.documentElement.style.visibility="visible";const lock=document.createElement("div");lock.className="lock-screen";lock.innerHTML='<div class="lock-card"><div class="ss-brand" style="margin-bottom:14px"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle Admin</span></div><h2>Admin preview</h2><p style="color:#667085">Light protection for static GitHub Pages. Use Firebase Auth before real launch.</p><input id="ssPass" type="password" placeholder="Password"><button id="ssUnlock">Unlock</button><p id="ssLockStatus" style="color:#b42318;font-weight:800"></p></div>';document.body.appendChild(lock);const tryUnlock=()=>{if(document.getElementById("ssPass").value===PASS){sessionStorage.setItem("ssAdminOK","yes");lock.remove();}else document.getElementById("ssLockStatus").textContent="Nope. Try the project password."};document.getElementById("ssUnlock").addEventListener("click",tryUnlock);document.getElementById("ssPass").addEventListener("keydown",e=>{if(e.key==="Enter")tryUnlock();});});})();</script>
+    <div class="container py-4 py-lg-5">
+        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4 text-white">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-logo">S</div>
+                <div>
+                    <h1 class="fw-bold mb-0" style="font-weight:800;letter-spacing:-.025em;">ShareShuffle Dashboard</h1>
+                    <div class="text-white-50">Views, affiliate clicks, CTR, and share performance.</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="refreshBtn" class="btn btn-light rounded-pill fw-bold">
+                    <i class="fa-solid fa-rotate me-1"></i> Refresh
+                </button>
+                <a href="/" class="btn btn-outline-light rounded-pill fw-bold">
+                    Home
+                </a>
+            </div>
         </div>
-      </div>
-
-      <div class="d-flex gap-2">
-        <button id="refreshBtn" class="btn btn-light rounded-pill fw-bold">
-          <i class="fa-solid fa-rotate me-1"></i> Refresh
-        </button>
-        <a href="/" class="btn btn-outline-light rounded-pill fw-bold">
-          Home
-        </a>
-      </div>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="metric-card p-3">
+                    <div class="small-muted">Shares</div>
+                    <div id="totalShares" class="metric-number">—</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="metric-card p-3">
+                    <div class="small-muted">Views</div>
+                    <div id="totalViews" class="metric-number">—</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="metric-card p-3">
+                    <div class="small-muted">Affiliate Clicks</div>
+                    <div id="totalClicks" class="metric-number">—</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="metric-card p-3">
+                    <div class="small-muted">Overall CTR</div>
+                    <div id="overallCtr" class="metric-number">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="glass-card">
+            <div class="p-4 border-bottom">
+                <div id="status" class="text-secondary">Loading shares...</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Views</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                            <th>Created</th>
+                            <th>Share</th>
+                            <th>Store</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="sharesTable"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-lg-3">
-        <div class="metric-card p-3">
-          <div class="small-muted">Shares</div>
-          <div id="totalShares" class="metric-number">—</div>
-        </div>
-      </div>
-
-      <div class="col-6 col-lg-3">
-        <div class="metric-card p-3">
-          <div class="small-muted">Views</div>
-          <div id="totalViews" class="metric-number">—</div>
-        </div>
-      </div>
-
-      <div class="col-6 col-lg-3">
-        <div class="metric-card p-3">
-          <div class="small-muted">Affiliate Clicks</div>
-          <div id="totalClicks" class="metric-number">—</div>
-        </div>
-      </div>
-
-      <div class="col-6 col-lg-3">
-        <div class="metric-card p-3">
-          <div class="small-muted">Overall CTR</div>
-          <div id="overallCtr" class="metric-number">—</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="glass-card">
-      <div class="p-4 border-bottom">
-        <div id="status" class="text-secondary">Loading shares...</div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Product</th>
-              <th>Views</th>
-              <th>Clicks</th>
-              <th>CTR</th>
-              <th>Created</th>
-              <th>Share</th>
-              <th>Store</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="sharesTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
     import {
       getFirestore,
@@ -387,4 +388,5 @@ const SHARE_BASE_URL =
     loadDashboard();
   </script>
 </body>
+
 </html>
