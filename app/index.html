@@ -314,13 +314,14 @@
           created: serverTimestamp()
         });
 
-        const shareUrl = `${SHARE_BASE_URL}${id}`;
-        const message = buildMessage({ title, note, shareUrl });
+        const canonicalShareUrl = `${SHARE_BASE_URL}${id}`;
         const handleSlug = makeSlug(data.handle);
         const shelfSlug = makeSlug(data.shelfName);
         const futurePath = handleSlug && shelfSlug ? `https://shfl.me/u/${handleSlug}/${shelfSlug}/${id}` : "";
+        const shareUrl = futurePath || canonicalShareUrl;
+        const message = buildMessage({ title, note, shareUrl });
 
-        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, savedAt: Date.now() };
+        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, canonicalShareUrl, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, savedAt: Date.now() };
         showLastShare(payload);
         await navigator.clipboard.writeText(message);
         status.textContent = `Copied: ${id}`;

@@ -490,11 +490,14 @@ h1 {
 
 
     function cleanProductTitle(value = "") {
-      let title = String(value).trim();
+      let title = String(value || "").trim();
 
-      title = title.replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay)\s*[:\-–]\s*/i, "");
-      title = title.replace(/\s*[:|]\s*(Amazon|Walmart|Target|Best Buy|eBay)(?:\.com)?\s*$/i, "");
-      title = title.replace(/\s*[:|]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury|Sports\s*&\s*Outdoors|Tools\s*&\s*Home Improvement|Office Products|Beauty\s*&\s*Personal Care|Health\s*&\s*Household|Toys\s*&\s*Games|Patio,\s*Lawn\s*&\s*Garden|Automotive)\s*$/i, "");
+      title = title
+        .replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay(?:\.com)?)\s*[:|｜\-–—]\s*/i, "")
+        .replace(/\s*[:|｜]\s*(Amazon|Amazon\.com|Walmart|Walmart\.com|Target|Best Buy|eBay|eBay\.com)\s*$/i, "")
+        .replace(/\s*[:|｜]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury|Sports\s*&\s*Outdoors|Tools\s*&\s*Home Improvement|Office Products|Beauty\s*&\s*Personal Care|Health\s*&\s*Household|Toys\s*&\s*Games|Patio,\s*Lawn\s*&\s*Garden|Automotive)\s*$/i, "")
+        .replace(/\s+/g, " ")
+        .trim();
 
       return title || "Shared find";
     }
@@ -509,14 +512,14 @@ h1 {
     }
 
     function buildShareMessage({ title, note, shareUrl }) {
-      const cleanTitle = smartTruncate(title, 90);
+      const cleanTitle = smartTruncate(cleanProductTitle(title), 90);
       const cleanNote = smartTruncate(note || "", 140);
-      const cleanShareUrl = shareUrl.replace("https://", "").replace("http://", "");
+      const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "");
       return [
-        "🔗 Shared via ShareShuffle",
+        "Shared via ShareShuffle:",
         cleanNote ? `💬 ${cleanNote}` : "",
-        cleanTitle ? `🛍️ ${cleanTitle}` : "",
-        `👉 ${cleanShareUrl}`
+        cleanTitle ? `🎯 ${cleanTitle}` : "",
+        cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
       ].filter(Boolean).join("\n");
     }
 
@@ -525,9 +528,11 @@ h1 {
       try {
         const hostname = new URL(originalUrl).hostname.replace(/^www\./, "").toLowerCase();
 
-        if (hostname === "amazon.com" || hostname.endsWith(".amazon.com")) return "amazon";
-        if (hostname === "walmart.com" || hostname.endsWith(".walmart.com")) return "walmart";
-        if (hostname.includes("goto.walmart.com")) return "walmart";
+        if (hostname === "amazon.com" || hostname.endsWith(".amazon.com") || hostname === "amzn.to" || hostname === "a.co") return "amazon";
+        if (hostname === "walmart.com" || hostname.endsWith(".walmart.com") || hostname.includes("goto.walmart.com")) return "walmart";
+        if (hostname === "target.com" || hostname.endsWith(".target.com")) return "target";
+        if (hostname === "bestbuy.com" || hostname.endsWith(".bestbuy.com")) return "bestbuy";
+        if (hostname === "ebay.com" || hostname.endsWith(".ebay.com")) return "ebay";
 
         return "direct";
       } catch {
@@ -538,7 +543,12 @@ h1 {
     function buildAmazonAffiliateUrl(originalUrl) {
       try {
         const url = new URL(originalUrl);
-        url.searchParams.set("tag", AFFILIATE_CONFIG.amazon.tag);
+
+        // Ethics-first: do not overwrite visible existing Amazon affiliate tags.
+        if (!url.searchParams.has("tag")) {
+          url.searchParams.set("tag", AFFILIATE_CONFIG.amazon.tag);
+        }
+
         return url.toString();
       } catch (error) {
         console.error("Bad Amazon URL:", originalUrl, error);
