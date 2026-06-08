@@ -1,0 +1,22 @@
+ShareShuffle Archive 9 refactor notes
+
+Implemented:
+- Extension badge now uses a green "+" instead of a dot.
+- Popup last share now persists across pages and remains available to copy/email/text/send again.
+- Popup only repopulates editable fields when the stored share is from the same current page, preventing accidental overwrite.
+- Popup CSS compacted to reduce scrolling.
+- SMS/email/share message emoji format updated:
+  🔗 Shared via ShareShuffle
+  📝 note
+  🛍️ item
+  🔗 short link
+- Added PWA/mobile app basics:
+  /manifest.webmanifest
+  /app/index.html
+  mobile/apple meta tags on core pages
+- Added shared heading polish to make page headings feel more consistent.
+- Dashboard already includes Remove support; Firestore rules still need admin-auth delete permission before live deletes will work.
+
+Later:
+- Chrome tab/page "badges" are separate from extension action badges. We can explore favicon/title badging or PWA app badges later, but the action badge remains the safest Chrome extension signal today.
+- Real shelf item removal should be protected by Firebase Auth/admin claims, not public delete rules.

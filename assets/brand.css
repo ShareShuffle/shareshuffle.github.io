@@ -507,3 +507,33 @@ th:nth-child(2), td:nth-child(2) { width: 45%; }
 .truncate-one { max-width: 100%; font-weight: 800; }
 td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7; }
 .admin-panel a { font-weight: 800; }
+
+/* Shared page heading polish */
+.ss-page-kicker,
+.shelf-eyebrow,
+.badge-ss {
+  letter-spacing: .02em;
+}
+
+.ss-title,
+.support-title,
+.app-title,
+.shelf-title,
+.title,
+.hero-title {
+  font-family: "League Spartan", Inter, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.ss-page-heading {
+  font-family: "League Spartan", Inter, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: .98;
+}
+
+.ss-subtle-card {
+  border: 1px solid rgba(13,110,253,.10);
+  box-shadow: 0 18px 55px rgba(7,20,38,.12);
+}

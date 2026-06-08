@@ -22,7 +22,7 @@ async function updateExtensionBadge(tabId, url) {
   if (isLikedSite(url)) {
     await chrome.action.setBadgeText({
       tabId,
-      text: "●"
+      text: "+"
     });
 
     await chrome.action.setBadgeBackgroundColor({
@@ -32,7 +32,7 @@ async function updateExtensionBadge(tabId, url) {
 
     await chrome.action.setTitle({
       tabId,
-      title: "ShareShuffle supports this site"
+      title: "ShareShuffle can add this page"
     });
   } else {
     await chrome.action.setBadgeText({

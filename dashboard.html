@@ -104,8 +104,28 @@
     .metric-card { transition: transform 160ms ease, box-shadow 160ms ease; }
     .metric-card:hover { transform: translateY(-2px); box-shadow:0 20px 45px rgba(0,0,0,.14); }
 
-  </style>
-<link rel="stylesheet" href="/assets/brand.css"></head>
+  
+/* ShareShuffle shared heading polish */
+.shelf-title,
+.title,
+h1 {
+  font-family: "League Spartan", Inter, system-ui, sans-serif;
+  font-weight: 700 !important;
+  letter-spacing: -0.035em !important;
+}
+.hero-card { border-radius: 28px; }
+.product-title { max-height: 3.75em; }
+.small-muted { max-height: 2.8em; overflow: hidden; }
+
+</style>
+<link rel="stylesheet" href="/assets/brand.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="ShareShuffle">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon512.png">
+</head>
 
 <body class="admin-bg"><script>(function(){const PASS="shuffle";if(sessionStorage.getItem("ssAdminOK")==="yes")return;document.documentElement.style.visibility="hidden";window.addEventListener("DOMContentLoaded",()=>{document.documentElement.style.visibility="visible";const lock=document.createElement("div");lock.className="lock-screen";lock.innerHTML='<div class="lock-card"><div class="ss-brand" style="margin-bottom:14px"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle Admin</span></div><h2>Admin preview</h2><p style="color:#667085">Light protection for static GitHub Pages. Use Firebase Auth before real launch.</p><input id="ssPass" type="password" placeholder="Password"><button id="ssUnlock">Unlock</button><p id="ssLockStatus" style="color:#b42318;font-weight:800"></p></div>';document.body.appendChild(lock);const tryUnlock=()=>{if(document.getElementById("ssPass").value===PASS){sessionStorage.setItem("ssAdminOK","yes");lock.remove();}else document.getElementById("ssLockStatus").textContent="Nope. Try the project password."};document.getElementById("ssUnlock").addEventListener("click",tryUnlock);document.getElementById("ssPass").addEventListener("keydown",e=>{if(e.key==="Enter")tryUnlock();});});})();</script>
   <div class="container py-4 py-lg-5">

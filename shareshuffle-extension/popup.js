@@ -357,9 +357,9 @@ function buildMessage({ title, note, shareUrl }) {
 
   return [
     "🔗 Shared via ShareShuffle",
-    cleanNote ? `💬 ${cleanNote}` : "",
+    cleanNote ? `📝 ${cleanNote}` : "",
     cleanProductTitle ? `🛍️ ${cleanProductTitle}` : "",
-    `👉 ${cleanShareUrl}`
+    `🔗 ${cleanShareUrl}`
   ]
     .filter(Boolean)
     .join("\n");
@@ -398,18 +398,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   urlInput.value = tab?.url || "";
 
   const savedLastShare = await getLastShare();
-  if (savedLastShare && savedLastShare.originalUrl === (tab?.url || "")) {
-    titleInput.value = savedLastShare.title || titleInput.value;
-    noteInput.value = savedLastShare.note || "";
-    if (shelfNameInput) shelfNameInput.value = savedLastShare.shelfName || "";
+  if (savedLastShare) {
+    const samePage = savedLastShare.originalUrl === (tab?.url || "");
 
+    // Always keep the last share available so users can reopen the popup
+    // after texting/emailing and send the same link again.
     lastShareUrl = savedLastShare.shareUrl || "";
     lastMessage = savedLastShare.message || "";
     lastShelfUrl = savedLastShare.shelfUrl || "";
 
+    // Only repopulate editable fields when the user is still on the same page.
+    // This prevents an old share from overwriting the current tab's title/URL.
+    if (samePage) {
+      titleInput.value = savedLastShare.title || titleInput.value;
+      noteInput.value = savedLastShare.note || "";
+      if (shelfNameInput) shelfNameInput.value = savedLastShare.shelfName || "";
+    }
+
     if (lastShareUrl && lastMessage) {
       actions.style.display = "grid";
-      status.textContent = "Last share restored.";
+      status.textContent = samePage ? "Last share restored." : "Last share ready to send again.";
     }
 
     if (lastShelfUrl) {
