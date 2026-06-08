@@ -23,7 +23,7 @@ export const AFFILIATE_CONFIG = {
 };
 
 export function makeShortId(length = 5) {
-  const chars = "23456789abcdefghjklmnpqrstuvwxyz";
+  const chars = "23456789abcdefghjkmnpqrstuvwxyz";
   let id = "";
   for (let i = 0; i < length; i++) id += chars[Math.floor(Math.random() * chars.length)];
   return id;

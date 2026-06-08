@@ -123,7 +123,7 @@ const SHELVES_URL =
   `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${SHELVES_COLLECTION}`;
 
 function makeShortId(length = 5) {
-  const chars = "23456789abcdefghjklmnpqrstuvwxyz";
+  const chars = "23456789abcdefghjkmnpqrstuvwxyz";
   let id = "";
 
   for (let i = 0; i < length; i++) {
