@@ -15,9 +15,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
 
 
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.webmanifest">
 
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#FFF8E7">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -57,8 +57,10 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: var(--ss-grad);
-  box-shadow: 0 12px 30px rgba(13, 110, 253, 0.33);
+  padding: 7px;
+  background: #FFF8E7;
+  border: 1px solid rgba(255,255,255,.44);
+  box-shadow: 0 12px 30px rgba(13, 110, 253, 0.26);
 }
 
 
@@ -231,7 +233,12 @@
 
 
 /* ShareShuffle polish pass: readable headings, clamped card content, stronger action targets */
-.brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 .product-title,
 .title,
 .shelf-title { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -270,11 +277,11 @@ h1 {
 </style>
 
     <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#0d6efd">
+    <meta name="theme-color" content="#FFF8E7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="ShareShuffle">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/icons/icon512.png">
+    <link rel="apple-touch-icon" href="/icons/icon180-iphone.png">
 </head>
 
 <body>

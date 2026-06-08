@@ -3,54 +3,347 @@
 <head>
   <meta charset="utf-8">
   <title>ShareShuffle App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="ShareShuffle app-style home for iPhone and mobile users.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Create ShareShuffle product recommendation links on iPhone and mobile.">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#0d6efd">
+  <meta name="theme-color" content="#FFF8E7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="ShareShuffle">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="/icons/icon512.png">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="/icons/icon180-iphone.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
   <link href="/assets/brand.css" rel="stylesheet">
   <style>
-    .app-shell{min-height:100vh;padding:32px 18px;background:var(--ss-grad-dark);color:white}
-    .app-card{max-width:760px;margin:0 auto;background:rgba(255,255,255,.96);color:var(--ss-ink);border-radius:32px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.30)}
-    .app-title{font-size:clamp(2.1rem,8vw,4.2rem);line-height:.95;letter-spacing:-.04em;font-weight:700;margin:14px 0}
-    .app-lede{font-size:1.05rem;color:var(--ss-muted);max-width:58ch}
-    .step{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid rgba(13,110,253,.12)}
-    .step-num{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;color:white;font-weight:800;background:var(--ss-grad);flex:0 0 auto}
-    .app-actions{display:grid;gap:10px;margin-top:20px}
-    .app-actions a{display:flex;justify-content:center;align-items:center;border-radius:999px;padding:12px 16px;font-weight:800;text-decoration:none}
-    .primary{color:white;background:var(--ss-grad)}
-    .secondary{color:var(--ss-ink);background:#f5f8ff;border:1px solid rgba(13,110,253,.16)}
+    body{background:var(--ss-grad-dark);}
+    .app-shell{min-height:100vh;padding:calc(env(safe-area-inset-top) + 18px) 16px 28px;color:white;}
+    .app-wrap{max-width:680px;margin:0 auto;}
+    .app-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;}
+    .app-brand{display:flex;align-items:center;gap:10px;color:white;text-decoration:none;}
+    .app-logo{width:46px;height:46px;border-radius:16px;background:#FFF8E7;border:1px solid rgba(255,255,255,.42);padding:7px;display:grid;place-items:center;box-shadow:0 14px 36px rgba(13,110,253,.28);}
+    .app-logo img{width:100%;height:100%;object-fit:contain;display:block;}
+    .app-brand strong{display:block;font-size:1.12rem;line-height:1;font-weight:900;}
+    .app-brand span{display:block;color:rgba(255,255,255,.68);font-size:.86rem;margin-top:3px;}
+    .install-pill{border:1px solid rgba(255,255,255,.38);color:white;border-radius:999px;padding:8px 11px;text-decoration:none;font-weight:850;font-size:.84rem;white-space:nowrap;}
+    .app-card{background:rgba(255,255,255,.97);color:var(--ss-ink);border:1px solid rgba(255,255,255,.72);border-radius:30px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.28);}
+    .app-title{font-size:clamp(2rem,9vw,3.55rem);line-height:.94;letter-spacing:-.045em;font-weight:760;margin:12px 0 10px;}
+    .app-lede{color:var(--ss-muted);font-size:1rem;line-height:1.4;margin:0 0 18px;}
+    .field{margin-top:12px;}
+    .field label{display:block;font-weight:900;font-size:.88rem;margin-bottom:6px;}
+    .optional{color:var(--ss-muted);font-weight:700;}
+    .input, .textarea{width:100%;box-sizing:border-box;border:1px solid #d8e2f0;border-radius:16px;padding:12px 13px;font:inherit;background:white;outline:none;}
+    .textarea{min-height:86px;resize:vertical;line-height:1.35;}
+    .input:focus,.textarea:focus{border-color:#13c8ff;box-shadow:0 0 0 4px rgba(19,200,255,.14);}
+    .mini-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;}
+    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+    .app-btn{border:0;border-radius:999px;padding:12px 14px;font:inherit;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;}
+    .primary{background:var(--ss-grad);color:white;box-shadow:0 16px 34px rgba(13,110,253,.22);}
+    .secondary{background:white;color:var(--ss-ink);border:1px solid rgba(13,110,253,.18);}
+    .tiny{padding:10px 12px;font-size:.88rem;}
+    .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+    .pill-row button{border:1px solid #d8e2f0;background:#fff;color:var(--ss-ink);border-radius:999px;padding:7px 10px;font-weight:850;}
+    .status{min-height:22px;margin:10px 2px 0;color:#1c4ed8;font-weight:850;font-size:.92rem;}
+    .last-card{display:none;margin-top:18px;border:1px solid #d8e2f0;border-radius:22px;padding:14px;background:#fff;}
+    .last-label{font-size:.76rem;color:#0d6efd;text-transform:uppercase;letter-spacing:.05em;font-weight:950;text-align:center;}
+    .last-title{font-weight:900;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;}
+    .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+    .action-btn{border:1px solid #d8e2f0;background:#fff;border-radius:18px;min-height:52px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;text-decoration:none;color:var(--ss-ink);font-weight:850;font-size:.78rem;}
+    .action-btn i{color:#0d6efd;font-size:1.05rem;}
+    .fine-print{font-size:.8rem;line-height:1.35;color:var(--ss-muted);margin-top:16px;}
+    .install-help{margin-top:14px;padding:12px 14px;border-radius:18px;background:#f5f8ff;color:var(--ss-muted);font-size:.9rem;line-height:1.35;}
+    @media(max-width:420px){.app-card{padding:18px;border-radius:26px}.btn-row{grid-template-columns:1fr}.app-top{align-items:flex-start}.install-pill{display:none}.actions{gap:6px}.action-btn{font-size:.72rem}}
   </style>
 </head>
 <body>
   <main class="app-shell">
-    <section class="app-card">
-      <div class="ss-brand-row">
-        <img src="/icons/icon128.png" alt="ShareShuffle" class="ss-brand-mark">
-        <div>
-          <strong>ShareShuffle</strong>
-          <div class="small">Mobile app preview</div>
+    <div class="app-wrap">
+      <div class="app-top">
+        <a class="app-brand" href="/">
+          <span class="app-logo"><img src="/icons/icon192-android.png" alt="ShareShuffle"></span>
+          <span><strong>ShareShuffle</strong><span>Share what’s worth finding</span></span>
+        </a>
+        <a class="install-pill" href="#installHelp"><i class="fa-brands fa-apple"></i> Add to Home Screen</a>
+      </div>
+
+      <section class="app-card">
+        <span class="ss-eyebrow"><i class="fa-solid fa-mobile-screen-button"></i> Mobile creator</span>
+        <h1 class="app-title">Create a share from your phone.</h1>
+        <p class="app-lede">Copy a product link, open ShareShuffle, tap Paste Product Link, then add a note and shelf. Your last share stays ready so you can send it again.</p>
+
+        <div class="field">
+          <label for="productUrl">Product URL</label>
+          <div class="mini-row">
+            <input id="productUrl" class="input" type="url" placeholder="https://amazon.com/...">
+            <button id="selectUrlBtn" class="app-btn secondary tiny" type="button">Select</button>
+          </div>
+          <div class="btn-row">
+            <button id="pasteBtn" class="app-btn secondary" type="button"><i class="fa-solid fa-paste"></i> Paste Product Link</button>
+            <button id="clearBtn" class="app-btn secondary" type="button"><i class="fa-solid fa-rotate-left"></i> Clear</button>
+          </div>
+          <div id="clipboardStatus" class="status"></div>
         </div>
-      </div>
 
-      <h1 class="app-title">Save ShareShuffle to your iPhone.</h1>
-      <p class="app-lede">The Chrome extension works on desktop. On iPhone, add ShareShuffle to your Home Screen for a fast app-like launch to your shelves, shares, support, and public pages.</p>
+        <div class="field">
+          <label for="title">Title <span class="optional">(optional)</span></label>
+          <input id="title" class="input" type="text" maxlength="180" placeholder="Leave blank and ShareShuffle will use a simple title">
+        </div>
 
-      <div class="step"><div class="step-num">1</div><div>Open this page in Safari on your iPhone.</div></div>
-      <div class="step"><div class="step-num">2</div><div>Tap the Share button in Safari.</div></div>
-      <div class="step"><div class="step-num">3</div><div>Choose <strong>Add to Home Screen</strong>.</div></div>
-      <div class="step"><div class="step-num">4</div><div>Launch ShareShuffle like an app.</div></div>
+        <div class="field">
+          <label for="note">Your note <span class="optional">(optional)</span></label>
+          <textarea id="note" class="textarea" maxlength="180" placeholder="I saw this and thought of you..."></textarea>
+        </div>
 
-      <div class="app-actions">
-        <a class="primary" href="/">Open ShareShuffle</a>
-        <a class="secondary" href="/support/">Support</a>
-        <a class="secondary" href="/privacy/">Privacy Policy</a>
-      </div>
-    </section>
+        <div class="field">
+          <label for="shelfName">Save to shelf <span class="optional">(optional)</span></label>
+          <input id="shelfName" class="input" type="text" maxlength="100" placeholder="Bass Gear, Gift Ideas, Kitchen...">
+          <div id="shelfPills" class="pill-row"></div>
+        </div>
+
+        <div class="field">
+          <label for="handle">Name or handle <span class="optional">(optional, saved locally for later)</span></label>
+          <input id="handle" class="input" type="text" maxlength="60" placeholder="Rich, rchwms, Filthy Rich...">
+        </div>
+
+        <div class="field">
+          <label for="imageUrl">Image URL <span class="optional">(optional)</span></label>
+          <input id="imageUrl" class="input" type="url" maxlength="2000" placeholder="Paste an image URL if you have one">
+        </div>
+
+        <button id="createBtn" class="app-btn primary" type="button" style="width:100%;margin-top:18px;"><i class="fa-solid fa-shuffle"></i> Create Share Link</button>
+        <div id="createStatus" class="status"></div>
+
+        <div id="lastSharePanel" class="last-card">
+          <div class="last-label">Last share ready</div>
+          <div id="lastShareTitle" class="last-title"></div>
+          <div class="actions">
+            <button id="copyLastBtn" class="action-btn" type="button"><i class="fa-solid fa-link"></i><span>Copy</span></button>
+            <a id="smsLastBtn" class="action-btn" href="#"><i class="fa-solid fa-comment-sms"></i><span>Message</span></a>
+            <a id="emailLastBtn" class="action-btn" href="#"><i class="fa-solid fa-envelope"></i><span>Email</span></a>
+            <a id="openLastBtn" class="action-btn" href="#" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i><span>Open</span></a>
+          </div>
+          <div class="btn-row">
+            <a id="openShelfBtn" class="app-btn secondary" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"><i class="fa-solid fa-layer-group"></i> Open Shelf</a>
+            <button id="newShareBtn" class="app-btn secondary" type="button"><i class="fa-solid fa-plus"></i> New Share</button>
+          </div>
+        </div>
+
+        <p class="fine-print">Links may include affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
+        <div id="installHelp" class="install-help"><strong>iPhone:</strong> open this page in Safari, tap Share, then Add to Home Screen. Clipboard access requires tapping the Paste Product Link button.</div>
+      </section>
+    </div>
   </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      FIREBASE_CONFIG, SHARE_BASE_URL, SHELF_BASE_URL,
+      makeShortId, makeSlug, extractPrimaryUrl, getAffiliateMerchant,
+      buildAffiliateUrl, cleanTitle, neutralizeText, smartTruncate,
+      buildMessage, titleFromUrl
+    } from "/assets/share-core.js";
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(app);
+
+    const DRAFT_KEY = "shareshuffle_app_draft";
+    const LAST_SHARE_KEY = "shareshuffle_app_last_share";
+    const SHELVES_KEY = "shareshuffle_app_shelves";
+
+    const $ = (id) => document.getElementById(id);
+    const fields = ["productUrl", "title", "note", "shelfName", "handle", "imageUrl"];
+    let lastShare = null;
+
+    function getFieldData() {
+      return Object.fromEntries(fields.map(id => [id, $(id).value.trim()]));
+    }
+
+    function saveDraft() {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...getFieldData(), updatedAt: Date.now() }));
+    }
+
+    function restoreDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}");
+        fields.forEach(id => { if (draft[id]) $(id).value = draft[id]; });
+      } catch {}
+    }
+
+    function getShelves() {
+      try { return JSON.parse(localStorage.getItem(SHELVES_KEY) || "[]"); } catch { return []; }
+    }
+
+    function saveShelfName(name) {
+      const clean = String(name || "").trim();
+      if (!clean) return;
+      const shelves = getShelves();
+      const updated = [clean, ...shelves.filter(s => s.toLowerCase() !== clean.toLowerCase())].slice(0, 10);
+      localStorage.setItem(SHELVES_KEY, JSON.stringify(updated));
+      renderShelfPills();
+    }
+
+    function renderShelfPills() {
+      const wrap = $("shelfPills");
+      wrap.innerHTML = "";
+      getShelves().forEach(shelf => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = shelf;
+        btn.addEventListener("click", () => { $("shelfName").value = shelf; saveDraft(); });
+        wrap.appendChild(btn);
+      });
+    }
+
+    async function shareExists(id) {
+      const snap = await getDoc(doc(db, "shares", id));
+      return snap.exists();
+    }
+
+    async function createUniqueId() {
+      let id;
+      do { id = makeShortId(); } while (await shareExists(id));
+      return id;
+    }
+
+    async function createShelfIfNeeded(name) {
+      const shelfName = String(name || "").trim();
+      if (!shelfName) return { shelfName: "", shelfSlug: "", shelfUrl: "" };
+      const shelfSlug = makeSlug(shelfName);
+      const shelfUrl = `${SHELF_BASE_URL}${encodeURIComponent(shelfSlug)}`;
+      if (!shelfSlug) return { shelfName: "", shelfSlug: "", shelfUrl: "" };
+      try {
+        const ref = doc(db, "shelves", shelfSlug);
+        const existing = await getDoc(ref);
+        if (!existing.exists()) {
+          await setDoc(ref, {
+            name: shelfName,
+            slug: shelfSlug,
+            description: "",
+            image: "",
+            coverImage: "",
+            ownerUuid: "pwa-local-user",
+            created: serverTimestamp()
+          });
+        }
+      } catch (error) {
+        console.warn("Shelf create failed; continuing with share", error);
+      }
+      return { shelfName, shelfSlug, shelfUrl };
+    }
+
+    function showLastShare(share) {
+      lastShare = share;
+      localStorage.setItem(LAST_SHARE_KEY, JSON.stringify(share));
+      $("lastSharePanel").style.display = "block";
+      $("lastShareTitle").textContent = cleanTitle(share.title || "Shared find");
+      $("openLastBtn").href = share.shareUrl;
+      const encodedMessage = encodeURIComponent(share.message || share.shareUrl);
+      $("smsLastBtn").href = `sms:?&body=${encodedMessage}`;
+      $("emailLastBtn").href = `mailto:?subject=${encodeURIComponent("I saw this and thought of you")}&body=${encodedMessage}`;
+      if (share.shelfUrl) {
+        $("openShelfBtn").style.display = "inline-flex";
+        $("openShelfBtn").href = share.shelfUrl;
+      } else {
+        $("openShelfBtn").style.display = "none";
+      }
+    }
+
+    function restoreLastShare() {
+      try {
+        const share = JSON.parse(localStorage.getItem(LAST_SHARE_KEY) || "{}");
+        if (share.shareUrl) showLastShare(share);
+      } catch {}
+    }
+
+    async function pasteFromClipboard() {
+      const status = $("clipboardStatus");
+      try {
+        if (!navigator.clipboard?.readText) {
+          status.textContent = "Clipboard paste is unavailable. Paste the link manually.";
+          return;
+        }
+        const text = await navigator.clipboard.readText();
+        const url = extractPrimaryUrl(text);
+        if (!url) {
+          status.textContent = "Clipboard did not include a product link.";
+          return;
+        }
+        $("productUrl").value = url;
+        if (!$("title").value.trim()) $("title").value = titleFromUrl(url);
+        status.textContent = "Product link pasted.";
+        saveDraft();
+      } catch (error) {
+        console.error(error);
+        status.textContent = "Clipboard access was blocked. Tap the URL field and paste manually.";
+      }
+    }
+
+    async function createShare() {
+      const status = $("createStatus");
+      const data = getFieldData();
+      const sourceUrl = extractPrimaryUrl(data.productUrl) || data.productUrl;
+      if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) {
+        status.textContent = "Add a product URL first.";
+        return;
+      }
+      $("createBtn").disabled = true;
+      status.textContent = "Creating share link...";
+      try {
+        const id = await createUniqueId();
+        const shelf = await createShelfIfNeeded(data.shelfName);
+        saveShelfName(data.shelfName);
+        const affiliateUrl = buildAffiliateUrl(sourceUrl);
+        const merchant = getAffiliateMerchant(sourceUrl);
+        const title = cleanTitle(data.title || titleFromUrl(sourceUrl));
+        const note = neutralizeText(data.note || "");
+        const image = data.imageUrl || "";
+
+        await setDoc(doc(db, "shares", id), {
+          title,
+          url: affiliateUrl,
+          originalUrl: sourceUrl,
+          merchant,
+          affiliateApplied: affiliateUrl !== sourceUrl,
+          note,
+          image,
+          shelfName: shelf.shelfName,
+          shelfSlug: shelf.shelfSlug,
+          views: 0,
+          amazonClicks: 0,
+          shares: 0,
+          created: serverTimestamp()
+        });
+
+        const shareUrl = `${SHARE_BASE_URL}${id}`;
+        const message = buildMessage({ title, note, shareUrl });
+        const handleSlug = makeSlug(data.handle);
+        const shelfSlug = makeSlug(data.shelfName);
+        const futurePath = handleSlug && shelfSlug ? `https://shfl.me/u/${handleSlug}/${shelfSlug}/${id}` : "";
+
+        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, savedAt: Date.now() };
+        showLastShare(payload);
+        await navigator.clipboard.writeText(message);
+        status.textContent = `Copied: ${id}`;
+        saveDraft();
+      } catch (error) {
+        console.error(error);
+        status.textContent = "Could not create share. Check the console.";
+      } finally {
+        $("createBtn").disabled = false;
+      }
+    }
+
+    fields.forEach(id => $(id).addEventListener("input", saveDraft));
+    $("pasteBtn").addEventListener("click", pasteFromClipboard);
+    $("selectUrlBtn").addEventListener("click", () => { $("productUrl").focus(); $("productUrl").select(); });
+    $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); saveDraft(); $("clipboardStatus").textContent = "Cleared."; });
+    $("createBtn").addEventListener("click", createShare);
+    $("copyLastBtn").addEventListener("click", async () => { if (!lastShare) return; await navigator.clipboard.writeText(lastShare.message || lastShare.shareUrl); $("createStatus").textContent = "Copied last share."; });
+    $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; });
+
+    restoreDraft();
+    renderShelfPills();
+    restoreLastShare();
+  </script>
 </body>
 </html>

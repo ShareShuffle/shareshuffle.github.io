@@ -9,6 +9,7 @@
     --ss-ink: #102033;
     --ss-muted: #667085;
     --ss-cloud: #f5f8ff;
+    --ss-icon-cream: #FFF8E7;
     --ss-grad: linear-gradient(135deg, #ff7a18 0%, #ffc145 28%, #13c8ff 64%, #0d6efd 100%);
     --ss-grad-dark: radial-gradient(circle at 10% 10%, rgba(255, 122, 24, .35), transparent 32%), radial-gradient(circle at 90% 20%, rgba(19, 200, 255, .32), transparent 28%), linear-gradient(135deg, #071426 0%, #102033 100%);
     --ss-shadow: 0 24px 70px rgba(7, 20, 38, .16);
@@ -62,16 +63,21 @@ a {
     width: 42px;
     height: 42px;
     border-radius: 14px;
-    background: var(--ss-grad);
+    background: var(--ss-icon-cream);
+    border: 1px solid rgba(7,20,38,.10);
     display: grid;
     place-items: center;
+    padding: 7px;
     color: white;
-    box-shadow: 0 10px 30px rgba(13, 110, 253, .25)
+    box-shadow: 0 10px 30px rgba(13, 110, 253, .18);
+    overflow: hidden
 }
 
 .ss-logo img {
-    width: 26px;
-    height: 26px
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block
 }
 
 .ss-links {
@@ -536,4 +542,25 @@ td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7
 .ss-subtle-card {
   border: 1px solid rgba(13,110,253,.10);
   box-shadow: 0 18px 55px rgba(7,20,38,.12);
+}
+
+
+/* Unified logo breathing room */
+.brand-logo, .ss-brand-mark, .logo {
+  background: var(--ss-icon-cream, #FFF8E7) !important;
+  border: 1px solid rgba(7,20,38,.10);
+  padding: 7px;
+  overflow: hidden;
+}
+.brand-logo img, .ss-brand-mark img, .logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block;
+}
+.ss-brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(13,110,253,.22);
 }

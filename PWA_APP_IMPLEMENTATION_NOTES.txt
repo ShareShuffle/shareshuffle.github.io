@@ -1,0 +1,17 @@
+ShareShuffle PWA app pass (Archive 10)
+
+/app/ is now the mobile-first creator experience and manifest.webmanifest opens there.
+
+Implemented:
+- PWA theme/background color uses official icon cream #FFF8E7.
+- Apple touch icon points to /icons/icon180-iphone.png.
+- App can read clipboard only after the user taps Paste Product Link.
+- Smart URL extraction pulls the primary shopping URL out of messy text such as "Rich sent you this from Amazon.com -- amzn.to/asdf".
+- App persists draft fields and the last share in localStorage.
+- App includes Select URL, Clear, shelf pills, optional handle field, and share actions.
+- Temporary handle/future path is saved locally as a futurePath value but not stored in Firestore because current Firestore share rules do not allow that field.
+- Real /u/{handle}/{shelf}/{id} routing requires a future shfl.me redirect/router pass.
+
+Not implemented yet:
+- Server-side metadata scraping after submission. This needs a serverless function because client-side fetches to Amazon/Walmart/etc. will be blocked by CORS and bot controls.
+- Real temporary username ownership. That needs auth or a separate reservedNames/handles collection and rules.

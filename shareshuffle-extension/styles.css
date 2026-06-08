@@ -10,6 +10,7 @@
   --ss-navy: #071426;
   --ss-ink: #102033;
   --ss-muted: #6b7280;
+  --ss-icon-cream: #FFF8E7;
 
   --ss-display-font: "League Spartan", sans-serif;
   --ss-body-font: "Roboto", sans-serif;
@@ -54,14 +55,16 @@ body {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #13c8ff, #0d6efd, #ff2fb3, #ff7a18);
-  box-shadow: 0 10px 25px rgba(13, 110, 253, .25);
+  background: var(--ss-icon-cream);
+  border: 1px solid rgba(7,20,38,.10);
+  box-shadow: 0 10px 25px rgba(13, 110, 253, .18);
   overflow: hidden;
+  padding: 5px;
 }
 
 .logo img {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   display: block;
 }
