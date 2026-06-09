@@ -108,7 +108,7 @@ a {
     background: var(--ss-grad);
     color: white !important;
     text-decoration: none;
-    font-weight: 900;
+    font-weight: 600;
     border-radius: 999px;
     padding: .9rem 1.2rem;
     box-shadow: 0 16px 34px rgba(13, 110, 253, .22);
@@ -148,7 +148,7 @@ a {
     background: rgba(255, 255, 255, .9);
     border: 1px solid rgba(13, 110, 253, .12);
     box-shadow: 0 10px 30px rgba(7, 20, 38, .06);
-    font-weight: 900;
+    font-weight: 600;
     color: #1c4ed8;
     font-size: .88rem
 }
@@ -220,7 +220,7 @@ a {
     border-radius: 999px;
     background: #eef6ff;
     color: #1c4ed8;
-    font-weight: 900;
+    font-weight: 600;
     font-size: .82rem
 }
 
@@ -358,7 +358,7 @@ td img.thumb {
     padding: 12px;
     background: var(--ss-grad);
     color: white;
-    font-weight: 900
+    font-weight: 600
 }
 
 @media(max-width:760px) {

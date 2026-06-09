@@ -3,8 +3,23 @@ import { onRequest } from "firebase-functions/v2/https";
 const MAX_HTML_BYTES = 600000;
 const TIMEOUT_MS = 7000;
 
+function getAllowedOrigin(origin = "") {
+  const allowedExact = new Set([
+    "https://shareshuffle.com",
+    "https://www.shareshuffle.com",
+    "https://shareshuffle-c7f96.web.app",
+    "https://shareshuffle-c7f96.firebaseapp.com",
+    "https://rchwms.github.io"
+  ]);
+  if (allowedExact.has(origin)) return origin;
+  if (/^http:\/\/localhost:\d+$/.test(origin)) return origin;
+  if (/^http:\/\/127\.0\.0\.1:\d+$/.test(origin)) return origin;
+  return "https://shareshuffle.com";
+}
+
 function sendJson(res, status, payload) {
-  res.set("Access-Control-Allow-Origin", "https://shareshuffle.com");
+  res.set("Access-Control-Allow-Origin", getAllowedOrigin(res.req?.headers?.origin || ""));
+  res.set("Vary", "Origin");
   res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type");
   res.set("Cache-Control", "public, max-age=300, s-maxage=300");

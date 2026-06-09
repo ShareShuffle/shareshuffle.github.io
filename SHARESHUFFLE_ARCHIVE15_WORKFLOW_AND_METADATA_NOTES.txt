@@ -1,0 +1,25 @@
+ShareShuffle Archive 15 Notes — Metadata Preview + Git Workflow Cleanup
+
+Changed in this patch:
+- functions/package.json now targets Node.js 22 instead of Node.js 20.
+- firebase-functions is pinned with a semver range instead of "latest".
+- Added /assets/shareshuffle-config.js as the single app-side place for the preview endpoint.
+- /app/index.html now reads preview endpoint settings from SHARESHUFFLE_CONFIG.
+- Removed the old legacy cloudfunctions.net fallback from /app/ and uses the live Cloud Run function URL as fallback.
+- getPreview CORS now allows shareshuffle.com, www.shareshuffle.com, Firebase Hosting domains, localhost, 127.0.0.1, and the GitHub Pages project origin.
+
+Deploy from repo root:
+  cd ~/Documents/GitHub/shareshuffle.github.io
+  cd functions && npm install && cd ..
+  npx firebase-tools@latest deploy --only functions,hosting
+
+Recommended Git workflow:
+  git status
+  git add .
+  git commit -m "Add metadata preview config and Node 22 functions runtime"
+  git push
+
+Do not commit:
+- functions/node_modules/
+- .DS_Store
+- Firebase debug logs if you do not want noisy history

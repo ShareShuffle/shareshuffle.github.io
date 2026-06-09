@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
     <link href="/assets/brand.css" rel="stylesheet">
+    <script src="/assets/shareshuffle-config.js"></script>
     <style>
         body{background:var(--ss-grad-dark);}
     .app-shell{min-height:100vh;padding:calc(env(safe-area-inset-top) + 18px) 16px 28px;color:white;}
@@ -150,12 +151,12 @@
     let previewTimer = null;
 
     function previewEndpoint() {
-      // On Firebase Hosting, firebase.json rewrites /getPreview to the Cloud Function.
-      // On GitHub Pages/local static testing, fall back to the default function URL.
-      if (location.hostname === "shareshuffle.com" || location.hostname.endsWith(".web.app") || location.hostname.endsWith(".firebaseapp.com")) {
-        return "/getPreview";
+      const config = window.SHARESHUFFLE_CONFIG || {};
+      const hostedHosts = config.previewHostedHosts || ["shareshuffle.com", "www.shareshuffle.com", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"];
+      if (hostedHosts.includes(location.hostname) || location.hostname.endsWith(".web.app") || location.hostname.endsWith(".firebaseapp.com")) {
+        return config.previewEndpoint || "/getPreview";
       }
-      return "https://us-central1-shareshuffle-c7f96.cloudfunctions.net/getPreview";
+      return config.fallbackPreviewEndpoint || "https://getpreview-tai5vntoaq-uc.a.run.app";
     }
 
     function getFieldData() {

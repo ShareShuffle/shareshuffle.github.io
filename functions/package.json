@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "dependencies": {
-    "firebase-functions": "latest"
+    "firebase-functions": "^6.4.0"
   }
 }
