@@ -356,10 +356,10 @@ function buildMessage({ title, note, shareUrl }) {
   const cleanShareUrl = shareUrl.replace("https://", "").replace("http://", "");
 
   return [
-    "🔗 Shared via ShareShuffle",
-    cleanNote ? `📝 ${cleanNote}` : "",
-    cleanProductTitle ? `🛍️ ${cleanProductTitle}` : "",
-    `🔗 ${cleanShareUrl}`
+    "Shared via ShareShuffle:",
+    cleanNote ? `💬 ${cleanNote}` : "",
+    cleanProductTitle ? `🎯 ${cleanProductTitle}` : "",
+    cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
   ]
     .filter(Boolean)
     .join("\n");

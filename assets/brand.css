@@ -9,7 +9,7 @@
     --ss-ink: #102033;
     --ss-muted: #667085;
     --ss-cloud: #f5f8ff;
-    --ss-icon-cream: #FFF8E7;
+    --ss-icon-bg: #EEF6FF;
     --ss-grad: linear-gradient(135deg, #ff7a18 0%, #ffc145 28%, #13c8ff 64%, #0d6efd 100%);
     --ss-grad-dark: radial-gradient(circle at 10% 10%, rgba(255, 122, 24, .35), transparent 32%), radial-gradient(circle at 90% 20%, rgba(19, 200, 255, .32), transparent 28%), linear-gradient(135deg, #071426 0%, #102033 100%);
     --ss-shadow: 0 24px 70px rgba(7, 20, 38, .16);
@@ -547,7 +547,7 @@ td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7
 
 /* Unified logo breathing room */
 .brand-logo, .ss-brand-mark, .logo {
-  background: var(--ss-icon-cream, #FFF8E7) !important;
+  background: var(--ss-icon-bg, #EEF6FF) !important;
   border: 1px solid rgba(7,20,38,.10);
   padding: 7px;
   overflow: hidden;

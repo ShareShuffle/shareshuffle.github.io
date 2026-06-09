@@ -1,0 +1,43 @@
+# ShareShuffle Archive 12 Refactor Summary
+
+## Brand/icon decisions
+- Official app/PWA square icon background is now baby blue: #EEF6FF.
+- Square icons are used for iPhone/Android/PWA install surfaces.
+- Smaller browser favicons can keep the transparent/no-bleed node icon treatment.
+- Dark-mode favicon can keep the white-on-black node treatment.
+
+## PWA / iPhone app
+- /manifest.webmanifest now starts at /app/.
+- PWA background_color and theme_color are #EEF6FF.
+- Manifest icon array references square icons: 120, 152, 167, 180, 192, 256, 512, 1024.
+- /app/index.html theme color and logo tile background now use #EEF6FF.
+- iPhone Safari clipboard write failure no longer makes share creation look failed. If Firestore save succeeds but auto-copy is blocked, the page reports “Share created” and leaves the last share panel ready.
+- Create-share error message now surfaces the actual error message on-screen instead of only saying to check the console.
+- Copy-last-share also handles Safari clipboard blocks without breaking the app.
+
+## Demo page
+- The bottom CTA now points to /app/ with “Create Your First Share.”
+- Removed accidental pasted assistant/code-fence content from demo.html.
+- Demo-generated messages use the preferred format:
+  Shared via ShareShuffle:
+  💬 note
+  🎯 title
+  🔗 link
+- Demo title cleanup is smarter and uses real ellipsis … when truncating.
+
+## Shared messaging/title helpers
+- /assets/share-core.js remains the canonical helper for web/PWA message format, title cleanup, URL extraction, affiliate handling, slug creation, and short IDs.
+- makeShortId alphabet excludes visually confusing characters including lowercase l.
+- Amazon affiliate behavior remains ethics-first: visible existing tag= values are preserved; ShareShuffle tag is only added when no visible Amazon tag exists.
+
+## Chrome extension
+- Extension popup share-message format was updated to match the preferred message style.
+- Note icon: 💬
+- Product/title icon: 🎯
+- Link icon: 🔗
+
+## Important remaining limitations
+- Safari/iPhone cannot inspect the current Safari tab like a Chrome extension.
+- Clipboard read/write on iPhone requires user action and may still be blocked by iOS. The UI now fails more gracefully.
+- Short Amazon links such as a.co and amzn.to cannot be reliably expanded client-side because of browser/CORS/redirect limitations.
+- Temporary /u/{handle}/{shelf}/{id} paths are a stepping stone toward real usernames and “shelf of shelves.”

@@ -3,8 +3,8 @@ ShareShuffle PWA app pass (Archive 10)
 /app/ is now the mobile-first creator experience and manifest.webmanifest opens there.
 
 Implemented:
-- PWA theme/background color uses official icon cream #FFF8E7.
-- Apple touch icon points to /icons/icon180-iphone.png.
+- PWA theme/background color uses official icon cream #EEF6FF.
+- Apple touch icon points to /icons/icon180-square.png.
 - App can read clipboard only after the user taps Paste Product Link.
 - Smart URL extraction pulls the primary shopping URL out of messy text such as "Rich sent you this from Amazon.com -- amzn.to/asdf".
 - App persists draft fields and the last share in localStorage.

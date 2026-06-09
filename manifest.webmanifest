@@ -5,33 +5,17 @@
   "start_url": "/app/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#FFF8E7",
-  "theme_color": "#FFF8E7",
+  "orientation": "portrait",
+  "background_color": "#EEF6FF",
+  "theme_color": "#EEF6FF",
   "icons": [
-    {
-      "src": "/icons/icon180-iphone.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon192-android.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon512-pwa-store-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "orientation": "portrait"
+    { "src": "/icons/icon120-square.png", "sizes": "120x120", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon152-square.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon167-square.png", "sizes": "167x167", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon180-square.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon192-square.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon256-square.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon512-square.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon1024-square.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ]
 }

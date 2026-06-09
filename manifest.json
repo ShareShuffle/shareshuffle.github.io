@@ -6,11 +6,11 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FFF8E7",
-  "theme_color": "#FFF8E7",
+  "background_color": "#EEF6FF",
+  "theme_color": "#EEF6FF",
   "icons": [
     {
-      "src": "/icons/icon180-iphone.png",
+      "src": "/icons/icon180-square.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
