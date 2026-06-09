@@ -44,6 +44,7 @@
     .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
     .pill-row button{border:1px solid #d8e2f0;background:#fff;color:var(--ss-ink);border-radius:999px;padding:7px 10px;font-weight:850;}
     .status{min-height:22px;margin:10px 2px 0;color:#1c4ed8;font-weight:850;font-size:.92rem;}
+    .field-help{min-height:18px;margin:6px 2px 0;color:#4b647a;font-size:.82rem;line-height:1.25;}
     .last-card{display:none;margin-top:18px;border:1px solid #d8e2f0;border-radius:22px;padding:14px;background:#fff;}
     .last-label{font-size:.76rem;color:#0d6efd;text-transform:uppercase;letter-spacing:.05em;font-weight:950;text-align:center;}
     .last-title{font-weight:900;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;}
@@ -102,6 +103,7 @@
                 <div class="field">
                     <label for="imageUrl">Image URL <span class="optional">(optional)</span></label>
                     <input id="imageUrl" class="input" type="url" maxlength="2000" placeholder="Paste an image URL if you have one">
+                    <div id="previewStatus" class="field-help" aria-live="polite"></div>
                 </div>
                 <button id="createBtn" class="app-btn primary" type="button" style="width:100%;margin-top:18px;"><i class="fa-solid fa-shuffle"></i> Create Share Link</button>
                 <div id="createStatus" class="status"></div>
@@ -144,6 +146,16 @@
     const $ = (id) => document.getElementById(id);
     const fields = ["productUrl", "title", "note", "shelfName", "handle", "imageUrl"];
     let lastShare = null;
+    let previewTimer = null;
+
+    function previewEndpoint() {
+      // On Firebase Hosting, firebase.json rewrites /getPreview to the Cloud Function.
+      // On GitHub Pages/local static testing, fall back to the default function URL.
+      if (location.hostname === "shareshuffle.com" || location.hostname.endsWith(".web.app") || location.hostname.endsWith(".firebaseapp.com")) {
+        return "/getPreview";
+      }
+      return "https://us-central1-shareshuffle-c7f96.cloudfunctions.net/getPreview";
+    }
 
     function getFieldData() {
       return Object.fromEntries(fields.map(id => [id, $(id).value.trim()]));
@@ -246,6 +258,64 @@
       } catch {}
     }
 
+
+    function applyIncomingShareParams() {
+      const params = new URLSearchParams(location.search);
+      const sharedText = [params.get("title"), params.get("text"), params.get("url")].filter(Boolean).join("\n");
+      const incomingUrl = extractPrimaryUrl(sharedText || params.get("productUrl") || "");
+      const incomingTitle = params.get("title") || "";
+      const incomingNote = params.get("text") || "";
+
+      if (incomingUrl && !$("productUrl").value.trim()) $("productUrl").value = incomingUrl;
+      if (incomingTitle && !$("title").value.trim()) $("title").value = incomingTitle;
+      if (incomingNote && !$("note").value.trim() && incomingNote !== incomingUrl) $("note").value = incomingNote;
+
+      if (incomingUrl) {
+        $("clipboardStatus").textContent = params.get("source") === "share-target" ? "Link received from Share Sheet." : "Link loaded from URL.";
+        saveDraft();
+        fetchPreviewForUrl(incomingUrl, { onlyFillBlanks: true });
+      }
+    }
+
+    async function fetchPreviewForUrl(rawUrl, { onlyFillBlanks = true } = {}) {
+      const status = $("previewStatus");
+      const url = extractPrimaryUrl(rawUrl) || rawUrl;
+      if (!url || !/^https?:\/\//i.test(url)) return;
+
+      status.textContent = "Looking for title and image…";
+      try {
+        const response = await fetch(`${previewEndpoint()}?url=${encodeURIComponent(url)}`, { method: "GET" });
+        if (!response.ok) throw new Error(`Preview failed (${response.status})`);
+        const preview = await response.json();
+
+        const nextTitle = cleanTitle(preview.title || "");
+        const nextDescription = neutralizeText(preview.description || "");
+        const nextImage = preview.image || "";
+
+        if (nextTitle && (!onlyFillBlanks || !$("title").value.trim())) $("title").value = nextTitle;
+        if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
+        if (nextImage && (!onlyFillBlanks || !$("imageUrl").value.trim())) $("imageUrl").value = nextImage;
+
+        if (preview.finalUrl && preview.finalUrl !== url && $("productUrl").value.trim() === url) {
+          $("productUrl").value = preview.finalUrl;
+        }
+
+        status.textContent = (nextTitle || nextImage) ? "Preview filled. You can edit anything before saving." : "No clean preview found. Add a title or image manually.";
+        saveDraft();
+      } catch (error) {
+        console.warn("Preview lookup failed", error);
+        status.textContent = "Preview lookup could not read that page. You can still save it manually.";
+      }
+    }
+
+    function schedulePreviewLookup() {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(() => {
+        const url = extractPrimaryUrl($("productUrl").value) || $("productUrl").value.trim();
+        if (url) fetchPreviewForUrl(url, { onlyFillBlanks: true });
+      }, 700);
+    }
+
     async function pasteFromClipboard() {
       const status = $("clipboardStatus");
       try {
@@ -263,6 +333,7 @@
         if (!$("title").value.trim()) $("title").value = titleFromUrl(url);
         status.textContent = "Product link pasted.";
         saveDraft();
+        fetchPreviewForUrl(url, { onlyFillBlanks: true });
       } catch (error) {
         console.error(error);
         status.textContent = "Clipboard access was blocked. Tap the URL field and paste manually.";
@@ -335,6 +406,8 @@
     }
 
     fields.forEach(id => $(id).addEventListener("input", saveDraft));
+    $("productUrl").addEventListener("input", schedulePreviewLookup);
+    $("productUrl").addEventListener("blur", () => fetchPreviewForUrl($("productUrl").value, { onlyFillBlanks: true }));
     $("pasteBtn").addEventListener("click", pasteFromClipboard);
     $("selectUrlBtn").addEventListener("click", () => { $("productUrl").focus(); $("productUrl").select(); });
     $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); saveDraft(); $("clipboardStatus").textContent = "Cleared."; });
@@ -352,6 +425,7 @@
     $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; });
 
     restoreDraft();
+    applyIncomingShareParams();
     renderShelfPills();
     restoreLastShare();
   </script>

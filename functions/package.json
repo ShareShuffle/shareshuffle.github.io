@@ -1,0 +1,11 @@
+{
+  "name": "shareshuffle-functions",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-functions": "latest"
+  }
+}

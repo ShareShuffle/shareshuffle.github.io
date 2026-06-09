@@ -1,0 +1,142 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isString(field, maxLength) {
+      return field is string && field.size() <= maxLength;
+    }
+
+    match /supportMessages/{messageId} {
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "name",
+          "email",
+          "category",
+          "subject",
+          "message",
+          "pageUrl",
+          "userAgent",
+          "createdAt"
+        ])
+        && isString(request.resource.data.name, 120)
+        && isString(request.resource.data.email, 254)
+        && request.resource.data.email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+        && isString(request.resource.data.category, 80)
+        && isString(request.resource.data.subject, 160)
+        && isString(request.resource.data.message, 3000)
+        && isString(request.resource.data.pageUrl, 500)
+        && isString(request.resource.data.userAgent, 500)
+        && request.resource.data.createdAt == request.time;
+
+      allow read, update, delete: if false;
+    }
+
+    match /waitlist/{leadId} {
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "email",
+          "firstName",
+          "source",
+          "interestType",
+          "favoriteRecommendation",
+          "createdAt",
+          "pageUrl"
+        ])
+        && isString(request.resource.data.email, 254)
+        && request.resource.data.email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+        && isString(request.resource.data.firstName, 100)
+        && isString(request.resource.data.source, 50)
+        && isString(request.resource.data.interestType, 100)
+        && isString(request.resource.data.favoriteRecommendation, 500)
+        && isString(request.resource.data.pageUrl, 500)
+        && request.resource.data.createdAt == request.time;
+
+      allow read, update, delete: if false;
+    }
+
+    match /shares/{shareId} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "title",
+          "url",
+          "originalUrl",
+          "merchant",
+          "affiliateApplied",
+          "note",
+          "image",
+          "created",
+          "views",
+          "amazonClicks",
+          "shares",
+          "shelfName",
+          "shelfSlug"
+        ])
+        && isString(request.resource.data.title, 300)
+        && isString(request.resource.data.url, 3000)
+        && isString(request.resource.data.originalUrl, 3000)
+        && isString(request.resource.data.merchant, 50)
+        && request.resource.data.affiliateApplied is bool
+        && isString(request.resource.data.note, 1000)
+        && isString(request.resource.data.image, 2000)
+        && isString(request.resource.data.shelfName, 100)
+        && isString(request.resource.data.shelfSlug, 100)
+        && request.resource.data.created == request.time
+        && request.resource.data.views == 0
+        && request.resource.data.amazonClicks == 0
+        && request.resource.data.shares == 0;
+
+      allow update: if
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "views",
+          "amazonClicks",
+          "shares"
+        ])
+        && request.resource.data.views is number
+        && request.resource.data.amazonClicks is number
+        && request.resource.data.shares is number
+        && request.resource.data.views >= resource.data.views
+        && request.resource.data.amazonClicks >= resource.data.amazonClicks
+        && request.resource.data.shares >= resource.data.shares;
+
+      allow delete: if false;
+    }
+
+    match /shelves/{shelfId} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "name",
+          "slug",
+          "description",
+          "image",
+          "coverImage",
+          "ownerUuid",
+          "ownerId",
+          "created"
+        ])
+        && isString(request.resource.data.name, 120)
+        && isString(request.resource.data.slug, 120)
+        && isString(request.resource.data.description, 1000)
+        && isString(request.resource.data.image, 2000)
+        && isString(request.resource.data.coverImage, 2000)
+        && (
+          (
+            request.resource.data.keys().hasAny(["ownerUuid"])
+            && isString(request.resource.data.ownerUuid, 200)
+          )
+          ||
+          (
+            request.resource.data.keys().hasAny(["ownerId"])
+            && isString(request.resource.data.ownerId, 200)
+          )
+        )
+        && request.resource.data.created == request.time;
+
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

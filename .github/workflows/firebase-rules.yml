@@ -1,0 +1,22 @@
+name: Deploy Firebase Firestore rules
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'firestore.rules'
+      - 'firestore.indexes.json'
+      - 'firebase.json'
+      - '.github/workflows/firebase-rules.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-firestore-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: w9jds/firebase-action@v13.19.0
+        with:
+          args: deploy --only firestore:rules,firestore:indexes --project shareshuffle-c7f96
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHARESHUFFLE_C7F96 }}
