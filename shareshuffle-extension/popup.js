@@ -4,6 +4,7 @@ const FIREBASE_PROJECT_ID = "shareshuffle-c7f96";
 const FIRESTORE_COLLECTION = "shares";
 const SHELVES_COLLECTION = "shelves";
 const SHARE_BASE_URL = "https://shfl.me/";
+const TEMP_HANDLE = "@rich";
 const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
 const SHELF_STORAGE_KEY = "shareShuffleShelves";
 const LAST_SHARE_STORAGE_KEY = "shareShuffleLastShare";
@@ -167,21 +168,110 @@ async function getCurrentTab() {
   return tabs[0];
 }
 
-async function getProductImage(tabId) {
+async function getPageMetadata(tabId) {
   const results = await chrome.scripting.executeScript({
     target: { tabId },
     func: () => {
-      return (
-        document.querySelector("#landingImage")?.src ||
-        document.querySelector("#imgBlkFront")?.src ||
-        document.querySelector('meta[property="og:image"]')?.content ||
-        document.querySelector('meta[name="twitter:image"]')?.content ||
-        ""
-      );
+      const absoluteUrl = (value) => {
+        try { return value ? new URL(value, location.href).toString() : ""; }
+        catch { return ""; }
+      };
+
+      const meta = (...selectors) => {
+        for (const selector of selectors) {
+          const value = document.querySelector(selector)?.content?.trim();
+          if (value) return value;
+        }
+        return "";
+      };
+
+      const visibleEnough = (img) => {
+        const rect = img.getBoundingClientRect();
+        const style = window.getComputedStyle(img);
+        return (
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          rect.width >= 120 &&
+          rect.height >= 120
+        );
+      };
+
+      const normalizeImageUrl = (img) => {
+        const srcset = img.getAttribute("srcset") || img.getAttribute("data-srcset") || "";
+        if (srcset) {
+          const candidates = srcset
+            .split(",")
+            .map(part => part.trim().split(/\s+/)[0])
+            .filter(Boolean);
+          if (candidates.length) return absoluteUrl(candidates[candidates.length - 1]);
+        }
+
+        return absoluteUrl(
+          img.currentSrc ||
+          img.src ||
+          img.getAttribute("data-old-hires") ||
+          img.getAttribute("data-a-dynamic-image")?.match(/"(https?:[^"\\]+)"/)?.[1] ||
+          img.getAttribute("data-src") ||
+          img.getAttribute("data-original") ||
+          ""
+        );
+      };
+
+      const scoreImage = (img) => {
+        const rect = img.getBoundingClientRect();
+        const width = img.naturalWidth || rect.width || 0;
+        const height = img.naturalHeight || rect.height || 0;
+        const area = width * height;
+        const idClassAlt = `${img.id || ""} ${img.className || ""} ${img.alt || ""}`.toLowerCase();
+        let score = area;
+
+        if (/product|hero|main|landing|primary|image|photo/.test(idClassAlt)) score += 800000;
+        if (/logo|sprite|icon|avatar|badge|payment|paypal|klarna|visa|mastercard|star|rating|review/.test(idClassAlt)) score -= 1000000;
+        if (width < 180 || height < 180) score -= 500000;
+        if (rect.top >= 0 && rect.top < window.innerHeight * 1.4) score += 200000;
+
+        return score;
+      };
+
+      const amazonDynamicImage = () => {
+        const img = document.querySelector("#landingImage, #imgBlkFront");
+        const dynamic = img?.getAttribute("data-a-dynamic-image") || "";
+        if (!dynamic) return "";
+        try {
+          const map = JSON.parse(dynamic);
+          return Object.keys(map)
+            .sort((a, b) => (map[b]?.[0] || 0) * (map[b]?.[1] || 0) - (map[a]?.[0] || 0) * (map[a]?.[1] || 0))[0] || "";
+        } catch {
+          return dynamic.match(/"(https?:[^"\\]+)"/)?.[1] || "";
+        }
+      };
+
+      const explicitImage =
+        absoluteUrl(amazonDynamicImage()) ||
+        normalizeImageUrl(document.querySelector("#landingImage, #imgBlkFront, .product-image img, [data-testid*='product'] img")) ||
+        absoluteUrl(meta('meta[property="og:image:secure_url"]', 'meta[property="og:image"]', 'meta[name="twitter:image"]', 'meta[name="twitter:image:src"]'));
+
+      const bestImage = explicitImage ||
+        Array.from(document.images)
+          .filter(visibleEnough)
+          .map(img => ({ img, url: normalizeImageUrl(img), score: scoreImage(img) }))
+          .filter(item => item.url && !/\.svg($|\?)/i.test(item.url))
+          .sort((a, b) => b.score - a.score)[0]?.url || "";
+
+      return {
+        title: meta('meta[property="og:title"]', 'meta[name="twitter:title"]') || document.title || "",
+        description: meta('meta[property="og:description"]', 'meta[name="twitter:description"]', 'meta[name="description"]') || "",
+        image: bestImage
+      };
     }
   });
 
-  return results?.[0]?.result || "";
+  return results?.[0]?.result || { title: "", description: "", image: "" };
+}
+
+function buildTempHandleShareUrl({ id, shelfSlug }) {
+  const middle = shelfSlug || "shelf";
+  return `${SHARE_BASE_URL}${TEMP_HANDLE}/${encodeURIComponent(middle)}/${encodeURIComponent(id)}`;
 }
 
 async function getSavedShelves() {
@@ -397,6 +487,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   titleInput.value = tab?.title || "";
   urlInput.value = tab?.url || "";
 
+  let pageMetadata = { title: tab?.title || "", description: "", image: "" };
+  try {
+    pageMetadata = await getPageMetadata(tab.id);
+    if (pageMetadata.title) titleInput.value = cleanTitle(pageMetadata.title);
+    if (pageMetadata.description && noteInput && !noteInput.value) {
+      noteInput.placeholder = smartTruncate(pageMetadata.description, 120);
+    }
+    if (status && pageMetadata.image) status.textContent = "Found page image and details.";
+  } catch (error) {
+    console.warn("Could not read page metadata; using tab title and URL.", error);
+  }
+
   const savedLastShare = await getLastShare();
   if (savedLastShare) {
     const samePage = savedLastShare.originalUrl === (tab?.url || "");
@@ -439,7 +541,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       copyBtn.disabled = true;
 
       const id = await createUniqueId();
-      const image = await getProductImage(tab.id);
+      const metadata = pageMetadata?.image ? pageMetadata : await getPageMetadata(tab.id);
+      const image = metadata.image || "";
       const shelf = await createShelfIfNeeded(shelfNameInput?.value || "");
 
       await saveShelfName(shelfNameInput?.value || "");
@@ -461,7 +564,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         shelfSlug: shelf.shelfSlug
       });
 
-      const shareUrl = `${SHARE_BASE_URL}${id}`;
+      const shareUrl = buildTempHandleShareUrl({ id, shelfSlug: shelf.shelfSlug });
 
 const message = buildMessage({
   title: titleInput.value,
