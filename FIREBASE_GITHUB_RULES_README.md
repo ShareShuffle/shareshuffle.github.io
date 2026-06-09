@@ -9,10 +9,10 @@ This repo now contains the Firestore rules source of truth:
 ## One-time local setup
 
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase use --add shareshuffle-c7f96
-firebase deploy --only firestore:rules,firestore:indexes
+# Avoid Mac global npm permission issues by using npx:
+npx firebase-tools@latest login
+npx firebase-tools@latest use --add shareshuffle-c7f96
+npx firebase-tools@latest deploy --only firestore:rules,firestore:indexes
 ```
 
 After this, edit `firestore.rules` in GitHub, not in the Firebase Console. The Firebase Console will still display the live rules, but the repo copy is the version you control and redeploy.
@@ -28,3 +28,14 @@ The included workflow deploys rules when `firestore.rules`, `firestore.indexes.j
 ## Important
 
 Deploying rules from CLI/GitHub overwrites rules edited directly in Firebase Console. Treat console edits as temporary emergency changes only, then copy them back into `firestore.rules`.
+
+
+## Deploy preview function
+
+The mobile/PWA metadata feature uses `functions/index.js` and the Hosting rewrite `/getPreview`.
+
+```bash
+npx firebase-tools@latest deploy --only functions,hosting
+```
+
+If you only changed the Firestore rules, deploy only rules/indexes. If you changed `/app/`, `manifest.webmanifest`, `app/share-target.html`, or the `/getPreview` rewrite, deploy hosting too.

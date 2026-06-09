@@ -1,0 +1,23 @@
+ShareShuffle Archive 14 metadata preview + share target notes
+
+What changed:
+- /app/index.html now auto-runs preview lookup when a product URL is pasted, typed, blurred, or received via share-target params.
+- /app/index.html now shows a small image preview when Image URL is filled.
+- App share URLs now use temporary @handle paths when a handle and shelf are present:
+  https://shfl.me/@rich/bass-gear/a2c4e
+  The canonical short link https://shfl.me/a2c4e still exists as fallback.
+- /app/share-target.html receives Web Share Target GET params and forwards them into /app/.
+- manifest.webmanifest includes share_target for Android/Chromium PWA share sheet support.
+- functions/index.js exposes getPreview, a Firebase HTTPS function that fetches public HTML, extracts Open Graph/Twitter/title/description/image data, and falls back to large/product-like image detection.
+- firebase.json rewrites /getPreview to the Cloud Function and keeps firestore.rules/indexes source-controlled.
+
+Deploy commands:
+npx firebase-tools@latest deploy --only firestore:rules,firestore:indexes
+npx firebase-tools@latest deploy --only functions,hosting
+
+Important behavior:
+- Chrome extension can read the current page DOM directly.
+- iPhone PWA cannot inspect Safari/Amazon tabs or browsing history.
+- PWA metadata comes from pasted/shared URL -> Firebase Function -> metadata result.
+- Android/Chromium installed PWA may appear in the Share Sheet via manifest.share_target.
+- iOS inbound share-target support should be treated as unreliable; paste URL remains the fallback.

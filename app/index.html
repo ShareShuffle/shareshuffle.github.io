@@ -104,6 +104,7 @@
                     <label for="imageUrl">Image URL <span class="optional">(optional)</span></label>
                     <input id="imageUrl" class="input" type="url" maxlength="2000" placeholder="Paste an image URL if you have one">
                     <div id="previewStatus" class="field-help" aria-live="polite"></div>
+                    <div id="imagePreview" class="image-preview"><img id="imagePreviewImg" alt=""><span>Preview image found. You can replace it before saving.</span></div>
                 </div>
                 <button id="createBtn" class="app-btn primary" type="button" style="width:100%;margin-top:18px;"><i class="fa-solid fa-shuffle"></i> Create Share Link</button>
                 <div id="createStatus" class="status"></div>
@@ -161,6 +162,23 @@
       return Object.fromEntries(fields.map(id => [id, $(id).value.trim()]));
     }
 
+    function normalizeHandle(value = "") {
+      return makeSlug(String(value || "").replace(/^@+/, ""));
+    }
+
+    function updateImagePreview() {
+      const url = $("imageUrl").value.trim();
+      const box = $("imagePreview");
+      const img = $("imagePreviewImg");
+      if (!url) {
+        box.style.display = "none";
+        img.removeAttribute("src");
+        return;
+      }
+      img.src = url;
+      box.style.display = "flex";
+    }
+
     function saveDraft() {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...getFieldData(), updatedAt: Date.now() }));
     }
@@ -169,6 +187,7 @@
       try {
         const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}");
         fields.forEach(id => { if (draft[id]) $(id).value = draft[id]; });
+      updateImagePreview();
       } catch {}
     }
 
@@ -295,6 +314,7 @@
         if (nextTitle && (!onlyFillBlanks || !$("title").value.trim())) $("title").value = nextTitle;
         if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
         if (nextImage && (!onlyFillBlanks || !$("imageUrl").value.trim())) $("imageUrl").value = nextImage;
+        updateImagePreview();
 
         if (preview.finalUrl && preview.finalUrl !== url && $("productUrl").value.trim() === url) {
           $("productUrl").value = preview.finalUrl;
@@ -377,12 +397,11 @@
         });
 
         const canonicalShareUrl = `${SHARE_BASE_URL}${id}`;
-        const handleSlug = makeSlug(data.handle);
+        const handleSlug = normalizeHandle(data.handle);
         const shelfSlug = makeSlug(data.shelfName);
-        const futurePath = handleSlug && shelfSlug ? `https://shfl.me/u/${handleSlug}/${shelfSlug}/${id}` : "";
+        const futurePath = handleSlug && shelfSlug ? `https://shfl.me/@${handleSlug}/${shelfSlug}/${id}` : "";
 
-        // const shareUrl = futurePath || canonicalShareUrl;
-        const shareUrl = canonicalShareUrl; // temporary testing change
+        const shareUrl = futurePath || canonicalShareUrl;
 
         const message = buildMessage({ title, note, shareUrl });
 
@@ -406,11 +425,12 @@
     }
 
     fields.forEach(id => $(id).addEventListener("input", saveDraft));
+    $("imageUrl").addEventListener("input", updateImagePreview);
     $("productUrl").addEventListener("input", schedulePreviewLookup);
     $("productUrl").addEventListener("blur", () => fetchPreviewForUrl($("productUrl").value, { onlyFillBlanks: true }));
     $("pasteBtn").addEventListener("click", pasteFromClipboard);
     $("selectUrlBtn").addEventListener("click", () => { $("productUrl").focus(); $("productUrl").select(); });
-    $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); saveDraft(); $("clipboardStatus").textContent = "Cleared."; });
+    $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); updateImagePreview(); saveDraft(); $("clipboardStatus").textContent = "Cleared."; });
     $("createBtn").addEventListener("click", createShare);
     $("copyLastBtn").addEventListener("click", async () => {
       if (!lastShare) return;
@@ -422,7 +442,7 @@
         $("createStatus").textContent = "Copy was blocked. Open the share and copy manually.";
       }
     });
-    $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; });
+    $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); updateImagePreview(); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; });
 
     restoreDraft();
     applyIncomingShareParams();
