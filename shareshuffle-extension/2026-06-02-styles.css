@@ -26,7 +26,7 @@ body {
   display: grid;
   place-items: center;
   color: white;
-  font-weight: 900;
+  font-weight: 600;
   font-size: 28px;
   background: linear-gradient(135deg, #13c8ff, #0d6efd, #ff2fb3, #ff7a18);
   box-shadow: 0 10px 25px rgba(13, 110, 253, .25);
@@ -73,7 +73,7 @@ button {
   border-radius: 999px;
   padding: 12px;
   color: white;
-  font-weight: 900;
+  font-weight: 600;
   cursor: pointer;
   background: linear-gradient(135deg, #ff7a18, #ffc145, #13c8ff, #0d6efd);
 }

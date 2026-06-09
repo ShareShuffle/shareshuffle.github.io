@@ -127,7 +127,7 @@ button {
   border-radius: 999px;
   padding: 9px;
   color: white;
-  font-weight: 900;
+  font-weight: 600;
   background: linear-gradient(135deg, #ff7a18, #ffc145, #13c8ff, #0d6efd);
   display: flex;
   gap: 6px;
@@ -225,7 +225,7 @@ button {
 .last-share-label {
   color: #0d6efd;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
