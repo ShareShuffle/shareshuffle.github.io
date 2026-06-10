@@ -37,7 +37,7 @@ function sendJson(res, status, payload) {
   res.set("Vary", "Origin");
   res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type");
-  res.set("Cache-Control", "public, max-age=300, s-maxage=300");
+  res.set("Cache-Control", "no-store, max-age=0");
   res.status(status).json(payload);
 }
 
@@ -90,7 +90,8 @@ function pickMeta(html, names) {
 
 function pickById(html, id) {
   const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = html.match(new RegExp(`<[^>]+id=["']${escaped}["'][^>]*>([\s\S]*?)<\/[^>]+>`, "i"));
+  const pattern = "<[^>]+id=[\\\"']" + escaped + "[\\\"'][^>]*>([\\\\s\\\\S]*?)<\\/[^>]+>";
+  const match = html.match(new RegExp(pattern, "i"));
   return decodeEntities((match?.[1] || "").replace(/<[^>]+>/g, " "));
 }
 
@@ -322,7 +323,14 @@ export const getPreview = onRequest({ region: "us-central1", timeoutSeconds: 12,
       return sendJson(res, 415, { error: "URL did not return HTML", finalUrl, contentType });
     }
 
-    return sendJson(res, 200, extractPreview(html, finalUrl, rawUrl));
+    const preview = extractPreview(html, finalUrl, rawUrl);
+    return sendJson(res, 200, {
+      ...preview,
+      requestedUrl: rawUrl,
+      contentType,
+      status: response.status,
+      ok: response.ok
+    });
   } catch (error) {
     return sendJson(res, 502, { error: "Could not fetch preview", detail: String(error?.message || error) });
   } finally {

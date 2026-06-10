@@ -63,7 +63,7 @@
         <div class="app-wrap">
             <div class="app-top">
                 <a class="app-brand" href="/">
-                    <span class="app-logo"><img src="/icons/icon192-android.png" alt="ShareShuffle"></span>
+                    <span class="app-logo"><img src="/icons/icon192.png" alt="ShareShuffle"></span>
                     <span><strong>ShareShuffle</strong><span>Share what’s worth finding</span></span>
                 </a>
                 <a class="install-pill" href="#installHelp"><i class="fa-brands fa-apple"></i> Add to Home Screen</a>
@@ -297,39 +297,50 @@
       if (incomingUrl) {
         $("clipboardStatus").textContent = params.get("source") === "share-target" ? "Link received from Share Sheet." : "Link loaded from URL.";
         saveDraft();
-        fetchPreviewForUrl(incomingUrl, { onlyFillBlanks: true });
+        fetchPreviewForUrl(incomingUrl, { onlyFillBlanks: true, statusElementId: "clipboardStatus" });
       }
     }
 
-    async function fetchPreviewForUrl(rawUrl, { onlyFillBlanks = true } = {}) {
-      const status = $("previewStatus");
-      const clipboardStatus = $("clipboardStatus");
+    function setPreviewStatus(message, statusElementId = "previewStatus") {
+      const primary = $(statusElementId) || $("previewStatus");
+      if (primary) primary.textContent = message;
+      if (statusElementId !== "previewStatus") $("previewStatus").textContent = message;
+    }
+
+    async function fetchPreviewForUrl(rawUrl, { onlyFillBlanks = true, statusElementId = "previewStatus" } = {}) {
       const url = extractPrimaryUrl(rawUrl) || rawUrl;
-      if (!url || !/^https?:\/\//i.test(url)) return;
+      if (!url || !/^https?:\/\//i.test(url)) return null;
 
       const endpoint = previewEndpoint();
-      const previewUrl = `${endpoint}?url=${encodeURIComponent(url)}&t=${Date.now()}`;
+      const requestUrl = `${endpoint}?url=${encodeURIComponent(url)}&cb=${Date.now()}`;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
+      const timeoutMs = 15000;
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-      status.textContent = "Looking for title and image…";
-      if (clipboardStatus && /looking up title and image/i.test(clipboardStatus.textContent || "")) {
-        clipboardStatus.textContent = "Product link pasted. Contacting preview service…";
-      }
+      setPreviewStatus("Looking for title and image…", statusElementId);
+      console.log("[ShareShuffle preview debug] Requesting", requestUrl);
 
       try {
-        console.info("ShareShuffle preview lookup", { endpoint, url, previewUrl });
-        const response = await fetch(previewUrl, {
+        const response = await fetch(requestUrl, {
           method: "GET",
           cache: "no-store",
           signal: controller.signal
         });
-        if (!response.ok) {
-          let detail = "";
-          try { detail = await response.text(); } catch {}
-          throw new Error(`Preview failed (${response.status}) ${detail.slice(0, 180)}`);
+
+        console.log("[ShareShuffle preview debug] Response", response.status, response.statusText);
+
+        let preview = {};
+        try {
+          preview = await response.json();
+        } catch (jsonError) {
+          throw new Error(`Preview response was not JSON (${response.status})`);
         }
-        const preview = await response.json();
+
+        console.log("[ShareShuffle preview debug] Payload", preview);
+
+        if (!response.ok || preview.error) {
+          throw new Error(preview.detail || preview.error || `Preview failed (${response.status})`);
+        }
 
         const nextTitle = cleanTitle(preview.title || "");
         const nextDescription = neutralizeText(preview.description || "");
@@ -346,20 +357,19 @@
           $("productUrl").value = preview.finalUrl;
         }
 
-        status.textContent = (nextTitle || nextImage) ? "Preview filled. You can edit anything before saving." : "No clean preview found. Add a title or image manually.";
-        if (clipboardStatus && /preview service|looking up title and image/i.test(clipboardStatus.textContent || "")) {
-          clipboardStatus.textContent = status.textContent;
-        }
+        const message = (nextTitle || nextImage)
+          ? "Preview filled. You can edit anything before saving."
+          : "No clean preview found. Add a title or image manually.";
+        setPreviewStatus(message, statusElementId);
         saveDraft();
+        return preview;
       } catch (error) {
-        console.warn("Preview lookup failed", error);
-        const timedOut = error?.name === "AbortError";
-        status.textContent = timedOut
+        console.warn("[ShareShuffle preview debug] Preview lookup failed", error);
+        const message = error?.name === "AbortError"
           ? "Preview lookup timed out. You can still save it manually."
-          : "Preview lookup could not read that page. You can still save it manually.";
-        if (clipboardStatus && /preview service|looking up title and image/i.test(clipboardStatus.textContent || "")) {
-          clipboardStatus.textContent = status.textContent;
-        }
+          : `Preview lookup could not read that page. You can still save it manually.${error?.message ? " " + error.message : ""}`;
+        setPreviewStatus(message, statusElementId);
+        return null;
       } finally {
         clearTimeout(timeout);
       }
@@ -390,7 +400,7 @@
         if (isGenericAutoTitle($("title").value)) $("title").value = "";
         status.textContent = "Product link pasted. Looking up title and image…";
         saveDraft();
-        fetchPreviewForUrl(url, { onlyFillBlanks: false });
+        await fetchPreviewForUrl(url, { onlyFillBlanks: false, statusElementId: "clipboardStatus" });
       } catch (error) {
         console.error(error);
         status.textContent = "Clipboard access was blocked. Tap the URL field and paste manually.";

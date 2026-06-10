@@ -8,7 +8,14 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "functions/**",
+      "**/*.zip",
+      "**/*.psd",
+      "**/__MACOSX/**",
+      "**/.DS_Store",
+      ".firebase/**",
+      "firebase-debug.log"
     ],
     "rewrites": [
       {
