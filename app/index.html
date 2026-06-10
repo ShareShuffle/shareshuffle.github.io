@@ -163,6 +163,10 @@
       return Object.fromEntries(fields.map(id => [id, $(id).value.trim()]));
     }
 
+    function isGenericAutoTitle(value = "") {
+      return /^(shared find|shared find from|amazon product|walmart product|target product|best buy product|product link)$/i.test(String(value || "").trim());
+    }
+
     function normalizeHandle(value = "") {
       return makeSlug(String(value || "").replace(/^@+/, ""));
     }
@@ -312,7 +316,9 @@
         const nextDescription = neutralizeText(preview.description || "");
         const nextImage = preview.image || "";
 
-        if (nextTitle && (!onlyFillBlanks || !$("title").value.trim())) $("title").value = nextTitle;
+        const currentTitle = $("title").value.trim();
+        const canReplaceTitle = !onlyFillBlanks || !currentTitle || isGenericAutoTitle(currentTitle);
+        if (nextTitle && canReplaceTitle) $("title").value = nextTitle;
         if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
         if (nextImage && (!onlyFillBlanks || !$("imageUrl").value.trim())) $("imageUrl").value = nextImage;
         updateImagePreview();
@@ -351,10 +357,10 @@
           return;
         }
         $("productUrl").value = url;
-        if (!$("title").value.trim()) $("title").value = titleFromUrl(url);
-        status.textContent = "Product link pasted.";
+        if (isGenericAutoTitle($("title").value)) $("title").value = "";
+        status.textContent = "Product link pasted. Looking up title and image…";
         saveDraft();
-        fetchPreviewForUrl(url, { onlyFillBlanks: true });
+        fetchPreviewForUrl(url, { onlyFillBlanks: false });
       } catch (error) {
         console.error(error);
         status.textContent = "Clipboard access was blocked. Tap the URL field and paste manually.";
