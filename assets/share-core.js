@@ -10,7 +10,7 @@ export const FIREBASE_CONFIG = {
 };
 
 export const SHARE_BASE_URL = "https://shfl.me/";
-export const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html?s=";
+export const SHELF_BASE_URL = "https://shfl.me/";
 
 export const AFFILIATE_CONFIG = {
   amazon: { tag: "shareshuffle-20" },
@@ -167,6 +167,117 @@ export function smartTruncate(value = "", maxLength = 90) {
   const lastSpace = slice.lastIndexOf(" ");
   const trimmed = lastSpace > Math.min(40, maxLength / 2) ? slice.slice(0, lastSpace) : slice;
   return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
+}
+
+
+export function normalizePublicToken(value = "") {
+  return String(value || "")
+    .trim()
+    .replace(/^@+/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function normalizeHandle(value = "") {
+  return normalizePublicToken(value);
+}
+
+export function normalizeShelfSlug(value = "") {
+  return makeSlug(value);
+}
+
+export function isShareId(value = "") {
+  return /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(String(value || "").trim());
+}
+
+export function canonicalShareId(value = "") {
+  const id = String(value || "").trim().toLowerCase();
+  return isShareId(id) ? id : "";
+}
+
+export function normalizeRoutePath(pathname = "") {
+  const parts = String(pathname || "")
+    .split("/")
+    .filter(Boolean)
+    .map(part => decodeURIComponent(part).trim())
+    .filter(Boolean)
+    .map(part => part.startsWith("@") ? `@${normalizeHandle(part)}` : normalizePublicToken(part));
+  return parts.length ? `/${parts.join("/")}` : "/";
+}
+
+export function buildShareUrl(id = "") {
+  const shareId = canonicalShareId(id) || String(id || "").trim().toLowerCase();
+  return `${SHARE_BASE_URL}${shareId}`;
+}
+
+export function buildShelfUrl({ handleSlug = "", shelfSlug = "" } = {}) {
+  const handle = normalizeHandle(handleSlug);
+  const shelf = normalizeShelfSlug(shelfSlug);
+  if (handle && shelf) return `${SHELF_BASE_URL}@${handle}/${shelf}`;
+  if (shelf) return `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(shelf)}`;
+  if (handle) return `${SHELF_BASE_URL}@${handle}`;
+  return "";
+}
+
+export function buildHandleShareUrl({ handleSlug = "", shelfSlug = "", id = "" } = {}) {
+  const handle = normalizeHandle(handleSlug);
+  const shelf = normalizeShelfSlug(shelfSlug);
+  const shareId = canonicalShareId(id) || String(id || "").trim().toLowerCase();
+  if (handle && shelf && shareId) return `${SHARE_BASE_URL}@${handle}/${shelf}/${shareId}`;
+  return buildShareUrl(shareId);
+}
+
+export function routeToDestination({ hostname = "", pathname = "/", search = "" } = {}) {
+  const path = normalizeRoutePath(pathname);
+  const parts = path.split("/").filter(Boolean);
+  const params = new URLSearchParams(search || "");
+
+  // Existing explicit pages still work when requested directly.
+  if (!parts.length) return { href: "/", replace: false, canonicalPath: "/" };
+
+  const first = parts[0] || "";
+  if (first === "app" || first === "share.html" || first === "shelf.html" || first === "index.html") return null;
+
+  // Root short links: /A2C4E, /a2c4e, /A2c4E all resolve to the same share.
+  if (parts.length === 1 && isShareId(first)) {
+    const id = canonicalShareId(first);
+    return { href: `/share.html?id=${encodeURIComponent(id)}`, replace: true, canonicalPath: `/${id}` };
+  }
+
+  // Current username routes use @ so 1–2 character early-adopter names are safe.
+  // /@rich, /@Rich, /@RICH normalize to /@rich.
+  if (first.startsWith("@")) {
+    const handle = normalizeHandle(first);
+    const second = normalizeShelfSlug(parts[1] || "");
+    const third = canonicalShareId(parts[2] || "");
+
+    if (third) {
+      return { href: `/share.html?id=${encodeURIComponent(third)}&u=${encodeURIComponent(handle)}&s=${encodeURIComponent(second)}`, replace: true, canonicalPath: `/@${handle}/${second}/${third}` };
+    }
+    if (second && isShareId(second)) {
+      const id = canonicalShareId(second);
+      return { href: `/share.html?id=${encodeURIComponent(id)}&u=${encodeURIComponent(handle)}`, replace: true, canonicalPath: `/@${handle}/${id}` };
+    }
+    if (second) {
+      return { href: `/shelf.html?u=${encodeURIComponent(handle)}&s=${encodeURIComponent(second)}`, replace: true, canonicalPath: `/@${handle}/${second}` };
+    }
+    return { href: `/shelf.html?u=${encodeURIComponent(handle)}`, replace: true, canonicalPath: `/@${handle}` };
+  }
+
+  // Future no-@ username routes. Because 5-char share IDs are reserved above,
+  // /rich can eventually become a profile while /a2c4e stays a share.
+  if (/^[a-z0-9][a-z0-9-]{0,23}$/.test(first)) {
+    const handle = normalizeHandle(first);
+    const second = normalizeShelfSlug(parts[1] || "");
+    const third = canonicalShareId(parts[2] || "");
+    if (third) return { href: `/share.html?id=${encodeURIComponent(third)}&u=${encodeURIComponent(handle)}&s=${encodeURIComponent(second)}`, replace: true, canonicalPath: `/${handle}/${second}/${third}` };
+    if (second) return { href: `/shelf.html?u=${encodeURIComponent(handle)}&s=${encodeURIComponent(second)}`, replace: true, canonicalPath: `/${handle}/${second}` };
+    return { href: `/shelf.html?u=${encodeURIComponent(handle)}`, replace: true, canonicalPath: `/${handle}` };
+  }
+
+  return null;
 }
 
 export function buildMessage({ title, note, shareUrl }) {

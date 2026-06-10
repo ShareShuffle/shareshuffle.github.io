@@ -351,7 +351,8 @@ h1 {
     const db = getFirestore(app);
 
     const params = new URLSearchParams(location.search);
-    const slug = params.get("s") || "";
+    const handleSlug = String(params.get("u") || "").trim().replace(/^@+/, "").toLowerCase();
+    const slug = String(params.get("s") || "").trim().toLowerCase();
 
 
 
@@ -412,26 +413,26 @@ h1 {
       const status = document.getElementById("status");
       const items = document.getElementById("items");
 
-      if (!slug) {
+      if (!slug && !handleSlug) {
         title.textContent = "Missing shelf";
-        status.textContent = "No shelf slug found.";
+        status.textContent = "No shelf or @username found.";
         return;
       }
 
-      const shelfName = titleFromSlug(slug);
-      title.textContent = shelfName;
-      document.title = `${shelfName} — ShareShuffle`;
+      const shelfName = slug ? titleFromSlug(slug) : `@${handleSlug}`;
+      title.textContent = handleSlug && slug ? `${shelfName} by @${handleSlug}` : shelfName;
+      document.title = `${title.textContent} — ShareShuffle`;
 
-      const q = query(
-        collection(db, "shares"),
-        where("shelfSlug", "==", slug)
-      );
+      const baseQuery = handleSlug
+        ? query(collection(db, "shares"), where("handleSlug", "==", handleSlug))
+        : query(collection(db, "shares"), where("shelfSlug", "==", slug));
 
-      const snap = await getDocs(q);
+      const snap = await getDocs(baseQuery);
       const docs = [];
 
       snap.forEach(docSnap => {
-        docs.push({ id: docSnap.id, ...docSnap.data() });
+        const item = { id: docSnap.id, ...docSnap.data() };
+        if (!slug || String(item.shelfSlug || "").toLowerCase() === slug) docs.push(item);
       });
 
       docs.sort((a, b) => {
@@ -451,7 +452,7 @@ h1 {
           <div class="col-12">
             <div class="hero-card p-4 text-center">
               <h2 class="fw-bold">No items yet</h2>
-              <p class="text-secondary mb-0">Save something to this shelf from the Chrome extension.</p>
+              <p class="text-secondary mb-0">Save something to this shelf from the ShareShuffle app or extension.</p>
             </div>
           </div>
         `;
@@ -459,7 +460,9 @@ h1 {
       }
 
       docs.forEach(item => {
-        const shareUrl = `${SHARE_BASE_URL}${item.id}`;
+        const shareUrl = item.handleSlug && item.shelfSlug
+          ? `${SHARE_BASE_URL}@${encodeURIComponent(String(item.handleSlug).toLowerCase())}/${encodeURIComponent(String(item.shelfSlug).toLowerCase())}/${String(item.id).toLowerCase()}`
+          : `${SHARE_BASE_URL}${String(item.id).toLowerCase()}`;
         const displayTitle = smartTruncate(cleanProductTitle(item.title || "Shared find"), 96);
         const displayNote = smartTruncate(item.note || "I saw this and thought of you.", 120);
         const outboundMessage = buildShareMessage({ title: displayTitle, note: displayNote, shareUrl });

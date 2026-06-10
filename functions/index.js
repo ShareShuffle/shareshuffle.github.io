@@ -282,8 +282,24 @@ function extractPreview(html, finalUrl, requestedUrl) {
   return { title, description, image, finalUrl };
 }
 
-export const getPreview = onRequest({ region: "us-central1", timeoutSeconds: 12, memory: "256MiB" }, async (req, res) => {
-  if (req.method === "OPTIONS") return sendJson(res, 204, {});
+export const getPreview = onRequest(
+  {
+    invoker: "public",
+    cors: [
+      "https://shareshuffle.com",
+      "https://www.shareshuffle.com",
+      "https://shfl.me",
+      "https://www.shfl.me",
+      "https://shelfmix.com",
+      "https://www.shelfmix.com",
+      "https://shareshuffle-c7f96.web.app",
+      "http://localhost:5000",
+      "http://localhost:5173"
+    ],
+    timeoutSeconds: 15,
+    memory: "256Mi"
+  },
+  async (req, res) => {  if (req.method === "OPTIONS") return sendJson(res, 204, {});
   if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
 
   const rawUrl = String(req.query.url || "").trim();

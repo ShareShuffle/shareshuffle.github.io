@@ -1,8 +1,4 @@
 {
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "hosting": {
     "public": ".",
     "ignore": [
@@ -10,24 +6,37 @@
       "**/.*",
       "**/node_modules/**",
       "functions/**",
-      "**/*.zip",
-      "**/*.psd",
-      "**/__MACOSX/**",
-      "**/.DS_Store",
+      ".git/**",
       ".firebase/**",
-      "firebase-debug.log"
+      "__MACOSX/**",
+      "*.zip",
+      "*.psd"
     ],
     "rewrites": [
       {
         "source": "/getPreview",
-        "function": "getPreview"
+        "function": {
+          "functionId": "getPreview",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/router.html"
       }
     ]
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default"
-    }
-  ]
+  "functions": {
+    "source": "functions",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
 }

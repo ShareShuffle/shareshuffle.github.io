@@ -486,7 +486,16 @@ h1 {
     const db = getFirestore(app);
 
     const params = new URLSearchParams(location.search);
-    const id = params.get("id");
+    function shareIdFromUrl() {
+      const fromQuery = params.get("id") || params.get("s") || "";
+      const queryId = String(fromQuery).trim().toLowerCase();
+      if (/^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(queryId)) return queryId;
+      const parts = location.pathname.split("/").filter(Boolean).map(part => decodeURIComponent(part).toLowerCase());
+      const last = parts[parts.length - 1] || "";
+      if (/^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(last)) return last;
+      return "";
+    }
+    const id = shareIdFromUrl();
 
 
     function cleanProductTitle(value = "") {
@@ -722,7 +731,9 @@ document.getElementById("copyShareBtn").dataset.url = shareUrl;
 
       if (data.shelfName && data.shelfSlug) {
         shelfNameText.innerText = `More from ${data.shelfName}`;
-        shelfLink.href = `/shelf.html?s=${encodeURIComponent(data.shelfSlug)}`;
+        shelfLink.href = data.handleSlug
+          ? `https://shfl.me/@${encodeURIComponent(String(data.handleSlug).toLowerCase())}/${encodeURIComponent(String(data.shelfSlug).toLowerCase())}`
+          : `/shelf.html?s=${encodeURIComponent(String(data.shelfSlug).toLowerCase())}`;
         shelfLinkWrap.style.display = "block";
       }
 

@@ -6,6 +6,22 @@ service cloud.firestore {
       return field is string && field.size() <= maxLength;
     }
 
+    function hasKey(data, key) {
+      return data.keys().hasAny([key]);
+    }
+
+    function optionalString(data, key, maxLength) {
+      return !hasKey(data, key) || isString(data[key], maxLength);
+    }
+
+    function optionalBool(data, key) {
+      return !hasKey(data, key) || data[key] is bool;
+    }
+
+    function optionalNumber(data, key) {
+      return !hasKey(data, key) || data[key] is number;
+    }
+
     match /supportMessages/{messageId} {
       allow create: if
         request.resource.data.keys().hasOnly([
@@ -57,6 +73,10 @@ service cloud.firestore {
     match /shares/{shareId} {
       allow read: if true;
 
+      // TEMP COMPATIBILITY RULE:
+      // Allows both the submitted Chrome Store extension's old share payload
+      // and the newer router payload with handleSlug/handleDisplay/publicPath.
+      // New route fields are allowed, but not required yet.
       allow create: if
         request.resource.data.keys().hasOnly([
           "title",
@@ -71,17 +91,23 @@ service cloud.firestore {
           "amazonClicks",
           "shares",
           "shelfName",
-          "shelfSlug"
+          "shelfSlug",
+          "handleSlug",
+          "handleDisplay",
+          "publicPath"
         ])
         && isString(request.resource.data.title, 300)
         && isString(request.resource.data.url, 3000)
-        && isString(request.resource.data.originalUrl, 3000)
-        && isString(request.resource.data.merchant, 50)
-        && request.resource.data.affiliateApplied is bool
-        && isString(request.resource.data.note, 1000)
-        && isString(request.resource.data.image, 2000)
-        && isString(request.resource.data.shelfName, 100)
-        && isString(request.resource.data.shelfSlug, 100)
+        && optionalString(request.resource.data, "originalUrl", 3000)
+        && optionalString(request.resource.data, "merchant", 50)
+        && optionalBool(request.resource.data, "affiliateApplied")
+        && optionalString(request.resource.data, "note", 1000)
+        && optionalString(request.resource.data, "image", 2000)
+        && optionalString(request.resource.data, "shelfName", 100)
+        && optionalString(request.resource.data, "shelfSlug", 100)
+        && optionalString(request.resource.data, "handleSlug", 60)
+        && optionalString(request.resource.data, "handleDisplay", 100)
+        && optionalString(request.resource.data, "publicPath", 300)
         && request.resource.data.created == request.time
         && request.resource.data.views == 0
         && request.resource.data.amazonClicks == 0
@@ -93,9 +119,9 @@ service cloud.firestore {
           "amazonClicks",
           "shares"
         ])
-        && request.resource.data.views is number
-        && request.resource.data.amazonClicks is number
-        && request.resource.data.shares is number
+        && optionalNumber(request.resource.data, "views")
+        && optionalNumber(request.resource.data, "amazonClicks")
+        && optionalNumber(request.resource.data, "shares")
         && request.resource.data.views >= resource.data.views
         && request.resource.data.amazonClicks >= resource.data.amazonClicks
         && request.resource.data.shares >= resource.data.shares;
@@ -106,10 +132,16 @@ service cloud.firestore {
     match /shelves/{shelfId} {
       allow read: if true;
 
+      // TEMP COMPATIBILITY RULE:
+      // Allows old shelves created by the pending Chrome Store extension
+      // plus new router-aware shelf docs. New route fields are optional for now.
       allow create: if
         request.resource.data.keys().hasOnly([
           "name",
           "slug",
+          "handleSlug",
+          "handleDisplay",
+          "routePath",
           "description",
           "image",
           "coverImage",
@@ -119,20 +151,14 @@ service cloud.firestore {
         ])
         && isString(request.resource.data.name, 120)
         && isString(request.resource.data.slug, 120)
-        && isString(request.resource.data.description, 1000)
-        && isString(request.resource.data.image, 2000)
-        && isString(request.resource.data.coverImage, 2000)
-        && (
-          (
-            request.resource.data.keys().hasAny(["ownerUuid"])
-            && isString(request.resource.data.ownerUuid, 200)
-          )
-          ||
-          (
-            request.resource.data.keys().hasAny(["ownerId"])
-            && isString(request.resource.data.ownerId, 200)
-          )
-        )
+        && optionalString(request.resource.data, "handleSlug", 60)
+        && optionalString(request.resource.data, "handleDisplay", 100)
+        && optionalString(request.resource.data, "routePath", 300)
+        && optionalString(request.resource.data, "description", 1000)
+        && optionalString(request.resource.data, "image", 2000)
+        && optionalString(request.resource.data, "coverImage", 2000)
+        && optionalString(request.resource.data, "ownerUuid", 200)
+        && optionalString(request.resource.data, "ownerId", 200)
         && request.resource.data.created == request.time;
 
       allow update: if false;

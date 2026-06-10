@@ -8,6 +8,7 @@
     <meta name="description" content="Create ShareShuffle product recommendation links on iPhone and mobile.">
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#EEF6FF">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="ShareShuffle">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -135,7 +136,7 @@
       FIREBASE_CONFIG, SHARE_BASE_URL, SHELF_BASE_URL,
       makeShortId, makeSlug, extractPrimaryUrl, getAffiliateMerchant,
       buildAffiliateUrl, cleanTitle, neutralizeText, smartTruncate,
-      buildMessage, titleFromUrl
+      buildMessage, titleFromUrl, normalizeHandle, buildShareUrl, buildShelfUrl, buildHandleShareUrl
     } from "/assets/share-core.js";
 
     const app = initializeApp(FIREBASE_CONFIG);
@@ -165,10 +166,6 @@
 
     function isGenericAutoTitle(value = "") {
       return /^(shared find|shared find from|amazon product|walmart product|target product|best buy product|product link)$/i.test(String(value || "").trim());
-    }
-
-    function normalizeHandle(value = "") {
-      return makeSlug(String(value || "").replace(/^@+/, ""));
     }
 
     function updateImagePreview() {
@@ -232,19 +229,23 @@
       return id;
     }
 
-    async function createShelfIfNeeded(name) {
+    async function createShelfIfNeeded(name, handleSlug = "", handleDisplay = "") {
       const shelfName = String(name || "").trim();
       if (!shelfName) return { shelfName: "", shelfSlug: "", shelfUrl: "" };
       const shelfSlug = makeSlug(shelfName);
-      const shelfUrl = `${SHELF_BASE_URL}${encodeURIComponent(shelfSlug)}`;
+      const shelfUrl = buildShelfUrl({ handleSlug, shelfSlug });
       if (!shelfSlug) return { shelfName: "", shelfSlug: "", shelfUrl: "" };
       try {
-        const ref = doc(db, "shelves", shelfSlug);
+        const shelfDocId = handleSlug ? `${handleSlug}__${shelfSlug}` : shelfSlug;
+        const ref = doc(db, "shelves", shelfDocId);
         const existing = await getDoc(ref);
         if (!existing.exists()) {
           await setDoc(ref, {
             name: shelfName,
             slug: shelfSlug,
+            handleSlug,
+            handleDisplay,
+            routePath: handleSlug ? `/@${handleSlug}/${shelfSlug}` : `/shelf.html?s=${shelfSlug}`,
             description: "",
             image: "",
             coverImage: "",
@@ -419,7 +420,9 @@
       status.textContent = "Creating share link...";
       try {
         const id = await createUniqueId();
-        const shelf = await createShelfIfNeeded(data.shelfName);
+        const handleDisplay = String(data.handle || "").trim().replace(/^@+/, "");
+        const handleSlug = normalizeHandle(data.handle);
+        const shelf = await createShelfIfNeeded(data.shelfName, handleSlug, handleDisplay);
         saveShelfName(data.shelfName);
         const affiliateUrl = buildAffiliateUrl(sourceUrl);
         const merchant = getAffiliateMerchant(sourceUrl);
@@ -437,16 +440,18 @@
           image,
           shelfName: shelf.shelfName,
           shelfSlug: shelf.shelfSlug,
+          handleSlug,
+          handleDisplay,
+          publicPath: handleSlug && shelf.shelfSlug ? `/@${handleSlug}/${shelf.shelfSlug}/${id}` : `/${id}`,
           views: 0,
           amazonClicks: 0,
           shares: 0,
           created: serverTimestamp()
         });
 
-        const canonicalShareUrl = `${SHARE_BASE_URL}${id}`;
-        const handleSlug = normalizeHandle(data.handle);
+        const canonicalShareUrl = buildShareUrl(id);
         const shelfSlug = makeSlug(data.shelfName);
-        const futurePath = handleSlug && shelfSlug ? `https://shfl.me/@${handleSlug}/${shelfSlug}/${id}` : "";
+        const futurePath = handleSlug && shelfSlug ? buildHandleShareUrl({ handleSlug, shelfSlug, id }) : "";
 
         const shareUrl = futurePath || canonicalShareUrl;
 
