@@ -47,15 +47,18 @@
     .pill-row button{border:1px solid #d8e2f0;background:#fff;color:var(--ss-ink);border-radius:999px;padding:7px 10px;font-weight:850;}
     .status{min-height:22px;margin:10px 2px 0;color:#1c4ed8;font-weight:850;font-size:.92rem;}
     .field-help{min-height:18px;margin:6px 2px 0;color:#4b647a;font-size:.82rem;line-height:1.25;}
+    .image-preview{display:none;align-items:center;gap:10px;margin:8px 2px 0;padding:10px;border:1px solid #d8e2f0;border-radius:14px;background:#f8fbff;color:#4b647a;font-size:.86rem;line-height:1.25;}
+    .image-preview img{width:58px;height:58px;border-radius:12px;object-fit:cover;background:#eef3fb;border:1px solid #d8e2f0;flex:0 0 auto;}
+    .image-preview a{color:#0d6efd;font-weight:850;text-decoration:none;}
     .last-card{display:none;margin-top:18px;border:1px solid #d8e2f0;border-radius:22px;padding:14px;background:#fff;}
     .last-label{font-size:.76rem;color:#0d6efd;text-transform:uppercase;letter-spacing:.05em;font-weight:950;text-align:center;}
     .last-title{font-weight:900;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;}
-    .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+    .actions{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px;}
     .action-btn{border:1px solid #d8e2f0;background:#fff;border-radius:18px;min-height:52px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;text-decoration:none;color:var(--ss-ink);font-weight:850;font-size:.78rem;}
     .action-btn i{color:#0d6efd;font-size:1.05rem;}
     .fine-print{font-size:.8rem;line-height:1.35;color:var(--ss-muted);margin-top:16px;}
     .install-help{margin-top:14px;padding:12px 14px;border-radius:18px;background:#f5f8ff;color:var(--ss-muted);font-size:.9rem;line-height:1.35;}
-    @media(max-width:420px){.app-card{padding:18px;border-radius:26px}.btn-row{grid-template-columns:1fr}.app-top{align-items:flex-start}.install-pill{display:none}.actions{gap:6px}.action-btn{font-size:.72rem}}
+    @media(max-width:520px){.app-card{padding:18px;border-radius:26px}.btn-row{grid-template-columns:1fr}.app-top{align-items:flex-start}.install-pill{display:none}.actions{grid-template-columns:repeat(2,1fr);gap:6px}.action-btn{font-size:.72rem}}
   </style>
 </head>
 
@@ -94,19 +97,21 @@
                     <textarea id="note" class="textarea" maxlength="180" placeholder="I saw this and thought of you..."></textarea>
                 </div>
                 <div class="field">
-                    <label for="shelfName">Save to shelf <span class="optional">(optional)</span></label>
+                    <label for="shelfName">Share to shelf <span class="optional">(optional)</span></label>
                     <input id="shelfName" class="input" type="text" maxlength="100" placeholder="Bass Gear, Gift Ideas, Kitchen...">
+                    <div id="shelfUrlExample" class="field-help">ShelfMix.com/you/shelf-name</div>
                     <div id="shelfPills" class="pill-row"></div>
                 </div>
                 <div class="field">
-                    <label for="handle">Name or handle <span class="optional">(optional, saved locally for later)</span></label>
-                    <input id="handle" class="input" type="text" maxlength="60" placeholder="Rich, rchwms, Filthy Rich...">
+                    <label for="handle">@user <span class="optional">(optional, saved locally for later)</span></label>
+                    <input id="handle" class="input" type="text" maxlength="60" placeholder="Rich, rchwms, Rich (*the remix)...">
+                    <div id="handleUrlExample" class="field-help">ShelfMix.com/rich-the-remix • SHFL.ME/@rich-the-remix</div>
                 </div>
                 <div class="field">
                     <label for="imageUrl">Image URL <span class="optional">(optional)</span></label>
                     <input id="imageUrl" class="input" type="url" maxlength="2000" placeholder="Paste an image URL if you have one">
                     <div id="previewStatus" class="field-help" aria-live="polite"></div>
-                    <div id="imagePreview" class="image-preview"><img id="imagePreviewImg" alt=""><span>Preview image found. You can replace it before saving.</span></div>
+                    <div id="imagePreview" class="image-preview"><img id="imagePreviewImg" alt="Product preview"><span id="imagePreviewText">Preview image found. You can replace it before saving.</span></div>
                 </div>
                 <button id="createBtn" class="app-btn primary" type="button" style="width:100%;margin-top:18px;"><i class="fa-solid fa-shuffle"></i> Create Share Link</button>
                 <div id="createStatus" class="status"></div>
@@ -114,7 +119,9 @@
                     <div class="last-label">Last share ready</div>
                     <div id="lastShareTitle" class="last-title"></div>
                     <div class="actions">
-                        <button id="copyLastBtn" class="action-btn" type="button"><i class="fa-solid fa-link"></i><span>Copy</span></button>
+                        <button id="copyUrlBtn" class="action-btn" type="button"><i class="fa-solid fa-link"></i><span>Copy URL</span></button>
+                        <button id="copyMessageBtn" class="action-btn" type="button"><i class="fa-solid fa-copy"></i><span>Copy Text</span></button>
+                        <button id="nativeShareBtn" class="action-btn" type="button"><i class="fa-solid fa-share-nodes"></i><span>Share</span></button>
                         <a id="smsLastBtn" class="action-btn" href="#"><i class="fa-solid fa-comment-sms"></i><span>Message</span></a>
                         <a id="emailLastBtn" class="action-btn" href="#"><i class="fa-solid fa-envelope"></i><span>Email</span></a>
                         <a id="openLastBtn" class="action-btn" href="#" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i><span>Open</span></a>
@@ -168,17 +175,70 @@
       return /^(shared find|shared find from|amazon product|walmart product|target product|best buy product|product link)$/i.test(String(value || "").trim());
     }
 
+    function isLikelyImageUrl(url = "") {
+      try {
+        const parsed = new URL(url);
+        return /\.(png|jpe?g|webp|gif|avif)(?:$|[?#])/i.test(parsed.pathname) || /images|media|ssl-images|m\.media-amazon|scene7|cloudfront/i.test(parsed.hostname + parsed.pathname);
+      } catch {
+        return false;
+      }
+    }
+
+    function displayShareUrl(url = "") {
+      return String(url || "")
+        .replace(/^https?:\/\//i, "")
+        .replace(/\/+$/g, "")
+        .toLowerCase();
+    }
+
+    function updateRouteExamples() {
+      const handleSlug = normalizeHandle($("handle").value) || "you";
+      const shelfSlug = makeSlug($("shelfName").value) || "shelf-name";
+      const handleText = handleSlug === "you"
+        ? "ShelfMix.com/you • SHFL.ME/@you"
+        : `ShelfMix.com/${handleSlug} • SHFL.ME/@${handleSlug}`;
+      const shelfText = `ShelfMix.com/${handleSlug}/${shelfSlug}`;
+      const handleEl = $("handleUrlExample");
+      const shelfEl = $("shelfUrlExample");
+      if (handleEl) handleEl.textContent = handleText;
+      if (shelfEl) shelfEl.textContent = shelfText;
+    }
+
+    function focusProductUrl({ select = true } = {}) {
+      const input = $("productUrl");
+      input.focus({ preventScroll: false });
+      if (select) {
+        try { input.select(); input.setSelectionRange(0, input.value.length); } catch {}
+      }
+    }
+
     function updateImagePreview() {
       const url = $("imageUrl").value.trim();
       const box = $("imagePreview");
       const img = $("imagePreviewImg");
+      const text = $("imagePreviewText");
       if (!url) {
         box.style.display = "none";
         img.removeAttribute("src");
         return;
       }
-      img.src = url;
       box.style.display = "flex";
+      if (!isLikelyImageUrl(url)) {
+        img.removeAttribute("src");
+        img.style.display = "none";
+        text.innerHTML = `Preview URL saved. <a href="${url}" target="_blank" rel="noopener noreferrer">Open it</a> to check it.`;
+        return;
+      }
+      img.style.display = "block";
+      img.onerror = () => {
+        img.style.display = "none";
+        text.innerHTML = `Image URL saved, but this browser could not preview it. <a href="${url}" target="_blank" rel="noopener noreferrer">Open image</a>.`;
+      };
+      img.onload = () => {
+        img.style.display = "block";
+        text.textContent = "Preview image found. You can replace it before saving.";
+      };
+      img.src = url;
     }
 
     function saveDraft() {
@@ -190,7 +250,8 @@
         const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}");
         fields.forEach(id => { if (draft[id]) $(id).value = draft[id]; });
       updateImagePreview();
-      } catch {}
+      updateRouteExamples();
+      } catch { updateRouteExamples(); }
     }
 
     function getShelves() {
@@ -213,7 +274,7 @@
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = shelf;
-        btn.addEventListener("click", () => { $("shelfName").value = shelf; saveDraft(); });
+        btn.addEventListener("click", () => { $("shelfName").value = shelf; updateRouteExamples(); saveDraft(); });
         wrap.appendChild(btn);
       });
     }
@@ -259,13 +320,50 @@
       return { shelfName, shelfSlug, shelfUrl };
     }
 
+    function shareUrlForOpening(url = "") {
+      const value = String(url || "").trim();
+      return value.startsWith("http") ? value : `https://${value}`;
+    }
+
+    function textForNativeShare(share) {
+      return share?.message || share?.shareDisplayUrl || displayShareUrl(share?.shareUrl);
+    }
+
+    async function nativeShareLast() {
+      if (!lastShare) return;
+      const shareDisplayUrl = lastShare.shareDisplayUrl || displayShareUrl(lastShare.shareUrl);
+      const url = shareUrlForOpening(lastShare.shareUrl || shareDisplayUrl);
+      const text = lastShare.message || `Shared via Shuffle:
+🔗 ${shareDisplayUrl}`;
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: cleanTitle(lastShare.title || "Shared find"),
+            text,
+            url
+          });
+          $("createStatus").textContent = "Opened share sheet.";
+          return;
+        }
+        await navigator.clipboard.writeText(text);
+        $("createStatus").textContent = "Native share is unavailable here, so I copied the share text.";
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          $("createStatus").textContent = "Share canceled.";
+          return;
+        }
+        console.warn("Native share failed", error);
+        $("createStatus").textContent = "Share sheet was blocked. Try Copy URL or Message.";
+      }
+    }
+
     function showLastShare(share) {
       lastShare = share;
       localStorage.setItem(LAST_SHARE_KEY, JSON.stringify(share));
       $("lastSharePanel").style.display = "block";
       $("lastShareTitle").textContent = cleanTitle(share.title || "Shared find");
-      $("openLastBtn").href = share.shareUrl;
-      const encodedMessage = encodeURIComponent(share.message || share.shareUrl);
+      $("openLastBtn").href = shareUrlForOpening(share.shareUrl || share.shareDisplayUrl);
+      const encodedMessage = encodeURIComponent(share.message || share.shareDisplayUrl || displayShareUrl(share.shareUrl));
       $("smsLastBtn").href = `sms:?&body=${encodedMessage}`;
       $("emailLastBtn").href = `mailto:?subject=${encodeURIComponent("I saw this and thought of you")}&body=${encodedMessage}`;
       if (share.shelfUrl) {
@@ -350,7 +448,8 @@
         const currentTitle = $("title").value.trim();
         const canReplaceTitle = !onlyFillBlanks || !currentTitle || isGenericAutoTitle(currentTitle);
         if (nextTitle && canReplaceTitle) $("title").value = nextTitle;
-        if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
+        // Product descriptions are metadata, not a personal note. Keep the note field for the sender.
+        // if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
         if (nextImage && (!onlyFillBlanks || !$("imageUrl").value.trim())) $("imageUrl").value = nextImage;
         updateImagePreview();
 
@@ -386,6 +485,7 @@
 
     async function pasteFromClipboard() {
       const status = $("clipboardStatus");
+      focusProductUrl({ select: true });
       try {
         if (!navigator.clipboard?.readText) {
           status.textContent = "Clipboard paste is unavailable. Paste the link manually.";
@@ -398,6 +498,7 @@
           return;
         }
         $("productUrl").value = url;
+        focusProductUrl({ select: true });
         if (isGenericAutoTitle($("title").value)) $("title").value = "";
         status.textContent = "Product link pasted. Looking up title and image…";
         saveDraft();
@@ -428,7 +529,7 @@
         const merchant = getAffiliateMerchant(sourceUrl);
         const title = cleanTitle(data.title || titleFromUrl(sourceUrl));
         const note = neutralizeText(data.note || "");
-        const image = data.imageUrl || "";
+        const image = String(data.imageUrl || "").slice(0, 1900);
 
         await setDoc(doc(db, "shares", id), {
           title,
@@ -442,22 +543,26 @@
           shelfSlug: shelf.shelfSlug,
           handleSlug,
           handleDisplay,
-          publicPath: handleSlug && shelf.shelfSlug ? `/@${handleSlug}/${shelf.shelfSlug}/${id}` : `/${id}`,
+          publicPath: handleSlug ? `/@${handleSlug}/${id}` : `/${id}`,
           views: 0,
           amazonClicks: 0,
           shares: 0,
           created: serverTimestamp()
         });
 
+        const verifySnap = await getDoc(doc(db, "shares", id));
+        if (!verifySnap.exists()) throw new Error(`Share document ${id} was not readable after save.`);
+
         const canonicalShareUrl = buildShareUrl(id);
         const shelfSlug = makeSlug(data.shelfName);
-        const futurePath = handleSlug && shelfSlug ? buildHandleShareUrl({ handleSlug, shelfSlug, id }) : "";
+        const futurePath = "";
 
-        const shareUrl = futurePath || canonicalShareUrl;
+        const shareUrl = canonicalShareUrl;
+        const shareDisplayUrl = displayShareUrl(shareUrl);
 
-        const message = buildMessage({ title, note, shareUrl });
+        const message = buildMessage({ title, note, shareUrl: shareDisplayUrl });
 
-        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, canonicalShareUrl, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, savedAt: Date.now() };
+        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, shareDisplayUrl, canonicalShareUrl, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, savedAt: Date.now() };
         showLastShare(payload);
         try {
           await navigator.clipboard.writeText(message);
@@ -476,24 +581,38 @@
       }
     }
 
-    fields.forEach(id => $(id).addEventListener("input", saveDraft));
+    fields.forEach(id => $(id).addEventListener("input", () => { saveDraft(); if (id === "handle" || id === "shelfName") updateRouteExamples(); }));
     $("imageUrl").addEventListener("input", updateImagePreview);
     $("productUrl").addEventListener("input", schedulePreviewLookup);
     $("productUrl").addEventListener("blur", () => fetchPreviewForUrl($("productUrl").value, { onlyFillBlanks: true }));
+    $("pasteBtn").addEventListener("pointerdown", () => focusProductUrl({ select: true }));
     $("pasteBtn").addEventListener("click", pasteFromClipboard);
-    $("selectUrlBtn").addEventListener("click", () => { $("productUrl").focus(); $("productUrl").select(); });
+    $("selectUrlBtn").addEventListener("pointerdown", () => focusProductUrl({ select: true }));
+    $("selectUrlBtn").addEventListener("click", () => focusProductUrl({ select: true }));
     $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); updateImagePreview(); saveDraft(); $("clipboardStatus").textContent = "Cleared."; });
     $("createBtn").addEventListener("click", createShare);
-    $("copyLastBtn").addEventListener("click", async () => {
+    $("copyUrlBtn").addEventListener("click", async () => {
       if (!lastShare) return;
       try {
-        await navigator.clipboard.writeText(lastShare.message || lastShare.shareUrl);
-        $("createStatus").textContent = "Copied last share.";
+        await navigator.clipboard.writeText(lastShare.shareDisplayUrl || displayShareUrl(lastShare.shareUrl));
+        $("createStatus").textContent = "Copied share URL.";
       } catch (error) {
         console.warn("Clipboard copy failed", error);
         $("createStatus").textContent = "Copy was blocked. Open the share and copy manually.";
       }
     });
+
+    $("copyMessageBtn").addEventListener("click", async () => {
+      if (!lastShare) return;
+      try {
+        await navigator.clipboard.writeText(lastShare.message || lastShare.shareDisplayUrl || displayShareUrl(lastShare.shareUrl));
+        $("createStatus").textContent = "Copied share text.";
+      } catch (error) {
+        console.warn("Clipboard copy failed", error);
+        $("createStatus").textContent = "Copy was blocked. Open the share and copy manually.";
+      }
+    });
+    $("nativeShareBtn").addEventListener("click", nativeShareLast);
     $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); updateImagePreview(); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; });
 
     restoreDraft();

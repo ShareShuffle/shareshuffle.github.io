@@ -21,8 +21,57 @@
         }
       },
       {
+        "source": "/_build",
+        "function": {
+          "functionId": "getBuildInfo",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/_status",
+        "destination": "/status.html"
+      },
+      {
+        "source": "/img/**",
+        "function": {
+          "functionId": "shareImage",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/i-**",
+        "function": {
+          "functionId": "shareImage",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/~**",
+        "function": {
+          "functionId": "shareImage",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/-**",
+        "function": {
+          "functionId": "shareImage",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/ogImage",
+        "function": {
+          "functionId": "ogImage",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "**",
-        "destination": "/router.html"
+        "function": {
+          "functionId": "renderRoute",
+          "region": "us-central1"
+        }
       }
     ]
   },

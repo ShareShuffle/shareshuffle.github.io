@@ -400,7 +400,7 @@ h1 {
       const cleanNote = smartTruncate(note || "", 140);
       const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "");
       return [
-        "Shared via ShareShuffle:",
+        "Shared via Shuffle:",
         cleanNote ? `💬 ${cleanNote}` : "",
         cleanTitle ? `🎯 ${cleanTitle}` : "",
         cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
@@ -460,16 +460,14 @@ h1 {
       }
 
       docs.forEach(item => {
-        const shareUrl = item.handleSlug && item.shelfSlug
-          ? `${SHARE_BASE_URL}@${encodeURIComponent(String(item.handleSlug).toLowerCase())}/${encodeURIComponent(String(item.shelfSlug).toLowerCase())}/${String(item.id).toLowerCase()}`
-          : `${SHARE_BASE_URL}${String(item.id).toLowerCase()}`;
+        const shareUrl = `${SHARE_BASE_URL}${String(item.id).toLowerCase()}`;
         const displayTitle = smartTruncate(cleanProductTitle(item.title || "Shared find"), 96);
         const displayNote = smartTruncate(item.note || "I saw this and thought of you.", 120);
         const outboundMessage = buildShareMessage({ title: displayTitle, note: displayNote, shareUrl });
         const shareText = encodeURIComponent(outboundMessage);
         const emailSubject = encodeURIComponent(displayTitle);
         const emailBody = encodeURIComponent(outboundMessage);
-        const image = item.image || "";
+        const image = item.id ? `/i-${String(item.id).toLowerCase()}` : (item.cachedImageUrl || item.cachedImage || item.image || item.imageUrl || "");
 
 
 const merchant = (item.merchant || "").toLowerCase();
@@ -575,7 +573,10 @@ const storeUrl = item.url || "#";
     }
 
     document.getElementById("copyShelf").addEventListener("click", async () => {
-      await navigator.clipboard.writeText(window.location.href);
+      const cleanShelfUrl = handleSlug
+        ? `https://shelfmix.com/${encodeURIComponent(handleSlug)}${slug ? `/${encodeURIComponent(slug)}` : ""}`
+        : window.location.href;
+      await navigator.clipboard.writeText(cleanShelfUrl);
       const btn = document.getElementById("copyShelf");
       btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied';
       setTimeout(() => {

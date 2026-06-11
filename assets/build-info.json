@@ -1,0 +1,15 @@
+{
+  "build": "2026.06.11-reliability-02",
+  "createdAt": "2026-06-11T19:05:00Z",
+  "patch": "routing-share-image-status-reliability",
+  "checks": [
+    "renderRoute",
+    "shareImage",
+    "ogImage",
+    "getPreview",
+    "getBuildInfo",
+    "app URL focus/autofill",
+    "publicPath fields",
+    "debug error output"
+  ]
+}

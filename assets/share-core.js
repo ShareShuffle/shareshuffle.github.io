@@ -10,7 +10,7 @@ export const FIREBASE_CONFIG = {
 };
 
 export const SHARE_BASE_URL = "https://shfl.me/";
-export const SHELF_BASE_URL = "https://shfl.me/";
+export const SHELF_BASE_URL = "https://shelfmix.com/";
 
 export const AFFILIATE_CONFIG = {
   amazon: { tag: "shareshuffle-20" },
@@ -30,11 +30,15 @@ export function makeShortId(length = 5) {
 }
 
 export function makeSlug(value = "") {
-  return String(value)
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim()
     .replace(/&/g, " and ")
+    .replace(/['’]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "")
     .substring(0, 48);
 }
@@ -171,13 +175,7 @@ export function smartTruncate(value = "", maxLength = 90) {
 
 
 export function normalizePublicToken(value = "") {
-  return String(value || "")
-    .trim()
-    .replace(/^@+/, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return makeSlug(String(value || "").replace(/^@+/, ""));
 }
 
 export function normalizeHandle(value = "") {
@@ -215,17 +213,18 @@ export function buildShareUrl(id = "") {
 export function buildShelfUrl({ handleSlug = "", shelfSlug = "" } = {}) {
   const handle = normalizeHandle(handleSlug);
   const shelf = normalizeShelfSlug(shelfSlug);
-  if (handle && shelf) return `${SHELF_BASE_URL}@${handle}/${shelf}`;
+  if (handle && shelf) return `${SHELF_BASE_URL}${handle}/${shelf}`;
   if (shelf) return `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(shelf)}`;
-  if (handle) return `${SHELF_BASE_URL}@${handle}`;
+  if (handle) return `${SHELF_BASE_URL}${handle}`;
   return "";
 }
 
 export function buildHandleShareUrl({ handleSlug = "", shelfSlug = "", id = "" } = {}) {
   const handle = normalizeHandle(handleSlug);
-  const shelf = normalizeShelfSlug(shelfSlug);
   const shareId = canonicalShareId(id) || String(id || "").trim().toLowerCase();
-  if (handle && shelf && shareId) return `${SHARE_BASE_URL}@${handle}/${shelf}/${shareId}`;
+
+  // Keep individual item links as short as possible for text/iMessage.
+  // Shelves/profiles get the richer ShelfMix routes; item shares are SHFL.ME/a2c4e.
   return buildShareUrl(shareId);
 }
 
@@ -238,7 +237,8 @@ export function routeToDestination({ hostname = "", pathname = "/", search = "" 
   if (!parts.length) return { href: "/", replace: false, canonicalPath: "/" };
 
   const first = parts[0] || "";
-  if (first === "app" || first === "share.html" || first === "shelf.html" || first === "index.html") return null;
+  if (["app", "share.html", "shelf.html", "index.html", "status.html", "_status", "_build", "img", "getpreview", "ogimage"].includes(first)) return null;
+  if (/^(?:i-|~|-)[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(first)) return null;
 
   // Root short links: /A2C4E, /a2c4e, /A2c4E all resolve to the same share.
   if (parts.length === 1 && isShareId(first)) {
@@ -285,7 +285,7 @@ export function buildMessage({ title, note, shareUrl }) {
   const cleanNote = smartTruncate(neutralizeText(note).trim(), 140);
   const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "");
   return [
-    "Shared via ShareShuffle:",
+    "Shared via Shuffle:",
     cleanNote ? `💬 ${cleanNote}` : "",
     cleanProductTitle ? `🎯 ${cleanProductTitle}` : "",
     cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""

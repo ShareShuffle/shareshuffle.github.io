@@ -1,0 +1,10 @@
+.ss-auto-skeleton{position:fixed;inset:0;z-index:2147483000;background:linear-gradient(135deg,#eef6ff,#fff);display:grid;place-items:center;padding:22px;transition:opacity .22s ease,visibility .22s ease}
+.ss-auto-skeleton.ss-skeleton-done{opacity:0;visibility:hidden;pointer-events:none}
+.ss-skeleton-card{width:min(560px,92vw);border:1px solid rgba(15,23,42,.10);background:rgba(255,255,255,.86);border-radius:28px;box-shadow:0 24px 70px rgba(15,23,42,.13);padding:22px;overflow:hidden}
+.ss-skeleton-line,.ss-skeleton-thumb,.ss-skeleton-pill{position:relative;overflow:hidden;background:#e5edf7;border-radius:999px}
+.ss-skeleton-thumb{height:190px;border-radius:22px;margin-bottom:18px}
+.ss-skeleton-line{height:16px;margin:12px 0}.ss-skeleton-line.short{width:58%}.ss-skeleton-line.med{width:78%}.ss-skeleton-line.long{width:94%}
+.ss-skeleton-pill{height:36px;width:132px;margin-top:18px}
+.ss-skeleton-line::after,.ss-skeleton-thumb::after,.ss-skeleton-pill::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);animation:ssSkeletonShimmer 1.15s infinite}
+@keyframes ssSkeletonShimmer{100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.ss-skeleton-line::after,.ss-skeleton-thumb::after,.ss-skeleton-pill::after{animation:none}}

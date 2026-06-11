@@ -1,4 +1,18 @@
 import { onRequest } from "firebase-functions/v2/https";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
+
+initializeApp();
+const db = getFirestore();
+const storage = getStorage();
+
+const BUILD_INFO = {
+  build: "2026.06.11-reliability-02",
+  createdAt: "2026-06-11T19:05:00Z",
+  patch: "routing-share-image-status-reliability",
+  functions: ["getPreview", "renderRoute", "ogImage", "shareImage", "getBuildInfo"]
+};
 
 const MAX_HTML_BYTES = 900000;
 const TIMEOUT_MS = 9000;
@@ -353,3 +367,455 @@ export const getPreview = onRequest(
     clearTimeout(timer);
   }
 });
+
+
+
+function isLikelyBadProductImage(url = "") {
+  const value = String(url || "").toLowerCase();
+  return !value || /sprite|logo|icon|avatar|pixel|blank|transparent|loading|favicon|share-?shuffle|icon512|icon192|gift/i.test(value) || /\.svg(?:\?|$)|base64/.test(value);
+}
+
+function extractImageShareId(req) {
+  const path = String(req.path || req.url || "").split("?")[0];
+  const parts = path.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
+  const last = parts[parts.length - 1] || "";
+  const raw = parts[0] === "img" ? last : last.replace(/^(?:i-|~|-)/, "");
+  const id = raw.trim().toLowerCase();
+  return isPublicShareId(id) ? id : "";
+}
+
+async function fetchImageBuffer(rawUrl, signal) {
+  const response = await fetch(rawUrl, {
+    signal,
+    redirect: "follow",
+    headers: {
+      "user-agent": BROWSER_HEADERS["user-agent"],
+      "accept": "image/avif,image/webp,image/apng,image/png,image/jpeg,image/*,*/*;q=0.8",
+      "accept-language": "en-US,en;q=0.9"
+    }
+  });
+  const contentType = response.headers.get("content-type") || "";
+  if (!response.ok || !contentType.startsWith("image/")) {
+    throw new Error(`Image fetch failed: ${response.status} ${contentType}`);
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  if (!buffer.length) throw new Error("Image was empty");
+  if (buffer.length > 2_000_000) throw new Error("Image was too large for first-pass cache");
+  return { buffer, contentType };
+}
+
+function sendFallbackImage(res) {
+  res.redirect(302, "/icons/icon512-square.png");
+}
+
+const DEFAULT_PREVIEW_IMAGE = "https://shareshuffle.com/icons/icon512-square.png";
+
+function escapeHtml(value = "") {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function absoluteUrl(req, path = "/") {
+  const host = String(req.get("x-forwarded-host") || req.get("host") || "shareshuffle.com").toLowerCase();
+  const proto = String(req.get("x-forwarded-proto") || "https").split(",")[0];
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${proto}://${host}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function normalizeToken(value = "") {
+  return String(value || "")
+    .trim()
+    .replace(/^@+/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function isPublicShareId(value = "") {
+  return /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(String(value || "").trim());
+}
+
+function cleanOgText(value = "", max = 180) {
+  const text = decodeEntities(String(value || ""))
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text.length <= max) return text;
+  return text.slice(0, max - 1).replace(/[\s,;:.-]+$/g, "") + "…";
+}
+
+function imageForOg(req, rawImage = "", route = {}) {
+  // For a share page, prefer a stable first-party image URL. It can cache/proxy
+  // the original merchant image and keeps iMessage away from blocked hotlinks.
+  if (route?.type === "share" && route.shareId) return absoluteUrl(req, `/i-${route.shareId}`);
+
+  const image = String(rawImage || "").trim();
+  if (!image || isLikelyBadProductImage(image)) return absoluteUrl(req, "/icons/icon512-square.png");
+  if (image.startsWith("/")) return absoluteUrl(req, image);
+  if (/^https?:\/\//i.test(image)) {
+    const host = hostOf(image);
+    const ownHosts = new Set([
+      "shareshuffle.com",
+      "www.shareshuffle.com",
+      "shfl.me",
+      "www.shfl.me",
+      "shelfmix.com",
+      "www.shelfmix.com",
+      "shareshuffle-c7f96.web.app",
+      "shareshuffle-c7f96.firebaseapp.com"
+    ]);
+    if (ownHosts.has(host)) return image;
+    return absoluteUrl(req, `/ogImage?url=${encodeURIComponent(image)}`);
+  }
+  return absoluteUrl(req, "/icons/icon512-square.png");
+}
+
+function parsePublicRoute(pathname = "/") {
+  const parts = String(pathname || "/")
+    .split("/")
+    .filter(Boolean)
+    .map((part) => decodeURIComponent(part).trim())
+    .filter(Boolean);
+
+  if (!parts.length) return { type: "home" };
+  const first = parts[0] || "";
+
+  // System routes must win before username/profile routes.
+  // This prevents /img/a2c4e from being interpreted as user=img, shelf=a2c4e.
+  if (["img", "app", "share.html", "shelf.html", "status.html", "_status", "_build", "getPreview", "ogImage"].includes(first)) {
+    return { type: "system", canonicalPath: `/${parts.join("/")}` };
+  }
+  if (/^(?:i-|~|-)[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(first)) {
+    return { type: "image", shareId: first.replace(/^(?:i-|~|-)/, "").toLowerCase(), canonicalPath: `/${first.toLowerCase()}` };
+  }
+
+  if (parts.length === 1 && isPublicShareId(first)) {
+    return { type: "share", shareId: first.toLowerCase(), canonicalPath: `/${first.toLowerCase()}` };
+  }
+
+  if (first.startsWith("@")) {
+    const handle = normalizeToken(first);
+    const second = normalizeToken(parts[1] || "");
+    const third = String(parts[2] || "").trim().toLowerCase();
+
+    if (isPublicShareId(third)) return { type: "share", handle, shelfSlug: second, shareId: third, canonicalPath: `/@${handle}/${second}/${third}` };
+    if (isPublicShareId(second)) return { type: "share", handle, shareId: second.toLowerCase(), canonicalPath: `/@${handle}/${second.toLowerCase()}` };
+    if (second) return { type: "shelf", handle, shelfSlug: second, canonicalPath: `/@${handle}/${second}` };
+    return { type: "profile", handle, canonicalPath: `/@${handle}` };
+  }
+
+  // Future no-@ routes. Root 5-char share IDs already win above.
+  const handle = normalizeToken(first);
+  const second = normalizeToken(parts[1] || "");
+  const third = String(parts[2] || "").trim().toLowerCase();
+  if (handle && isPublicShareId(third)) return { type: "share", handle, shelfSlug: second, shareId: third, canonicalPath: `/${handle}/${second}/${third}` };
+  if (handle && second) return { type: "shelf", handle, shelfSlug: second, canonicalPath: `/${handle}/${second}` };
+  if (handle) return { type: "profile", handle, canonicalPath: `/${handle}` };
+  return { type: "unknown" };
+}
+
+function shareDestination(route) {
+  const params = new URLSearchParams();
+  params.set("id", route.shareId || "");
+  if (route.handle) params.set("u", route.handle);
+  if (route.shelfSlug) params.set("s", route.shelfSlug);
+  return `/share.html?${params.toString()}`;
+}
+
+function shelfDestination(route) {
+  const params = new URLSearchParams();
+  if (route.handle) params.set("u", route.handle);
+  if (route.shelfSlug) params.set("s", route.shelfSlug);
+  return `/shelf.html${params.toString() ? `?${params.toString()}` : ""}`;
+}
+
+async function getSharePreview(route) {
+  if (!route.shareId) return null;
+  const snap = await db.collection("shares").doc(route.shareId).get();
+  if (!snap.exists) return null;
+  const data = snap.data() || {};
+  const title = cleanOgText(data.title || "Shared product recommendation", 95);
+  const note = cleanOgText(data.note || data.description || "", 180);
+  const merchant = cleanOgText(data.merchant || "", 40);
+  const desc = note || (merchant ? `A ${merchant} recommendation shared via Shuffle.` : "A product recommendation shared via Shuffle.");
+  return {
+    found: true,
+    kind: "share",
+    title,
+    description: desc,
+    image: data.cachedImage || data.cachedImageUrl || data.image || data.imageUrl || "",
+    destination: shareDestination(route),
+    typeLabel: "Product recommendation"
+  };
+}
+
+async function getShelfPreview(route) {
+  const shelfSlug = route.shelfSlug || route.handle || "";
+  if (!shelfSlug) return null;
+  let shelfData = null;
+  const possibleShelfIds = route.handle && route.shelfSlug
+    ? [`${route.handle}__${shelfSlug}`, shelfSlug]
+    : [shelfSlug];
+  for (const shelfId of possibleShelfIds) {
+    if (!shelfId) continue;
+    const direct = await db.collection("shelves").doc(shelfId).get();
+    if (direct.exists) { shelfData = direct.data() || {}; break; }
+  }
+
+  let image = shelfData?.image || shelfData?.coverImage || "";
+  if (!image && route.shelfSlug) {
+    try {
+      const shareSnaps = await db.collection("shares")
+        .where("shelfSlug", "==", route.shelfSlug)
+        .limit(12)
+        .get();
+      for (const doc of shareSnaps.docs) {
+        const data = doc.data() || {};
+        if (route.handle && data.handleSlug && normalizeToken(data.handleSlug) !== route.handle) continue;
+        image = data.cachedImage || data.cachedImageUrl || data.image || data.imageUrl || "";
+        if (image) break;
+      }
+    } catch (error) {
+      console.warn("Shelf preview image lookup failed", error);
+    }
+  }
+
+  const displayName = cleanOgText(shelfData?.name || (route.shelfSlug ? route.shelfSlug.replace(/-/g, " ") : `@${route.handle}`), 95);
+  const desc = cleanOgText(shelfData?.description || `A ShelfMix collection shared via Shuffle.`, 180);
+  return {
+    found: Boolean(shelfData || route.handle),
+    kind: route.shelfSlug ? "shelf" : "profile",
+    title: route.shelfSlug ? `${displayName} — ShelfMix` : `@${route.handle} on ShareShuffle`,
+    description: desc,
+    image,
+    destination: shelfDestination(route),
+    typeLabel: route.shelfSlug ? "ShelfMix collection" : "ShareShuffle profile"
+  };
+}
+
+function renderHtml({ req, route, preview }) {
+  const destination = preview?.destination || "/app/";
+  const canonicalPath = route.canonicalPath || req.path || "/";
+  const canonicalUrl = absoluteUrl(req, canonicalPath);
+  const title = preview?.title || "ShareShuffle — Share what's worth finding";
+  const description = preview?.description || "A better way to share recommendations and save them to trusted shelves.";
+  const image = imageForOg(req, preview?.image || DEFAULT_PREVIEW_IMAGE, route);
+  const typeLabel = preview?.typeLabel || "ShareShuffle";
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapeHtml(description)}">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ShareShuffle">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:image" content="${escapeHtml(image)}">
+  <meta property="og:image:alt" content="${escapeHtml(typeLabel)}">
+  <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(title)}">
+  <meta name="twitter:description" content="${escapeHtml(description)}">
+  <meta name="twitter:image" content="${escapeHtml(image)}">
+  <meta name="theme-color" content="#EEF6FF">
+  <link rel="icon" type="image/png" href="/icons/icon32.png">
+  <link rel="apple-touch-icon" href="/icons/icon180-square.png">
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef6ff;color:#172033;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center}
+    .card{background:white;border:1px solid rgba(15,23,42,.1);border-radius:24px;box-shadow:0 20px 50px rgba(15,23,42,.12);padding:28px;max-width:560px}
+    img{width:100%;max-height:260px;object-fit:contain;border-radius:18px;background:#f8fafc;margin-bottom:18px}
+    .muted{color:#64748b}a{color:#2563eb;font-weight:700}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img src="${escapeHtml(image)}" alt="${escapeHtml(typeLabel)}" onerror="this.style.display='none'">
+    <h1>${escapeHtml(title)}</h1>
+    <p class="muted">${escapeHtml(description)}</p>
+    <p><a href="${escapeHtml(destination)}">Open in ShareShuffle</a></p>
+  </main>
+  <script>window.location.replace(${JSON.stringify(destination)});</script>
+</body>
+</html>`;
+}
+
+export const renderRoute = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 10,
+    memory: "256Mi"
+  },
+  async (req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.status(405).send("Method not allowed");
+      return;
+    }
+
+    try {
+      const route = parsePublicRoute(req.path || req.url || "/");
+      let preview = null;
+      if (route.type === "share") preview = await getSharePreview(route);
+      if (route.type === "shelf" || route.type === "profile") preview = await getShelfPreview(route);
+
+      res.set("Cache-Control", "public, max-age=60, s-maxage=300");
+      res.set("Content-Type", "text/html; charset=utf-8");
+      res.status(200).send(renderHtml({ req, route, preview }));
+    } catch (error) {
+      console.error("renderRoute failed", error);
+      res.set("Content-Type", "text/html; charset=utf-8");
+      res.status(200).send(renderHtml({ req, route: { type: "unknown", canonicalPath: req.path || "/" }, preview: null }));
+    }
+  }
+);
+
+
+export const getBuildInfo = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 5,
+    memory: "128Mi"
+  },
+  async (req, res) => {
+    res.set("Cache-Control", "no-store, max-age=0");
+    res.set("Access-Control-Allow-Origin", "*");
+    res.status(200).json({
+      ...BUILD_INFO,
+      ok: true,
+      host: req.get("x-forwarded-host") || req.get("host") || "",
+      path: req.path || req.url || "",
+      now: new Date().toISOString()
+    });
+  }
+);
+
+export const shareImage = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 20,
+    memory: "512Mi"
+  },
+  async (req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.status(405).send("Method not allowed");
+      return;
+    }
+
+    const shareId = extractImageShareId(req);
+    if (!shareId) return sendFallbackImage(res);
+
+    const cachePath = `share-images/${shareId}`;
+    const bucket = storage.bucket();
+    const file = bucket.file(cachePath);
+
+    try {
+      const [exists] = await file.exists();
+      if (exists) {
+        const [metadata] = await file.getMetadata();
+        const [buffer] = await file.download();
+        res.set("Cache-Control", "public, max-age=604800, s-maxage=604800, immutable");
+        res.set("Content-Type", metadata.contentType || "image/jpeg");
+        res.status(200).send(buffer);
+        return;
+      }
+    } catch (error) {
+      console.warn("Image cache read failed", shareId, error);
+    }
+
+    try {
+      const snap = await db.collection("shares").doc(shareId).get();
+      if (!snap.exists) return sendFallbackImage(res);
+      const data = snap.data() || {};
+      const rawImage = String(data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "").trim();
+      if (!rawImage || isLikelyBadProductImage(rawImage) || !isAllowedUrl(rawImage)) return sendFallbackImage(res);
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      try {
+        const { buffer, contentType } = await fetchImageBuffer(rawImage, controller.signal);
+        try {
+          await file.save(buffer, {
+            resumable: false,
+            metadata: {
+              contentType,
+              cacheControl: "public, max-age=604800"
+            }
+          });
+          await db.collection("shares").doc(shareId).set({
+            cachedImagePath: cachePath,
+            cachedImageContentType: contentType,
+            imageStatus: "cached"
+          }, { merge: true });
+        } catch (cacheError) {
+          console.warn("Image cache write failed", shareId, cacheError);
+        }
+        res.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
+        res.set("Content-Type", contentType);
+        res.status(200).send(buffer);
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch (error) {
+      console.warn("shareImage failed", shareId, error);
+      sendFallbackImage(res);
+    }
+  }
+);
+
+export const ogImage = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 15,
+    memory: "256Mi"
+  },
+  async (req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.status(405).send("Method not allowed");
+      return;
+    }
+
+    const rawUrl = String(req.query.url || "").trim();
+    if (!isAllowedUrl(rawUrl)) {
+      res.redirect(302, "/icons/icon512-square.png");
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const response = await fetch(rawUrl, {
+        signal: controller.signal,
+        redirect: "follow",
+        headers: {
+          "user-agent": BROWSER_HEADERS["user-agent"],
+          "accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+          "accept-language": "en-US,en;q=0.9"
+        }
+      });
+      const contentType = response.headers.get("content-type") || "";
+      if (!response.ok || !contentType.startsWith("image/")) {
+        res.redirect(302, "/icons/icon512-square.png");
+        return;
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      res.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
+      res.set("Content-Type", contentType);
+      res.status(200).send(buffer);
+    } catch (error) {
+      console.warn("ogImage proxy failed", error);
+      res.redirect(302, "/icons/icon512-square.png");
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+);

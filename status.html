@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShareShuffle Build Status</title>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef6ff;color:#102033;margin:0;padding:24px;}
+    main{max-width:840px;margin:0 auto;background:#fff;border:1px solid rgba(15,23,42,.1);border-radius:24px;box-shadow:0 20px 60px rgba(15,23,42,.12);padding:24px;}
+    code,pre{background:#f6f8fb;border-radius:12px;padding:.2rem .4rem;} pre{padding:14px;overflow:auto;}
+    .ok{color:#11803b;font-weight:800} .bad{color:#b42318;font-weight:800} .muted{color:#64748b}
+    a{color:#2563eb;font-weight:700}
+  </style>
+</head>
+<body>
+<main>
+  <h1>ShareShuffle Build Status</h1>
+  <p>This page confirms which static files deployed. The function check below confirms whether the Firebase Functions rewrite deployed too.</p>
+  <h2>Static build</h2>
+  <pre id="static">Loading /assets/build-info.json…</pre>
+  <h2>Function build</h2>
+  <pre id="fn">Loading /_build…</pre>
+  <h2>Smoke tests</h2>
+  <ul>
+    <li><a href="/app/">/app/</a></li>
+    <li><a href="/version.txt">/version.txt</a></li>
+    <li><a href="/img/a2c4e">/img/a2c4e</a> — should be image bytes or fallback icon, not a shelf page.</li>
+    <li><a href="/i-a2c4e">/i-a2c4e</a> — preferred first-party image route.</li>
+  </ul>
+  <p class="muted">Expected build: <code>2026.06.11-reliability-02</code></p>
+</main>
+<script>
+async function show(id, url) {
+  const el = document.getElementById(id);
+  try {
+    const res = await fetch(url, {cache:'no-store'});
+    const text = await res.text();
+    el.textContent = text;
+    el.className = res.ok ? 'ok' : 'bad';
+  } catch (e) {
+    el.textContent = 'FAILED: ' + e.message;
+    el.className = 'bad';
+  }
+}
+show('static','/assets/build-info.json?ts=' + Date.now());
+show('fn','/_build?ts=' + Date.now());
+</script>
+</body>
+</html>

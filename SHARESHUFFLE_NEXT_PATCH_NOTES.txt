@@ -1,0 +1,17 @@
+ShareShuffle/ShelfMix next patch
+
+What this patch changes:
+- Reserves /img/* and /i-* before username/profile routing so /img/a2c4e no longer becomes /shelf.html?u=img&s=a2c4e.
+- Adds shareImage Cloud Function for /img/a2c4e, /i-a2c4e, /~a2c4e, and /-a2c4e.
+- Uses /i-a2c4e as the preferred first-party image URL for Open Graph cards and page images.
+- On first request, shareImage fetches the original product image, caps it at about 1.25 MB, stores it in Firebase Storage, records cachedImagePath/cachedImageContentType on the share doc, and serves it back.
+- Keeps SHFL.ME/a2c4e as the individual item URL.
+- Makes ShelfMix.com/rich/bass the shelf URL, while SHFL.ME/@rich/bass still works as an alternate route.
+- Updates the PWA optional fields with live URL previews.
+- Changes the field label to @user and Share to shelf.
+- Adds a lightweight skeleton screen with a hard timeout to all current HTML pages.
+- Adds tools/shareshuffle-terminal-helpers.sh with sspatch, ssdeploy, sszip, sscheckroutes helpers.
+
+Recommended deploy:
+npm --prefix functions install
+npx firebase-tools@latest deploy --only hosting,functions,firestore:rules

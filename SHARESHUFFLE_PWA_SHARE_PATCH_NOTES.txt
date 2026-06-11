@@ -1,0 +1,12 @@
+ShareShuffle PWA Share Patch
+
+Adds:
+- app/share-target.html so the manifest share_target action exists.
+- Native outbound Share button in the mobile app using navigator.share() where available.
+- Keeps separate Copy URL and Copy Text actions.
+- Uses Shared via Shuffle message copy already in share-core.
+
+Test after deploy:
+- https://shareshuffle-c7f96.web.app/app/?v=pwa-share-1
+- Create a share, then tap Copy URL, Copy Text, Share, Message, Email, Open.
+- https://shareshuffle-c7f96.web.app/app/share-target.html?title=Test&text=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB0FQN61QKB should redirect into /app/ with fields populated.

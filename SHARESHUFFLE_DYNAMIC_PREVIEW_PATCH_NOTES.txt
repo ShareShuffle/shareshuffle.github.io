@@ -1,0 +1,46 @@
+# ShareShuffle Dynamic Preview Cards Patch
+
+Purpose: make shfl.me / ShareShuffle pretty links produce real Apple Messages / social preview cards instead of generic filler cards.
+
+Changed files:
+- firebase.json
+- functions/index.js
+- functions/package.json
+- functions/package-lock.json
+- SHARESHUFFLE_DYNAMIC_PREVIEW_PATCH_NOTES.txt
+
+What changed:
+1. Added `renderRoute` Cloud Function.
+   - Handles pretty public routes like:
+     - /a2c4e
+     - /A2C4E
+     - /@rich/a2c4e
+     - /@rich/bass
+   - Reads Firestore share/shelf data server-side.
+   - Returns HTML with real Open Graph / Twitter card meta tags.
+   - Redirects human browsers into share.html or shelf.html after metadata is served.
+
+2. Added `ogImage` Cloud Function.
+   - Proxies external product images through ShareShuffle.
+   - Helps Apple Messages and other crawlers fetch an image from a ShareShuffle/Firebase URL instead of hotlinking Amazon directly.
+   - Falls back to the ShareShuffle icon if the remote image cannot be fetched.
+
+3. Updated Firebase Hosting rewrites.
+   - /getPreview -> getPreview
+   - /ogImage -> ogImage
+   - all other unknown pretty routes -> renderRoute
+
+Deploy steps:
+cd "/Users/richwilliams/Documents/GitHub/shareshuffle.github.io"
+cd functions && npm install && cd ..
+npx firebase-tools@latest deploy --only hosting,functions:getPreview,functions:renderRoute,functions:ogImage
+
+Test before moving DNS:
+- https://shareshuffle-c7f96.web.app/a2c4e
+- https://shareshuffle-c7f96.web.app/A2C4E
+- https://shareshuffle-c7f96.web.app/@rich/a2c4e
+- https://shareshuffle-c7f96.web.app/@rich/bass
+
+Open the page source or use a link preview tester to confirm og:title and og:image are real.
+
+Note: Apple Messages may cache link previews aggressively. Use a new share ID or add/change the path while testing.
