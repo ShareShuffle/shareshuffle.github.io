@@ -269,9 +269,10 @@ async function getPageMetadata(tabId) {
   return results?.[0]?.result || { title: "", description: "", image: "" };
 }
 
-function buildTempHandleShareUrl({ id, shelfSlug }) {
-  const middle = shelfSlug || "shelf";
-  return `${SHARE_BASE_URL}${TEMP_HANDLE}/${encodeURIComponent(middle)}/${encodeURIComponent(id)}`;
+function buildTempHandleShareUrl({ id }) {
+  // Future-safe link format. The current Chrome-review package may still use
+  // /@rich/{shelf}/{id}; the public routers remain backwards compatible with it.
+  return `${SHARE_BASE_URL}${encodeURIComponent(id)}`;
 }
 
 async function getSavedShelves() {
@@ -373,6 +374,10 @@ async function createShareDocument(id, data) {
     image: { stringValue: data.image || "" },
     shelfName: { stringValue: data.shelfName || "" },
     shelfSlug: { stringValue: data.shelfSlug || "" },
+    publicPath: { stringValue: `/${id}` },
+    shortUrl: { stringValue: `${SHARE_BASE_URL}${id}` },
+    cardPath: { stringValue: `/c-${id}` },
+    imagePath: { stringValue: `/i-${id}` },
     views: { integerValue: 0 },
     amazonClicks: { integerValue: 0 },
     shares: { integerValue: 0 }
@@ -443,16 +448,20 @@ async function clearLastShare() {
 function buildMessage({ title, note, shareUrl }) {
   const cleanProductTitle = smartTruncate(cleanTitle(title), 90);
   const cleanNote = smartTruncate(neutralizeText(note).trim(), 140);
-  const cleanShareUrl = shareUrl.replace("https://", "").replace("http://", "");
+  const cleanShareUrl = /^https?:\/\//i.test(shareUrl || "")
+    ? String(shareUrl || "").trim()
+    : `https://${String(shareUrl || "").replace(/^\/+/, "").trim()}`;
 
   return [
-    "Shared via ShareShuffle:",
-    cleanNote ? `💬 ${cleanNote}` : "",
-    cleanProductTitle ? `🎯 ${cleanProductTitle}` : "",
-    cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
+    "Shared via Shuffle:",
+    cleanNote ? `“${cleanNote}”` : "",
+    cleanProductTitle || "",
+    cleanShareUrl || ""
   ]
     .filter(Boolean)
-    .join("\n");
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -591,7 +600,7 @@ const message = buildMessage({
       await navigator.clipboard.writeText(message);
 
       actions.style.display = "grid";
-      status.textContent = `Copied: ${id}`;
+      status.textContent = `Copied: ${id}. Message, email, or copy the link below.`;
 
       if (lastSharePanel) {
         lastSharePanel.style.display = "block";

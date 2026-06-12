@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "firebase-admin": "latest",
-    "firebase-functions": "latest"
+    "firebase-functions": "latest",
+    "sharp": "latest"
   }
 }

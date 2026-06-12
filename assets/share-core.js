@@ -281,15 +281,20 @@ export function routeToDestination({ hostname = "", pathname = "/", search = "" 
 }
 
 export function buildMessage({ title, note, shareUrl }) {
-  const cleanProductTitle = smartTruncate(cleanTitle(title), 90);
-  const cleanNote = smartTruncate(neutralizeText(note).trim(), 140);
-  const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "");
+  const cleanProductTitle = smartTruncate(cleanTitle(title), 86);
+  const cleanNote = smartTruncate(neutralizeText(note).trim(), 150);
+  const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "").replace(/\/+$/g, "").toLowerCase();
   return [
     "Shared via Shuffle:",
-    cleanNote ? `💬 ${cleanNote}` : "",
-    cleanProductTitle ? `🎯 ${cleanProductTitle}` : "",
-    cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
-  ].filter(Boolean).join("\n");
+    cleanNote ? `“${cleanNote}”` : "",
+    cleanNote && cleanProductTitle ? "" : "",
+    cleanProductTitle || "",
+    cleanShareUrl || ""
+  ].filter((line) => line !== null && line !== undefined).join("
+").replace(/
+{3,}/g, "
+
+").trim();
 }
 
 export function titleFromUrl(url = "") {

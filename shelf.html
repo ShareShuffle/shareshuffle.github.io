@@ -274,6 +274,13 @@ h1 {
 .product-title { max-height: 3.75em; }
 .small-muted { max-height: 2.8em; overflow: hidden; }
 
+
+    .product-card.product-card-clickable { cursor: pointer; }
+    .product-card .product-img-wrap,
+    .product-card .product-title,
+    .product-card .product-note { cursor: pointer; }
+    .missing-image-state { display:flex; align-items:center; justify-content:center; min-height:220px; background:linear-gradient(135deg,#eef6ff,#fff8e7); color:#64748b; text-align:center; padding:18px; font-weight:700; }
+    .missing-image-state small { display:block; margin-top:6px; font-weight:600; }
 </style>
 
     <link rel="manifest" href="/manifest.webmanifest">
@@ -325,7 +332,7 @@ h1 {
         </section>
     </main>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
     import {
       getFirestore,
@@ -333,7 +340,7 @@ h1 {
       getDocs,
       query,
       where
-    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
@@ -353,6 +360,44 @@ h1 {
     const params = new URLSearchParams(location.search);
     const handleSlug = String(params.get("u") || "").trim().replace(/^@+/, "").toLowerCase();
     const slug = String(params.get("s") || "").trim().toLowerCase();
+    let resolvedHandleSlug = handleSlug;
+    let resolvedShelfSlug = slug;
+    let resolvedShelfUrl = "";
+
+    function buildResolvedShelfUrl() {
+      if (resolvedHandleSlug && resolvedShelfSlug) return `https://shelfmix.com/${encodeURIComponent(resolvedHandleSlug)}/${encodeURIComponent(resolvedShelfSlug)}`;
+      if (handleSlug && slug) return `https://shelfmix.com/${encodeURIComponent(handleSlug)}/${encodeURIComponent(slug)}`;
+      if (slug) return `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(slug)}`;
+      return window.location.href;
+    }
+
+    function setShelfFailure(message, error = null) {
+      const title = document.getElementById("shelfTitle");
+      const status = document.getElementById("status");
+      const items = document.getElementById("items");
+      if (title) title.textContent = "Shelf did not load";
+      if (status) status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(message)}`;
+      if (items) {
+        items.innerHTML = `
+          <div class="col-12">
+            <div class="hero-card p-4">
+              <h2 class="fw-bold">I hit a shelf loading error.</h2>
+              <p class="text-secondary mb-2">Try the clean shelf URL, or refresh after the newest patch deploy finishes.</p>
+              <p class="small-muted mb-0">${escapeHtml(error?.message || String(error || ""))}</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function canonicalShelfPath() {
+      if (!handleSlug || !slug) return "";
+      return `/${encodeURIComponent(handleSlug)}/${encodeURIComponent(slug)}`;
+    }
+
+    if (/^(www\.)?shelfmix\.com$/i.test(location.hostname) && location.pathname.toLowerCase().endsWith("/shelf.html") && handleSlug && slug && canonicalShelfPath()) {
+      history.replaceState(null, "", canonicalShelfPath());
+    }
 
 
 
@@ -395,18 +440,93 @@ h1 {
       return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
     }
 
-    function buildShareMessage({ title, note, shareUrl }) {
-      const cleanTitle = smartTruncate(cleanProductTitle(title), 90);
-      const cleanNote = smartTruncate(note || "", 140);
-      const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "");
-      return [
-        "Shared via Shuffle:",
-        cleanNote ? `💬 ${cleanNote}` : "",
-        cleanTitle ? `🎯 ${cleanTitle}` : "",
-        cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
-      ].filter(Boolean).join("\n");
+    function firstNameOrDisplay(value = "") {
+      const cleaned = String(value || "").trim().replace(/^@+/, "");
+      if (!cleaned) return "";
+      return cleaned.split(/\s+/)[0].slice(0, 40);
     }
 
+    function buildShareMessage({ title, note, shareUrl, handleDisplay = "" }) {
+      const cleanTitle = smartTruncate(cleanProductTitle(title), 90);
+      const cleanNote = smartTruncate(String(note || "").trim(), 140);
+      const cleanShareUrl = String(shareUrl || "").trim().replace(/\/+$/g, "");
+      const signature = firstNameOrDisplay(handleDisplay);
+      return [
+        signature ? `${signature} shared via Shuffle:` : "Shared via Shuffle:",
+        cleanNote ? `“${cleanNote}”` : "",
+        cleanTitle || "",
+        cleanShareUrl || ""
+      ].filter(Boolean).join("
+").replace(/
+{3,}/g, "
+
+").trim();
+    }
+
+
+    function withTimeout(promise, ms = 9000, label = "request") {
+      let timer;
+      const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+      });
+      return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+    }
+
+    async function loadShelfDocs() {
+      const docs = [];
+      const seen = new Set();
+
+      const matchesShelf = (item) => {
+        const itemShelf = String(item.shelfSlug || "").toLowerCase();
+        const itemHandle = String(item.handleSlug || "").toLowerCase();
+        if (slug && itemShelf !== slug) return false;
+
+        // Chrome-review extension shares may not have handleSlug at all.
+        // If a handle was requested, prefer matching handle docs but still allow
+        // no-user legacy docs for the same shelf slug so old shelves keep working.
+        if (handleSlug && itemHandle && itemHandle !== handleSlug) return false;
+        return true;
+      };
+
+      const addDoc = (docSnap) => {
+        if (!docSnap || seen.has(docSnap.id)) return;
+        const item = { id: docSnap.id, ...docSnap.data() };
+        if (!matchesShelf(item)) return;
+        seen.add(docSnap.id);
+        docs.push(item);
+      };
+
+      const addSnap = (snap) => snap.forEach(addDoc);
+      const queryPlans = [];
+
+      // The Chrome-review extension creates no-user shelves with only shelfSlug.
+      // Query shelfSlug first because it covers both no-user and handled shelves.
+      if (slug) queryPlans.push(query(collection(db, "shares"), where("shelfSlug", "==", slug)));
+      if (handleSlug) queryPlans.push(query(collection(db, "shares"), where("handleSlug", "==", handleSlug)));
+
+      for (const q of queryPlans) {
+        try {
+          addSnap(await withTimeout(getDocs(q), 7000, "Shelf lookup"));
+        } catch (error) {
+          console.warn("Shelf query failed; trying next plan", error);
+        }
+      }
+
+      // Final early-launch fallback: public read is allowed and the extension review
+      // collection is still small. This prevents a frozen/empty shelf from a query
+      // issue while Chrome is reviewing the extension.
+      if (!docs.length) {
+        try {
+          const snap = await withTimeout(getDocs(collection(db, "shares")), 9000, "Shelf fallback lookup");
+          addSnap(snap);
+        } catch (error) {
+          console.warn("Shelf fallback failed", error);
+          throw error;
+        }
+      }
+
+      return docs;
+    }
 
     async function loadShelf() {
       const title = document.getElementById("shelfTitle");
@@ -419,27 +539,37 @@ h1 {
         return;
       }
 
-      const shelfName = slug ? titleFromSlug(slug) : `@${handleSlug}`;
-      title.textContent = handleSlug && slug ? `${shelfName} by @${handleSlug}` : shelfName;
-      document.title = `${title.textContent} — ShareShuffle`;
+      let shelfName = slug ? titleFromSlug(slug) : `@${handleSlug}`;
+      let handleDisplay = handleSlug ? handleSlug : "";
 
-      const baseQuery = handleSlug
-        ? query(collection(db, "shares"), where("handleSlug", "==", handleSlug))
-        : query(collection(db, "shares"), where("shelfSlug", "==", slug));
-
-      const snap = await getDocs(baseQuery);
-      const docs = [];
-
-      snap.forEach(docSnap => {
-        const item = { id: docSnap.id, ...docSnap.data() };
-        if (!slug || String(item.shelfSlug || "").toLowerCase() === slug) docs.push(item);
-      });
+      status.innerHTML = `<i class="fa-solid fa-box-open"></i> Loading items…`;
+      const docs = await loadShelfDocs();
 
       docs.sort((a, b) => {
         const aDate = a.created?.toDate ? a.created.toDate() : new Date(a.created || 0);
         const bDate = b.created?.toDate ? b.created.toDate() : new Date(b.created || 0);
         return bDate - aDate;
       });
+
+      if (docs.length) {
+        const firstWithShelf = docs.find(item => String(item.shelfName || "").trim());
+        const firstWithRealHandle = docs.find(item => String(item.handleSlug || "").trim());
+        const firstWithHandleDisplay = docs.find(item => String(item.handleDisplay || item.handleSlug || "").trim());
+        if (firstWithShelf?.shelfName && slug) shelfName = String(firstWithShelf.shelfName).trim();
+        if (firstWithHandleDisplay) handleDisplay = String(firstWithHandleDisplay.handleDisplay || firstWithHandleDisplay.handleSlug || handleDisplay).trim();
+        if (!resolvedHandleSlug && firstWithRealHandle?.handleSlug) resolvedHandleSlug = String(firstWithRealHandle.handleSlug).toLowerCase();
+      }
+
+      resolvedShelfUrl = buildResolvedShelfUrl();
+      const copyShelf = document.getElementById("copyShelf");
+      if (copyShelf) {
+        copyShelf.title = resolvedShelfUrl.includes("shelfmix.com")
+          ? `Copy ${resolvedShelfUrl}`
+          : "Copy Chrome-review-safe legacy shelf link";
+      }
+
+      title.textContent = (resolvedHandleSlug || handleSlug) && slug ? `${shelfName} by ${handleDisplay || resolvedHandleSlug || handleSlug}` : (handleDisplay || shelfName);
+      document.title = `${title.textContent} — ShareShuffle`;
 
       items.innerHTML = "";
       status.innerHTML = `
@@ -463,7 +593,7 @@ h1 {
         const shareUrl = `${SHARE_BASE_URL}${String(item.id).toLowerCase()}`;
         const displayTitle = smartTruncate(cleanProductTitle(item.title || "Shared find"), 96);
         const displayNote = smartTruncate(item.note || "I saw this and thought of you.", 120);
-        const outboundMessage = buildShareMessage({ title: displayTitle, note: displayNote, shareUrl });
+        const outboundMessage = buildShareMessage({ title: displayTitle, note: displayNote, shareUrl, handleDisplay: item.handleDisplay || "" });
         const shareText = encodeURIComponent(outboundMessage);
         const emailSubject = encodeURIComponent(displayTitle);
         const emailBody = encodeURIComponent(outboundMessage);
@@ -491,18 +621,18 @@ const storeUrl = item.url || "#";
         const card = document.createElement("div");
         card.className = "col-md-6 col-xl-4";
         card.innerHTML = `
-          <article class="card product-card">
+          <article class="card product-card product-card-clickable" data-share-url="${escapeHtml(shareUrl)}">
             <div class="product-img-wrap">
               ${image
-                ? `<img class="product-img" src="${escapeHtml(image)}" alt="" onerror="this.outerHTML='<i class=&quot;fa-solid fa-gift fallback-icon&quot;></i>'">`
-                : `<i class="fa-solid fa-gift fallback-icon"></i>`
+                ? `<img class="product-img" src="${escapeHtml(image)}" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;missing-image-state&quot;>Image not added yet<small>Tap to open the recommendation</small></div>'">`
+                : `<div class="missing-image-state">Image not added yet<small>Tap to open the recommendation</small></div>`
               }
             </div>
             <div class="card-body p-4 d-flex flex-column">
-              <h2 class="product-title fw-bold mb-2 clamp-3">
+              <h2 class="product-title product-note fw-bold mb-2 clamp-3">
   ${escapeHtml(displayTitle)}
 </h2>
-              <p class="small-muted mb-3 clamp-2">${escapeHtml(displayNote)}</p>
+              <p class="small-muted mb-3 clamp-2 product-note">${escapeHtml(displayNote)}</p>
               <div class="d-grid gap-2 mt-auto">
   <a
     class="btn btn-ss"
@@ -573,9 +703,7 @@ const storeUrl = item.url || "#";
     }
 
     document.getElementById("copyShelf").addEventListener("click", async () => {
-      const cleanShelfUrl = handleSlug
-        ? `https://shelfmix.com/${encodeURIComponent(handleSlug)}${slug ? `/${encodeURIComponent(slug)}` : ""}`
-        : window.location.href;
+      const cleanShelfUrl = resolvedShelfUrl || buildResolvedShelfUrl();
       await navigator.clipboard.writeText(cleanShelfUrl);
       const btn = document.getElementById("copyShelf");
       btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied';
@@ -586,10 +714,19 @@ const storeUrl = item.url || "#";
 
     loadShelf().catch(error => {
       console.error(error);
-      document.getElementById("status").textContent = "Could not load shelf.";
+      setShelfFailure("Could not load shelf.", error);
     });
 
     document.addEventListener("click", async (event) => {
+  const card = event.target.closest(".product-card.product-card-clickable");
+  if (card && !event.target.closest("a, button, .share-actions")) {
+    const shareUrl = card.dataset.shareUrl;
+    if (shareUrl) {
+      window.location.href = shareUrl;
+      return;
+    }
+  }
+
   const btn = event.target.closest(".copy-share-btn");
   if (!btn) return;
 

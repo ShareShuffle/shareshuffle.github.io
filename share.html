@@ -309,6 +309,11 @@ h1 {
 .product-title { max-height: 3.75em; }
 .small-muted { max-height: 2.8em; overflow: hidden; }
 
+
+    .share-card.share-card-clickable { cursor: pointer; }
+    .share-card.share-card-clickable .product-img-box,
+    .share-card.share-card-clickable #title,
+    .share-card.share-card-clickable .note-card { cursor: pointer; }
 </style>
 
     <link rel="manifest" href="/manifest.webmanifest">
@@ -520,16 +525,27 @@ h1 {
       return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
     }
 
-    function buildShareMessage({ title, note, shareUrl }) {
+    function firstNameOrDisplay(value = "") {
+      const cleaned = String(value || "").trim().replace(/^@+/, "");
+      if (!cleaned) return "";
+      return cleaned.split(/\s+/)[0].slice(0, 40);
+    }
+
+    function buildShareMessage({ title, note, shareUrl, handleDisplay = "" }) {
       const cleanTitle = smartTruncate(cleanProductTitle(title), 90);
-      const cleanNote = smartTruncate(note || "", 140);
-      const cleanShareUrl = String(shareUrl || "").replace(/^https?:\/\//, "");
+      const cleanNote = smartTruncate(String(note || "").trim(), 140);
+      const cleanShareUrl = String(shareUrl || "").trim().replace(/\/+$/g, "");
+      const signature = firstNameOrDisplay(handleDisplay);
       return [
-        "Shared via Shuffle:",
-        cleanNote ? `💬 ${cleanNote}` : "",
-        cleanTitle ? `🎯 ${cleanTitle}` : "",
-        cleanShareUrl ? `🔗 ${cleanShareUrl}` : ""
-      ].filter(Boolean).join("\n");
+        signature ? `${signature} shared via Shuffle:` : "Shared via Shuffle:",
+        cleanNote ? `“${cleanNote}”` : "",
+        cleanTitle || "",
+        cleanShareUrl || ""
+      ].filter(Boolean).join("
+").replace(/
+{3,}/g, "
+
+").trim();
     }
 
 
@@ -682,6 +698,25 @@ function wireAffiliateButton({ data, shareRef }) {
   });
 }
 
+    function wireProductOpenToStore(destinationUrl = "", shareRef = null) {
+      const shareCard = document.querySelector(".share-card");
+      const clickable = Boolean(destinationUrl);
+      if (!shareCard) return;
+      shareCard.classList.toggle("share-card-clickable", clickable);
+      shareCard.addEventListener("click", (event) => {
+        if (!clickable) return;
+        if (event.target.closest("a, button, .share-actions")) return;
+        if (shareRef) {
+          updateDoc(shareRef, {
+            amazonClicks: increment(1)
+          }).catch((error) => {
+            console.error("Affiliate click tracking failed:", error);
+          });
+        }
+        window.location.href = destinationUrl;
+      });
+    }
+
     async function loadShare() {
       if (!id) {
         setLoadingError("Missing share ID");
@@ -704,7 +739,8 @@ function wireAffiliateButton({ data, shareRef }) {
       const outboundMessage = buildShareMessage({
         title: displayTitle,
         note: displayNote,
-        shareUrl
+        shareUrl,
+        handleDisplay: data.handleDisplay || ""
       });
       const shareText = encodeURIComponent(outboundMessage);
       const emailSubject = encodeURIComponent(displayTitle);
@@ -762,6 +798,7 @@ document.getElementById("copyShareBtn").dataset.url = shareUrl;
       }
 
       wireAffiliateButton({ data, shareRef });
+      wireProductOpenToStore(data.url || "", shareRef);
     }
 
     wireCopyButton();

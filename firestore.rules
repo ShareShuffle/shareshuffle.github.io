@@ -94,7 +94,15 @@ service cloud.firestore {
           "shelfSlug",
           "handleSlug",
           "handleDisplay",
-          "publicPath"
+          "publicPath",
+          "cardPath",
+          "imagePath",
+          "shortUrl",
+          "cardUrl",
+          "imageUrl",
+          "imageStatus",
+          "imageSource",
+          "updatedAt"
         ])
         && isString(request.resource.data.title, 300)
         && isString(request.resource.data.url, 3000)
@@ -108,6 +116,14 @@ service cloud.firestore {
         && optionalString(request.resource.data, "handleSlug", 60)
         && optionalString(request.resource.data, "handleDisplay", 100)
         && optionalString(request.resource.data, "publicPath", 300)
+        && optionalString(request.resource.data, "cardPath", 300)
+        && optionalString(request.resource.data, "imagePath", 300)
+        && optionalString(request.resource.data, "shortUrl", 300)
+        && optionalString(request.resource.data, "cardUrl", 300)
+        && optionalString(request.resource.data, "imageUrl", 300)
+        && optionalString(request.resource.data, "imageStatus", 40)
+        && optionalString(request.resource.data, "imageSource", 40)
+        && (!hasKey(request.resource.data, "updatedAt") || request.resource.data.updatedAt == request.time)
         && request.resource.data.created == request.time
         && request.resource.data.views == 0
         && request.resource.data.amazonClicks == 0
@@ -117,11 +133,25 @@ service cloud.firestore {
         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           "views",
           "amazonClicks",
-          "shares"
+          "shares",
+          "cachedImagePath",
+          "cachedImageContentType",
+          "cachedImageUrl",
+          "imageStatus",
+          "imageSource",
+          "imageUpdatedAt",
+          "updatedAt"
         ])
         && optionalNumber(request.resource.data, "views")
         && optionalNumber(request.resource.data, "amazonClicks")
         && optionalNumber(request.resource.data, "shares")
+        && optionalString(request.resource.data, "cachedImagePath", 500)
+        && optionalString(request.resource.data, "cachedImageContentType", 80)
+        && optionalString(request.resource.data, "cachedImageUrl", 1000)
+        && optionalString(request.resource.data, "imageStatus", 40)
+        && optionalString(request.resource.data, "imageSource", 40)
+        && (!hasKey(request.resource.data, "imageUpdatedAt") || request.resource.data.imageUpdatedAt is timestamp)
+        && (!hasKey(request.resource.data, "updatedAt") || request.resource.data.updatedAt is timestamp)
         && request.resource.data.views >= resource.data.views
         && request.resource.data.amazonClicks >= resource.data.amazonClicks
         && request.resource.data.shares >= resource.data.shares;

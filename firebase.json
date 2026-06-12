@@ -32,6 +32,13 @@
         "destination": "/status.html"
       },
       {
+        "source": "/uploadShareImage",
+        "function": {
+          "functionId": "uploadShareImage",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "/img/**",
         "function": {
           "functionId": "shareImage",
@@ -46,6 +53,13 @@
         }
       },
       {
+        "source": "/c-**",
+        "function": {
+          "functionId": "cardImage",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "/~**",
         "function": {
           "functionId": "shareImage",
@@ -56,6 +70,13 @@
         "source": "/-**",
         "function": {
           "functionId": "shareImage",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/shelfCard",
+        "function": {
+          "functionId": "shelfCardImage",
           "region": "us-central1"
         }
       },
