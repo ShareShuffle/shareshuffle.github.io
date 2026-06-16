@@ -5,6 +5,19 @@
     <meta charset="utf-8">
     <title>ShareShuffle — Shared Product Recommendation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script>
+      // SHORT_HOST_APP_PAGE_REDIRECT:
+      // shfl.me is the public short-link/preview host. The real app pages live on shareshuffle.com.
+      // If an old route lands on shfl.me/share.html?id=abc12, bounce it to shareshuffle.com.
+      (function () {
+        var host = String(location.hostname || "").toLowerCase();
+        var isShortHost = /^(www\.)?shfl\.me$/.test(host) || /^(www\.)?shelfmix\.com$/.test(host);
+        if (isShortHost && /\/share\.html$/i.test(location.pathname)) {
+          location.replace("https://shareshuffle.com/share.html" + location.search + location.hash);
+        }
+      })();
+    </script>
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16.png">
     <link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
@@ -29,6 +42,7 @@
 <meta name="theme-color" content="#EEF6FF">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ShareShuffle">
 
@@ -457,72 +471,44 @@ h1 {
             </div>
         </div>
     </main>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getFirestore,
-      doc,
-      getDoc,
-      updateDoc,
-      increment
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
-      authDomain: "shareshuffle-c7f96.firebaseapp.com",
-      projectId: "shareshuffle-c7f96",
-      storageBucket: "shareshuffle-c7f96.firebasestorage.app",
-      messagingSenderId: "507028011652",
-      appId: "1:507028011652:web:97c161c63b7940af0f60d1",
-      measurementId: "G-C8W9TBP705"
-    };
-
-    const AFFILIATE_CONFIG = {
-      amazon: { tag: "shareshuffle-20" },
-      walmart: {
-        publisherId: "1936697",
-        campaignId: "565706",
-        creativeId: "9383",
-        sourceId: "imp_000011112222333344"
-      }
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
+    <script>
     const params = new URLSearchParams(location.search);
+
     function shareIdFromUrl() {
       const fromQuery = params.get("id") || params.get("s") || "";
-      const queryId = String(fromQuery).trim().toLowerCase();
-      if (/^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(queryId)) return queryId;
-      const parts = location.pathname.split("/").filter(Boolean).map(part => decodeURIComponent(part).toLowerCase());
+      const queryId = String(fromQuery).trim();
+      if (queryId) return queryId;
+      const parts = location.pathname.split("/").filter(Boolean);
       const last = parts[parts.length - 1] || "";
-      if (/^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(last)) return last;
-      return "";
+      return last && !last.includes(".") ? last : "";
     }
+
     const id = shareIdFromUrl();
 
-
-    function cleanProductTitle(value = "") {
-      let title = String(value || "").trim();
-
-      title = title
-        .replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay(?:\.com)?)\s*[:|｜\-–—]\s*/i, "")
-        .replace(/\s*[:|｜]\s*(Amazon|Amazon\.com|Walmart|Walmart\.com|Target|Best Buy|eBay|eBay\.com)\s*$/i, "")
-        .replace(/\s*[:|｜]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury|Sports\s*&\s*Outdoors|Tools\s*&\s*Home Improvement|Office Products|Beauty\s*&\s*Personal Care|Health\s*&\s*Household|Toys\s*&\s*Games|Patio,\s*Lawn\s*&\s*Garden|Automotive)\s*$/i, "")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      return title || "Shared find";
+    function escapeHtml(value = "") {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    function smartTruncate(value = "", maxLength = 120) {
+    function smartTruncate(value = "", maxLength = 140) {
       const text = String(value || "").replace(/\s+/g, " ").trim();
       if (text.length <= maxLength) return text;
       const slice = text.slice(0, Math.max(0, maxLength - 1));
       const lastSpace = slice.lastIndexOf(" ");
-      const trimmed = lastSpace > 50 ? slice.slice(0, lastSpace) : slice;
+      const trimmed = lastSpace > 45 ? slice.slice(0, lastSpace) : slice;
       return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
+    }
+
+    function cleanProductTitle(title = "") {
+      return String(title || "")
+        .replace(/^Amazon(?:\.com)?\s*[:|｜\-–—]\s*/i, "")
+        .replace(/^Walmart(?:\.com)?\s*[:|｜\-–—]\s*/i, "")
+        .replace(/\s+/g, " ")
+        .trim();
     }
 
     function firstNameOrDisplay(value = "") {
@@ -541,164 +527,128 @@ h1 {
         cleanNote ? `“${cleanNote}”` : "",
         cleanTitle || "",
         cleanShareUrl || ""
-      ].filter(Boolean).join("
-").replace(/
-{3,}/g, "
-
-").trim();
+      ].filter(Boolean).join("\n").replace(/\n{3,}/g, "\n\n").trim();
     }
 
+    function setLoadingError(message, detail = "") {
+      document.getElementById("title").innerText = message || "Error loading share";
+      document.getElementById("note").innerText = detail || "Try opening the link again.";
+      const fallbackIcon = document.getElementById("fallbackIcon");
+      const productImage = document.getElementById("productImage");
+      if (fallbackIcon) fallbackIcon.style.display = "block";
+      if (productImage) productImage.style.display = "none";
+    }
 
-    function getAffiliateMerchant(originalUrl = "") {
+    function isHostedShareShuffleUrl(value = "") {
       try {
-        const hostname = new URL(originalUrl).hostname.replace(/^www\./, "").toLowerCase();
-
-        if (hostname === "amazon.com" || hostname.endsWith(".amazon.com") || hostname === "amzn.to" || hostname === "a.co") return "amazon";
-        if (hostname === "walmart.com" || hostname.endsWith(".walmart.com") || hostname.includes("goto.walmart.com")) return "walmart";
-        if (hostname === "target.com" || hostname.endsWith(".target.com")) return "target";
-        if (hostname === "bestbuy.com" || hostname.endsWith(".bestbuy.com")) return "bestbuy";
-        if (hostname === "ebay.com" || hostname.endsWith(".ebay.com")) return "ebay";
-
-        return "direct";
+        const parsed = new URL(String(value || ""));
+        const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+        return host === "shareshuffle.com" ||
+          host === "shfl.me" ||
+          host === "shflz.com" ||
+          host === "shelfmix.com" ||
+          host.endsWith(".web.app") ||
+          host.endsWith(".firebaseapp.com");
       } catch {
-        return "direct";
+        return false;
       }
     }
 
-    function buildAmazonAffiliateUrl(originalUrl) {
+    const AMAZON_ASSOCIATE_TAG = "shareshuffle-20";
+    const WALMART_IMPACT_CONFIG = {
+      publisherId: "1936697",
+      campaignId: "565706",
+      creativeId: "9383",
+      sourceId: "imp_000011112222333344"
+    };
+
+    function hostnameOf(value = "") {
       try {
-        const url = new URL(originalUrl);
-
-        // Ethics-first: do not overwrite visible existing Amazon affiliate tags.
-        if (!url.searchParams.has("tag")) {
-          url.searchParams.set("tag", AFFILIATE_CONFIG.amazon.tag);
-        }
-
-        return url.toString();
-      } catch (error) {
-        console.error("Bad Amazon URL:", originalUrl, error);
-        return originalUrl;
+        return new URL(String(value || "")).hostname.replace(/^www\./, "").toLowerCase();
+      } catch {
+        return "";
       }
     }
 
-    function buildWalmartAffiliateUrl(originalUrl) {
+    function isAmazonUrl(value = "") {
+      const host = hostnameOf(value);
+      return host === "amazon.com" ||
+        host.endsWith(".amazon.com") ||
+        host === "a.co" ||
+        host === "amzn.to";
+    }
+
+    function isWalmartUrl(value = "") {
+      const host = hostnameOf(value);
+      return host === "walmart.com" || host.endsWith(".walmart.com");
+    }
+
+    function isWalmartImpactUrl(value = "") {
+      const host = hostnameOf(value);
+      return host === "goto.walmart.com" || host.endsWith(".impactradius.com");
+    }
+
+    function withAmazonAffiliateTag(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || !isAmazonUrl(raw)) return raw;
       try {
-        const destinationUrl = new URL(originalUrl);
-
-        if (destinationUrl.hostname.includes("goto.walmart.com")) {
-          return destinationUrl.toString();
+        const parsed = new URL(raw);
+        if (!parsed.searchParams.has("tag")) {
+          parsed.searchParams.set("tag", AMAZON_ASSOCIATE_TAG);
         }
-
-        const { publisherId, campaignId, creativeId, sourceId } = AFFILIATE_CONFIG.walmart;
-        const redirectUrl = new URL(`https://goto.walmart.com/c/${publisherId}/${campaignId}/${creativeId}`);
-        redirectUrl.searchParams.set("u", destinationUrl.toString());
-
-        if (sourceId) {
-          redirectUrl.searchParams.set("subId1", sourceId);
-        }
-
-        return redirectUrl.toString();
-      } catch (error) {
-        console.error("Bad Walmart URL:", originalUrl, error);
-        return originalUrl;
+        return parsed.toString();
+      } catch {
+        return raw;
       }
     }
 
-    function buildAffiliateUrl(originalUrl = "") {
-      const merchant = getAffiliateMerchant(originalUrl);
-
-      if (merchant === "amazon") return buildAmazonAffiliateUrl(originalUrl);
-      if (merchant === "walmart") return buildWalmartAffiliateUrl(originalUrl);
-
-      return originalUrl;
+    function withWalmartAffiliateLink(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || !isWalmartUrl(raw) || isWalmartImpactUrl(raw)) return raw;
+      try {
+        const destination = new URL(raw);
+        const affiliate = new URL(`https://goto.walmart.com/c/${WALMART_IMPACT_CONFIG.publisherId}/${WALMART_IMPACT_CONFIG.campaignId}/${WALMART_IMPACT_CONFIG.creativeId}`);
+        affiliate.searchParams.set("veh", "aff");
+        affiliate.searchParams.set("sourceid", WALMART_IMPACT_CONFIG.sourceId);
+        affiliate.searchParams.set("u", destination.toString());
+        return affiliate.toString();
+      } catch {
+        return raw;
+      }
     }
 
-    function setLoadingError(message) {
-      document.getElementById("title").innerText = message;
-      const debug = [
-        `Share ID: ${id || "(missing)"}`,
-        `Path: ${location.pathname || "/"}`,
-        `Query: ${location.search || "(none)"}`,
-        `Host: ${location.hostname}`
-      ].join(" • ");
-      document.getElementById("note").innerText = `This share link could not be loaded. ${debug}`;
-      const storeLink = document.getElementById("storeLink");
-      storeLink.removeAttribute("href");
-      storeLink.classList.add("disabled");
+    function withAffiliateUrl(value = "") {
+      const amazon = withAmazonAffiliateTag(value);
+      if (amazon !== value) return amazon;
+      return withWalmartAffiliateLink(value);
     }
 
-    function wireCopyButton() {
-      const copyBtn = document.getElementById("copyPage");
-
-      copyBtn.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(window.location.href);
-        copyBtn.innerHTML = '<i class="fa-solid fa-check me-2"></i> Copied!';
-
-        setTimeout(() => {
-          copyBtn.innerHTML = '<i class="fa-solid fa-link me-2"></i> Copy this ShareShuffle link';
-        }, 1800);
-      });
+    function chooseStoreUrl(data = {}) {
+      const candidates = [data.storeUrl, data.originalUrl, data.productUrl, data.merchantUrl, data.url]
+        .map((value) => String(value || "").trim())
+        .filter(Boolean);
+      const chosen = candidates.find((value) => /^https?:\/\//i.test(value) && !isHostedShareShuffleUrl(value)) || "";
+      return withAffiliateUrl(chosen);
     }
 
-    function getStoreName(merchant = "") {
-  const m = merchant.toLowerCase();
-
-  if (m === "amazon") return "Amazon";
-  if (m === "walmart") return "Walmart";
-  if (m === "target") return "Target";
-  if (m === "bestbuy") return "Best Buy";
-  if (m === "ebay") return "eBay";
-
-  return "Store";
-}
-
-function wireAffiliateButton({ data, shareRef }) {
-  const storeLink = document.getElementById("storeLink");
-  const storeIcon = document.getElementById("storeIcon");
-  const storeText = document.getElementById("storeText");
-
-  if (!data.url) {
-    storeLink.removeAttribute("href");
-    storeLink.classList.add("disabled");
-    return;
-  }
-
-  const merchant = (data.merchant || getAffiliateMerchant(data.originalUrl || data.url)).toLowerCase();
-  const storeName = getStoreName(merchant);
-
-  storeLink.href = data.url;
-  storeLink.target = "_blank";
-  storeLink.rel = "noopener";
-
-  storeText.textContent = `View on ${storeName}`;
-
-  storeIcon.className =
-    merchant === "amazon"
-      ? "fa-brands fa-amazon me-2"
-      : "fa-solid fa-cart-shopping me-2";
-
-  let tracked = false;
-
-  function trackAffiliateClick() {
-    if (tracked) return;
-    tracked = true;
-
-    updateDoc(shareRef, {
-      amazonClicks: increment(1)
-    }).catch((error) => {
-      console.error("Affiliate click tracking failed:", error);
-    });
-  }
-
-  storeLink.addEventListener("pointerdown", trackAffiliateClick);
-  storeLink.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      trackAffiliateClick();
+    function storeButtonLabel(data) {
+      const merchant = String(data.merchant || "").toLowerCase();
+      if (merchant.includes("amazon")) return "View on Amazon";
+      if (merchant.includes("walmart")) return "View on Walmart";
+      if (merchant.includes("target")) return "View on Target";
+      if (merchant.includes("bestbuy") || merchant.includes("best buy")) return "View on Best Buy";
+      if (merchant.includes("ebay")) return "View on eBay";
+      return "View Product";
     }
-  });
-}
 
-    function wireProductOpenToStore(destinationUrl = "", shareRef = null) {
+    function storeIconClass(data) {
+      const merchant = String(data.merchant || "").toLowerCase();
+      if (merchant.includes("amazon")) return "fa-brands fa-amazon";
+      if (merchant.includes("walmart")) return "fa-solid fa-sparkles";
+      return "fa-solid fa-cart-shopping";
+    }
+
+    function wireProductOpenToStore(destinationUrl = "") {
       const shareCard = document.querySelector(".share-card");
       const clickable = Boolean(destinationUrl);
       if (!shareCard) return;
@@ -706,15 +656,27 @@ function wireAffiliateButton({ data, shareRef }) {
       shareCard.addEventListener("click", (event) => {
         if (!clickable) return;
         if (event.target.closest("a, button, .share-actions")) return;
-        if (shareRef) {
-          updateDoc(shareRef, {
-            amazonClicks: increment(1)
-          }).catch((error) => {
-            console.error("Affiliate click tracking failed:", error);
-          });
+        if (id) {
+          fetch(`https://shareshuffle.com/trackShareClick?id=${encodeURIComponent(id)}`).catch(() => {});
         }
         window.location.href = destinationUrl;
       });
+    }
+
+    function wireCopyButton() {
+      const copyButton = document.getElementById("copyPage");
+      const copyShareButton = document.getElementById("copyShareBtn");
+
+      const copy = async (button) => {
+        const url = button?.dataset?.url || (id ? `https://shfl.me/${id}` : location.href);
+        await navigator.clipboard.writeText(url);
+        const original = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check me-2"></i> Copied';
+        setTimeout(() => button.innerHTML = original, 1400);
+      };
+
+      if (copyButton) copyButton.addEventListener("click", () => copy(copyButton));
+      if (copyShareButton) copyShareButton.addEventListener("click", () => copy(copyShareButton));
     }
 
     async function loadShare() {
@@ -723,49 +685,37 @@ function wireAffiliateButton({ data, shareRef }) {
         return;
       }
 
-      const shareRef = doc(db, "shares", id);
-      const snap = await getDoc(shareRef);
-
-      if (!snap.exists()) {
-        setLoadingError("Share not found");
+      const response = await fetch(`https://shareshuffle.com/shareData?id=${encodeURIComponent(id)}`, { cache: "no-store" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        setLoadingError(data.error || "Share not found", `ID: ${id}`);
         return;
       }
 
-      const data = snap.data();
-
-      const shareUrl = id ? `https://shfl.me/${id}` : window.location.href;
+      const shareUrl = data.shareUrl || `https://shfl.me/${id}`;
       const displayTitle = smartTruncate(cleanProductTitle(data.title || "Shared find"), 125);
       const displayNote = data.note || "I saw this and thought of you.";
+
       const outboundMessage = buildShareMessage({
         title: displayTitle,
         note: displayNote,
         shareUrl,
         handleDisplay: data.handleDisplay || ""
       });
-      const shareText = encodeURIComponent(outboundMessage);
-      const emailSubject = encodeURIComponent(displayTitle);
-      const emailBody = encodeURIComponent(outboundMessage);
-
-document.getElementById("smsShareBtn").href =
-  `sms:?&body=${shareText}`;
-
-document.getElementById("voiceShareBtn").href =
-  `https://voice.google.com/u/0/messages`;
-
-document.getElementById("emailShareBtn").href =
-  `mailto:?subject=${emailSubject}&body=${emailBody}`;
-
-document.getElementById("copyShareBtn").dataset.url = shareUrl;
-
-      updateDoc(shareRef, {
-        views: increment(1)
-      }).catch((error) => {
-        console.error("View tracking failed:", error);
-      });
 
       document.title = `${displayTitle} — ShareShuffle`;
       document.getElementById("title").innerText = displayTitle;
       document.getElementById("note").innerText = displayNote;
+
+      const encodedText = encodeURIComponent(outboundMessage);
+      const emailSubject = encodeURIComponent(displayTitle);
+      const emailBody = encodeURIComponent(outboundMessage);
+
+      document.getElementById("smsShareBtn").href = `sms:?&body=${encodedText}`;
+      document.getElementById("voiceShareBtn").href = "https://voice.google.com/u/0/messages";
+      document.getElementById("emailShareBtn").href = `mailto:?subject=${emailSubject}&body=${emailBody}`;
+      document.getElementById("copyShareBtn").dataset.url = shareUrl;
+      document.getElementById("copyPage").dataset.url = shareUrl;
 
       const shelfLinkWrap = document.getElementById("shelfLinkWrap");
       const shelfLink = document.getElementById("shelfLink");
@@ -774,53 +724,44 @@ document.getElementById("copyShareBtn").dataset.url = shareUrl;
       if (data.shelfName && data.shelfSlug) {
         shelfNameText.innerText = `More from ${data.shelfName}`;
         shelfLink.href = data.handleSlug
-          ? `https://shelfmix.com/${encodeURIComponent(String(data.handleSlug).toLowerCase())}/${encodeURIComponent(String(data.shelfSlug).toLowerCase())}`
-          : `/shelf.html?s=${encodeURIComponent(String(data.shelfSlug).toLowerCase())}`;
+          ? `https://shareshuffle.com/shelf.html?u=${encodeURIComponent(String(data.handleSlug).toLowerCase())}&s=${encodeURIComponent(String(data.shelfSlug).toLowerCase())}`
+          : `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(String(data.shelfSlug).toLowerCase())}`;
         shelfLinkWrap.style.display = "block";
+      }
+
+      const storeLink = document.getElementById("storeLink");
+      const storeIcon = document.getElementById("storeIcon");
+      const storeText = document.getElementById("storeText");
+      const storeDestination = chooseStoreUrl(data);
+      if (storeDestination) {
+        storeLink.href = storeDestination;
+        storeText.innerText = storeButtonLabel(data);
+        storeIcon.className = `${storeIconClass(data)} me-2`;
+      } else {
+        storeLink.style.display = "none";
       }
 
       const productImage = document.getElementById("productImage");
       const fallbackIcon = document.getElementById("fallbackIcon");
+      const imageRoute = data.imageUrl || `https://shareshuffle.com/i-${id}`;
+      productImage.onload = () => {
+        fallbackIcon.style.display = "none";
+        productImage.style.display = "block";
+      };
+      productImage.onerror = () => {
+        fallbackIcon.style.display = "block";
+        productImage.style.display = "none";
+      };
+      productImage.src = imageRoute;
 
-      const imageRoute = id ? `/i-${id}` : (data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "");
-      if (imageRoute) {
-        productImage.onload = () => {
-          fallbackIcon.style.display = "none";
-          productImage.style.display = "block";
-        };
-
-        productImage.onerror = () => {
-          fallbackIcon.style.display = "block";
-          productImage.style.display = "none";
-        };
-
-        productImage.src = imageRoute;
-      }
-
-      wireAffiliateButton({ data, shareRef });
-      wireProductOpenToStore(data.url || "", shareRef);
+      wireProductOpenToStore(storeDestination || "");
     }
 
     wireCopyButton();
     loadShare().catch((error) => {
       console.error(error);
-      setLoadingError("Error loading share");
+      setLoadingError("Error loading share", error.message || String(error));
     });
-
-  
-document.addEventListener("click", async (event) => {
-  const btn = event.target.closest(".copy-share-btn");
-  if (!btn) return;
-
-  await navigator.clipboard.writeText(btn.dataset.url);
-
-  const oldHtml = btn.innerHTML;
-  btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-
-  setTimeout(() => {
-    btn.innerHTML = oldHtml;
-  }, 1300);
-});
   </script>
 </body>
 

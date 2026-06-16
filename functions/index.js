@@ -9,10 +9,10 @@ const db = getFirestore();
 const storage = getStorage();
 
 const BUILD_INFO = {
-  build: "2026.06.12-chrome-review-compat-18",
-  createdAt: "2026-06-12T20:45:00Z",
-  patch: "chrome-review-backwards-compatible-routes",
-  functions: ["getPreview", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "getBuildInfo"]
+  build: "2026.06.13-chrome-affiliate-disclosure-29",
+  createdAt: "2026-06-13T00:25:00Z",
+  patch: "chrome-store-affiliate-disclosure-compliance",
+  functions: ["getPreview", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "getBuildInfo"]
 };
 
 const MAX_HTML_BYTES = 900000;
@@ -938,6 +938,13 @@ function absoluteUrl(req, path = "/") {
   return `${proto}://${host}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+const APP_BASE_URL = "https://shareshuffle.com";
+
+function appUrl(path = "/") {
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${APP_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 function normalizeToken(value = "") {
   return String(value || "")
     .trim()
@@ -1142,7 +1149,8 @@ async function getShelfPreview(route) {
 }
 
 function renderHtml({ req, route, preview }) {
-  const destination = preview?.destination || "/app/";
+  const rawDestination = preview?.destination || "/app/";
+  const destination = appUrl(rawDestination);
   const canonicalPath = route.canonicalPath || req.path || "/";
   const canonicalUrl = absoluteUrl(req, canonicalPath);
   const title = preview?.title || "ShareShuffle — Share what's worth finding";
@@ -1194,6 +1202,316 @@ function renderHtml({ req, route, preview }) {
 </body>
 </html>`;
 }
+
+
+
+
+function isHostedShareShuffleUrl(value = "") {
+  try {
+    const parsed = new URL(String(value || ""));
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    return host === "shareshuffle.com" ||
+      host === "shfl.me" ||
+      host === "shflz.com" ||
+      host === "shelfmix.com" ||
+      host.endsWith(".web.app") ||
+      host.endsWith(".firebaseapp.com");
+  } catch {
+    return false;
+  }
+}
+
+const AMAZON_ASSOCIATE_TAG = "shareshuffle-20";
+const WALMART_IMPACT_CONFIG = {
+  publisherId: "1936697",
+  campaignId: "565706",
+  creativeId: "9383",
+  sourceId: "imp_000011112222333344"
+};
+
+function hostnameOf(value = "") {
+  try {
+    return new URL(String(value || "")).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function isAmazonUrl(value = "") {
+  const host = hostnameOf(value);
+  return host === "amazon.com" ||
+    host.endsWith(".amazon.com") ||
+    host === "a.co" ||
+    host === "amzn.to";
+}
+
+function isWalmartUrl(value = "") {
+  const host = hostnameOf(value);
+  return host === "walmart.com" || host.endsWith(".walmart.com");
+}
+
+function isWalmartImpactUrl(value = "") {
+  const host = hostnameOf(value);
+  return host === "goto.walmart.com" || host.endsWith(".impactradius.com");
+}
+
+function withAmazonAffiliateTag(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw || !isAmazonUrl(raw)) return raw;
+
+  try {
+    const parsed = new URL(raw);
+    // Ethics-first: never overwrite an existing Amazon Associate tag.
+    if (!parsed.searchParams.has("tag")) {
+      parsed.searchParams.set("tag", AMAZON_ASSOCIATE_TAG);
+    }
+    return parsed.toString();
+  } catch {
+    return raw;
+  }
+}
+
+function withWalmartAffiliateLink(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw || !isWalmartUrl(raw) || isWalmartImpactUrl(raw)) return raw;
+
+  try {
+    const destination = new URL(raw);
+    const base = `https://goto.walmart.com/c/${WALMART_IMPACT_CONFIG.publisherId}/${WALMART_IMPACT_CONFIG.campaignId}/${WALMART_IMPACT_CONFIG.creativeId}`;
+    const affiliate = new URL(base);
+    affiliate.searchParams.set("veh", "aff");
+    affiliate.searchParams.set("sourceid", WALMART_IMPACT_CONFIG.sourceId);
+    affiliate.searchParams.set("u", destination.toString());
+    return affiliate.toString();
+  } catch {
+    return raw;
+  }
+}
+
+function withAffiliateUrl(value = "") {
+  const amazon = withAmazonAffiliateTag(value);
+  if (amazon !== value) return amazon;
+  return withWalmartAffiliateLink(value);
+}
+
+function chooseStoreUrl(data = {}) {
+  const candidates = [
+    data.originalUrl,
+    data.storeUrl,
+    data.productUrl,
+    data.merchantUrl,
+    data.url
+  ]
+    .map(value => String(value || "").trim())
+    .filter(Boolean);
+
+  const chosen = candidates.find(value => /^https?:\/\//i.test(value) && !isHostedShareShuffleUrl(value)) || "";
+  return withAffiliateUrl(chosen);
+}
+
+
+export const shareData = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 10,
+    memory: "256Mi"
+  },
+  async (req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.status(405).json({ ok: false, error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      res.set("Cache-Control", "public, max-age=15, s-maxage=30");
+      const id = String(req.query.id || "").trim();
+      if (!id || !/^[A-Za-z0-9_-]{3,80}$/.test(id)) {
+        res.status(400).json({ ok: false, error: "Missing or invalid share id" });
+        return;
+      }
+
+      const snap = await db.collection("shares").doc(id).get();
+      if (!snap.exists) {
+        res.status(404).json({ ok: false, error: "Share not found", id });
+        return;
+      }
+
+      const data = snap.data() || {};
+      const title = cleanOgText(data.title || "Shared find", 160);
+      const note = cleanOgText(data.note || "I saw this and thought of you.", 260);
+      const savedUrl = data.url || "";
+      const originalUrl = data.originalUrl || data.url || "";
+      const storeUrl = chooseStoreUrl(data);
+      const url = storeUrl;
+      const merchant = cleanOgText(data.merchant || "", 60);
+      const image = data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "";
+      const shelfSlug = normalizeToken(data.shelfSlug || "");
+      const handleSlug = normalizeToken(data.handleSlug || "");
+      const shelfName = cleanOgText(data.shelfName || "", 100);
+      const handleDisplay = cleanOgText(data.handleDisplay || handleSlug || "", 80);
+
+      // Count views server-side so browser Firestore permissions can stay simple.
+      db.collection("shares").doc(id).update({
+        views: (data.views || 0) + 1
+      }).catch((error) => console.warn("shareData view update failed", id, error));
+
+      res.status(200).json({
+        ok: true,
+        id,
+        title,
+        note,
+        url,
+        storeUrl,
+        savedUrl,
+        originalUrl,
+        merchant,
+        image,
+        shelfName,
+        shelfSlug,
+        handleSlug,
+        handleDisplay,
+        shareUrl: `https://shfl.me/${encodeURIComponent(id)}`,
+        appUrl: `https://shareshuffle.com/share.html?id=${encodeURIComponent(id)}`,
+        imageUrl: `https://shareshuffle.com/i-${encodeURIComponent(id)}`
+      });
+    } catch (error) {
+      console.error("shareData failed", error);
+      res.status(500).json({ ok: false, error: error.message || String(error) });
+    }
+  }
+);
+
+export const trackShareClick = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 10,
+    memory: "128Mi"
+  },
+  async (req, res) => {
+    try {
+      const id = String(req.query.id || (req.body && req.body.id) || "").trim();
+      if (!id || !/^[A-Za-z0-9_-]{3,80}$/.test(id)) {
+        res.status(400).json({ ok: false });
+        return;
+      }
+      const ref = db.collection("shares").doc(id);
+      const snap = await ref.get();
+      if (!snap.exists) {
+        res.status(404).json({ ok: false });
+        return;
+      }
+      const current = Number((snap.data() || {}).amazonClicks || 0);
+      await ref.update({ amazonClicks: current + 1 });
+      res.status(200).json({ ok: true });
+    } catch (error) {
+      console.warn("trackShareClick failed", error);
+      res.status(200).json({ ok: false });
+    }
+  }
+);
+
+
+export const shelfData = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 10,
+    memory: "256Mi"
+  },
+  async (req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.status(405).json({ ok: false, error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      res.set("Cache-Control", "public, max-age=30, s-maxage=60");
+      const handle = normalizeToken(String(req.query.u || req.query.handle || ""));
+      const shelfSlug = normalizeToken(String(req.query.s || req.query.shelf || ""));
+      const limit = Math.min(Math.max(Number(req.query.limit || 50), 1), 100);
+
+      if (!shelfSlug && !handle) {
+        res.status(400).json({ ok: false, error: "Missing shelf slug", items: [] });
+        return;
+      }
+
+      const seen = new Set();
+      const items = [];
+      const debug = [];
+
+      const matches = (id, data = {}) => {
+        const itemShelf = normalizeToken(data.shelfSlug || "");
+        const itemHandle = normalizeToken(data.handleSlug || "");
+        if (shelfSlug && itemShelf !== shelfSlug) return false;
+        // Chrome-review extension shares may not have handleSlug at all.
+        // If handle is requested, keep no-user docs for the same shelf slug.
+        if (handle && itemHandle && itemHandle !== handle) return false;
+        return true;
+      };
+
+      const addDoc = (doc) => {
+        if (!doc || seen.has(doc.id)) return;
+        const data = doc.data() || {};
+        if (!matches(doc.id, data)) return;
+        seen.add(doc.id);
+        items.push({
+          id: doc.id,
+          title: cleanOgText(data.title || "Shared find", 140),
+          note: cleanOgText(data.note || "", 220),
+          url: chooseStoreUrl(data),
+          savedUrl: data.url || "",
+          originalUrl: data.originalUrl || data.url || "",
+          merchant: data.merchant || "",
+          image: data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "",
+          shelfName: data.shelfName || "",
+          shelfSlug: data.shelfSlug || shelfSlug,
+          handleSlug: data.handleSlug || "",
+          handleDisplay: data.handleDisplay || ""
+        });
+      };
+
+      if (shelfSlug) {
+        try {
+          debug.push(`query:shelfSlug=${shelfSlug}`);
+          const snap = await db.collection("shares").where("shelfSlug", "==", shelfSlug).limit(limit).get();
+          snap.forEach(addDoc);
+          debug.push(`shelfSlug result:${items.length}`);
+        } catch (error) {
+          debug.push(`shelfSlug error:${error.message || String(error)}`);
+        }
+      }
+
+      if (handle && shelfSlug && !items.some(item => normalizeToken(item.handleSlug) === handle)) {
+        try {
+          debug.push(`query:handleSlug=${handle}`);
+          const snap = await db.collection("shares").where("handleSlug", "==", handle).limit(limit).get();
+          snap.forEach(addDoc);
+          debug.push(`handleSlug merged result:${items.length}`);
+        } catch (error) {
+          debug.push(`handleSlug error:${error.message || String(error)}`);
+        }
+      }
+
+      const first = items.find(item => item.shelfName || item.handleDisplay || item.handleSlug) || {};
+      const resolvedHandle = normalizeToken(first.handleSlug || handle || "");
+      const resolvedShelf = normalizeToken(first.shelfSlug || shelfSlug || "");
+      const shelfName = cleanOgText(first.shelfName || (resolvedShelf ? resolvedShelf.replace(/-/g, " ") : "Shelf"), 100);
+      const handleDisplay = cleanOgText(first.handleDisplay || resolvedHandle || "", 80);
+
+      res.status(200).json({
+        ok: true,
+        route: { handle, shelfSlug },
+        resolved: { handleSlug: resolvedHandle, shelfSlug: resolvedShelf, shelfName, handleDisplay },
+        count: items.length,
+        items,
+        debug
+      });
+    } catch (error) {
+      console.error("shelfData failed", error);
+      res.status(500).json({ ok: false, error: error.message || String(error), items: [] });
+    }
+  }
+);
+
 
 export const renderRoute = onRequest(
   {

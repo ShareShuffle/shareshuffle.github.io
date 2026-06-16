@@ -20,6 +20,7 @@
 <meta name="theme-color" content="#EEF6FF">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ShareShuffle">
 
@@ -281,6 +282,248 @@ h1 {
     .product-card .product-note { cursor: pointer; }
     .missing-image-state { display:flex; align-items:center; justify-content:center; min-height:220px; background:linear-gradient(135deg,#eef6ff,#fff8e7); color:#64748b; text-align:center; padding:18px; font-weight:700; }
     .missing-image-state small { display:block; margin-top:6px; font-weight:600; }
+
+/* Intentional editorial shelf crop: keep the hot zoom, constrain the billboard. */
+#items {
+  align-items: stretch;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+}
+
+.product-image-wrap {
+  height: clamp(260px, 34vw, 430px);
+  min-height: 0 !important;
+  overflow: hidden;
+  display: block;
+  background:
+    radial-gradient(circle at 25% 15%, rgba(238,246,255,.95), transparent 34%),
+    linear-gradient(135deg, #f8fafc 0%, #eef6ff 100%);
+  border-bottom: 1px solid rgba(13,110,253,.08);
+}
+
+.product-image-wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center center;
+  padding: 0 !important;
+  max-height: none !important;
+  transition: transform 180ms ease;
+}
+
+.product-card:hover .product-image-wrap img {
+  transform: scale(1.025);
+}
+
+.product-card .card-body {
+  min-height: 190px !important;
+  padding: 16px 16px 14px;
+}
+
+.product-title {
+  min-height: 0 !important;
+  max-height: 3.05em;
+  overflow: hidden;
+  font-size: 0.98rem;
+  line-height: 1.22;
+  margin-bottom: 10px;
+}
+
+.product-note {
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  max-height: 3.9em;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.product-card .btn {
+  --bs-btn-font-size: .78rem;
+  padding: .42rem .64rem;
+}
+
+.missing-image-state {
+  min-height: 0 !important;
+  height: 100%;
+  display: grid !important;
+  place-items: center;
+  background:
+    radial-gradient(circle at 72% 28%, rgba(13,110,253,.10), transparent 26%),
+    linear-gradient(135deg, #f8fafc, #eef6ff);
+  color: #102033;
+  text-align: center;
+  padding: 22px;
+  font-weight: 800;
+}
+
+.missing-image-state::before {
+  content: "Image";
+  display: block;
+  font-family: "League Spartan", Inter, system-ui, sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  letter-spacing: -.03em;
+}
+
+.missing-image-state small {
+  color: #64748b;
+  font-weight: 700;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1180px;
+  }
+}
+
+@media (max-width: 767px) {
+  .product-image-wrap {
+    height: clamp(240px, 72vw, 360px);
+  }
+}
+
+
+/* Shelf card rails: keep the cool editorial crop, remove loose-cannon randomness. */
+#items.row {
+  --bs-gutter-x: 1.25rem;
+  --bs-gutter-y: 1.25rem;
+}
+
+.shelf-grid-item {
+  display: flex;
+}
+
+.product-card {
+  width: 100%;
+  border-radius: 24px !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 18px 45px rgba(2, 8, 23, 0.22) !important;
+  background: rgba(255,255,255,.98) !important;
+}
+
+.product-image-wrap {
+  height: 315px !important;
+  min-height: 315px !important;
+  max-height: 315px !important;
+  border-radius: 24px 24px 0 0;
+  position: relative;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(13,110,253,.12), transparent 30%),
+    linear-gradient(135deg, #f8fafc 0%, #edf6ff 100%) !important;
+}
+
+.product-image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 38%;
+  background: linear-gradient(to bottom, transparent, rgba(248,250,252,.88));
+  pointer-events: none;
+}
+
+.product-image-wrap img.editorial-product-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: var(--crop-x, 50%) var(--crop-y, 50%) !important;
+  padding: 0 !important;
+  transform: scale(var(--crop-scale, 1.04));
+}
+
+.product-card:hover .product-image-wrap img.editorial-product-img {
+  transform: scale(calc(var(--crop-scale, 1.04) + .025));
+}
+
+.product-card .card-body {
+  min-height: 205px !important;
+  max-height: 205px;
+  padding: 15px 15px 13px !important;
+  overflow: hidden;
+}
+
+.product-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 2.45em !important;
+  max-height: 2.45em !important;
+  overflow: hidden;
+  font-size: .96rem !important;
+  line-height: 1.22 !important;
+  margin-bottom: .55rem !important;
+}
+
+.product-note {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  min-height: 3.8em;
+  max-height: 3.8em !important;
+  overflow: hidden;
+  font-size: .88rem !important;
+  line-height: 1.28 !important;
+  color: #475569 !important;
+}
+
+.product-actions {
+  display: flex;
+  flex-wrap: nowrap !important;
+  gap: .45rem !important;
+  align-items: center;
+}
+
+.product-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: .72rem !important;
+  padding: .4rem .48rem !important;
+}
+
+.missing-image-state {
+  height: 315px !important;
+  min-height: 315px !important;
+  border-radius: 24px 24px 0 0;
+  display: grid !important;
+  place-items: center;
+}
+
+@media (min-width: 1400px) {
+  .product-image-wrap,
+  .missing-image-state {
+    height: 340px !important;
+    min-height: 340px !important;
+    max-height: 340px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .product-image-wrap,
+  .missing-image-state {
+    height: 270px !important;
+    min-height: 270px !important;
+    max-height: 270px !important;
+  }
+
+  .product-card .card-body {
+    max-height: none;
+  }
+
+  .product-actions {
+    flex-wrap: wrap !important;
+  }
+}
+
 </style>
 
     <link rel="manifest" href="/manifest.webmanifest">
@@ -331,414 +574,362 @@ h1 {
             <div id="items" class="row g-4"></div>
         </section>
     </main>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-
-    import {
-      getFirestore,
-      collection,
-      getDocs,
-      query,
-      where
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC-IdAGNybUmS4LPqQX-WrOVtIDPPl8ZzE",
-      authDomain: "shareshuffle-c7f96.firebaseapp.com",
-      projectId: "shareshuffle-c7f96",
-      storageBucket: "shareshuffle-c7f96.firebasestorage.app",
-      messagingSenderId: "507028011652",
-      appId: "1:507028011652:web:97c161c63b7940af0f60d1",
-      measurementId: "G-C8W9TBP705"
-    };
-
+    <script>
+      window.__ssShelfModuleStarted = false;
+      window.__ssShelfModuleLoaded = false;
+      window.__ssShelfBootAt = Date.now();
+      window.addEventListener("error", function(event) {
+        console.error("[ShareShuffle shelf classic error]", event.message, event.filename, event.lineno, event.colno);
+      });
+      setTimeout(function() {
+        if (window.__ssShelfModuleLoaded) return;
+        var status = document.getElementById("status");
+        var title = document.getElementById("shelfTitle");
+        var items = document.getElementById("items");
+        if (status && /Loading/i.test(status.textContent || "")) {
+          status.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Still loading…';
+        }
+        if (!window.__ssShelfModuleStarted && title && /Loading shelf/i.test(title.textContent || "")) {
+          title.textContent = "Shelf script did not start";
+          if (items) {
+            items.innerHTML = '<div class="col-12"><div class="hero-card p-4"><h2 class="fw-bold">The shelf JavaScript did not start.</h2><p class="text-secondary mb-2">This usually means a module import was blocked or an older cached file is still being served.</p><p class="small-muted mb-0">Try a hard refresh. If this stays here, the problem is before Firestore loading begins.</p></div></div>';
+          }
+        }
+      }, 6500);
+    </script>
+    <script>
     const SHARE_BASE_URL = "https://shfl.me/";
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
     const params = new URLSearchParams(location.search);
     const handleSlug = String(params.get("u") || "").trim().replace(/^@+/, "").toLowerCase();
     const slug = String(params.get("s") || "").trim().toLowerCase();
-    let resolvedHandleSlug = handleSlug;
-    let resolvedShelfSlug = slug;
-    let resolvedShelfUrl = "";
-
-    function buildResolvedShelfUrl() {
-      if (resolvedHandleSlug && resolvedShelfSlug) return `https://shelfmix.com/${encodeURIComponent(resolvedHandleSlug)}/${encodeURIComponent(resolvedShelfSlug)}`;
-      if (handleSlug && slug) return `https://shelfmix.com/${encodeURIComponent(handleSlug)}/${encodeURIComponent(slug)}`;
-      if (slug) return `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(slug)}`;
-      return window.location.href;
-    }
-
-    function setShelfFailure(message, error = null) {
-      const title = document.getElementById("shelfTitle");
-      const status = document.getElementById("status");
-      const items = document.getElementById("items");
-      if (title) title.textContent = "Shelf did not load";
-      if (status) status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(message)}`;
-      if (items) {
-        items.innerHTML = `
-          <div class="col-12">
-            <div class="hero-card p-4">
-              <h2 class="fw-bold">I hit a shelf loading error.</h2>
-              <p class="text-secondary mb-2">Try the clean shelf URL, or refresh after the newest patch deploy finishes.</p>
-              <p class="small-muted mb-0">${escapeHtml(error?.message || String(error || ""))}</p>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    function canonicalShelfPath() {
-      if (!handleSlug || !slug) return "";
-      return `/${encodeURIComponent(handleSlug)}/${encodeURIComponent(slug)}`;
-    }
-
-    if (/^(www\.)?shelfmix\.com$/i.test(location.hostname) && location.pathname.toLowerCase().endsWith("/shelf.html") && handleSlug && slug && canonicalShelfPath()) {
-      history.replaceState(null, "", canonicalShelfPath());
-    }
-
-
-
-    function titleFromSlug(value) {
-      return value
-        .split("-")
-        .filter(Boolean)
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(" ") || "Shelf";
-    }
 
     function escapeHtml(value = "") {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    function cleanProductTitle(value = "") {
-      let title = String(value || "").trim();
-
-      title = title
-        .replace(/^(Amazon(?:\.com)?|Walmart(?:\.com)?|Target|Best Buy|eBay(?:\.com)?)\s*[:|｜\-–—]\s*/i, "")
-        .replace(/\s*[:|｜]\s*(Amazon|Amazon\.com|Walmart|Walmart\.com|Target|Best Buy|eBay|eBay\.com)\s*$/i, "")
-        .replace(/\s*[:|｜]\s*(Home\s*&\s*Kitchen|Electronics|Clothing,\s*Shoes\s*&\s*Jewelry|Musical Instruments|Amazon Luxury|Sports\s*&\s*Outdoors|Tools\s*&\s*Home Improvement|Office Products|Beauty\s*&\s*Personal Care|Health\s*&\s*Household|Toys\s*&\s*Games|Patio,\s*Lawn\s*&\s*Garden|Automotive)\s*$/i, "")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      return title || "Shared find";
-    }
-
-    function smartTruncate(value = "", maxLength = 96) {
+    function smartTruncate(value = "", maxLength = 120) {
       const text = String(value || "").replace(/\s+/g, " ").trim();
       if (text.length <= maxLength) return text;
       const slice = text.slice(0, Math.max(0, maxLength - 1));
       const lastSpace = slice.lastIndexOf(" ");
-      const trimmed = lastSpace > 40 ? slice.slice(0, lastSpace) : slice;
+      const trimmed = lastSpace > 45 ? slice.slice(0, lastSpace) : slice;
       return trimmed.replace(/[\s,;:.-]+$/g, "") + "…";
     }
 
-    function firstNameOrDisplay(value = "") {
-      const cleaned = String(value || "").trim().replace(/^@+/, "");
-      if (!cleaned) return "";
-      return cleaned.split(/\s+/)[0].slice(0, 40);
+    function cleanProductTitle(title = "") {
+      return String(title || "")
+        .replace(/^Amazon(?:\.com)?\s*[:|｜\-–—]\s*/i, "")
+        .replace(/^Walmart(?:\.com)?\s*[:|｜\-–—]\s*/i, "")
+        .replace(/\s+/g, " ")
+        .trim();
     }
 
-    function buildShareMessage({ title, note, shareUrl, handleDisplay = "" }) {
-      const cleanTitle = smartTruncate(cleanProductTitle(title), 90);
-      const cleanNote = smartTruncate(String(note || "").trim(), 140);
-      const cleanShareUrl = String(shareUrl || "").trim().replace(/\/+$/g, "");
-      const signature = firstNameOrDisplay(handleDisplay);
-      return [
-        signature ? `${signature} shared via Shuffle:` : "Shared via Shuffle:",
-        cleanNote ? `“${cleanNote}”` : "",
-        cleanTitle || "",
-        cleanShareUrl || ""
-      ].filter(Boolean).join("
-").replace(/
-{3,}/g, "
-
-").trim();
+    function getShelfDataUrl() {
+      const q = new URLSearchParams();
+      if (handleSlug) q.set("u", handleSlug);
+      if (slug) q.set("s", slug);
+      q.set("v", "23");
+      return `https://shareshuffle.com/shelfData?${q.toString()}`;
     }
 
-
-    function withTimeout(promise, ms = 9000, label = "request") {
-      let timer;
-      const timeout = new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
-      });
-      return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+    function buildResolvedShelfUrl(resolved = {}) {
+      const h = String(resolved.handleSlug || handleSlug || "").toLowerCase();
+      const s = String(resolved.shelfSlug || slug || "").toLowerCase();
+      if (h && s) return `https://shareshuffle.com/shelf.html?u=${encodeURIComponent(h)}&s=${encodeURIComponent(s)}`;
+      if (s) return `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(s)}`;
+      return window.location.href;
     }
 
-    async function loadShelfDocs() {
-      const docs = [];
+    function productImageUrl(item) {
+      return item?.id ? `https://shareshuffle.com/i-${encodeURIComponent(item.id)}` : "";
+    }
+
+    function sharePageUrl(item) {
+      return item?.id ? `https://shareshuffle.com/share.html?id=${encodeURIComponent(item.id)}` : "#";
+    }
+
+    function normalizeDedupeText(value = "") {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/^amazon(?:\.com)?\s*[:|｜\-–—]\s*/i, "")
+        .replace(/\b(?:amazon|walmart|target|best buy|ebay)(?:\.com)?\b/g, "")
+        .replace(/\b(?:compressor|compression|pedal|guitar|bass|effect|effects|true bypass)\b/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 8)
+        .join(" ");
+    }
+
+    function dedupeShelfItems(items = []) {
       const seen = new Set();
-
-      const matchesShelf = (item) => {
-        const itemShelf = String(item.shelfSlug || "").toLowerCase();
-        const itemHandle = String(item.handleSlug || "").toLowerCase();
-        if (slug && itemShelf !== slug) return false;
-
-        // Chrome-review extension shares may not have handleSlug at all.
-        // If a handle was requested, prefer matching handle docs but still allow
-        // no-user legacy docs for the same shelf slug so old shelves keep working.
-        if (handleSlug && itemHandle && itemHandle !== handleSlug) return false;
+      return items.filter((item) => {
+        const titleKey = normalizeDedupeText(item.title || "");
+        const urlKey = String(item.originalUrl || item.url || "").toLowerCase()
+          .replace(/^https?:\/\//, "")
+          .replace(/[?#].*$/, "")
+          .replace(/\/$/, "");
+        const imageKey = String(item.image || "").toLowerCase().split("?")[0];
+        const key = titleKey || urlKey || imageKey || item.id;
+        if (!key) return true;
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
-      };
-
-      const addDoc = (docSnap) => {
-        if (!docSnap || seen.has(docSnap.id)) return;
-        const item = { id: docSnap.id, ...docSnap.data() };
-        if (!matchesShelf(item)) return;
-        seen.add(docSnap.id);
-        docs.push(item);
-      };
-
-      const addSnap = (snap) => snap.forEach(addDoc);
-      const queryPlans = [];
-
-      // The Chrome-review extension creates no-user shelves with only shelfSlug.
-      // Query shelfSlug first because it covers both no-user and handled shelves.
-      if (slug) queryPlans.push(query(collection(db, "shares"), where("shelfSlug", "==", slug)));
-      if (handleSlug) queryPlans.push(query(collection(db, "shares"), where("handleSlug", "==", handleSlug)));
-
-      for (const q of queryPlans) {
-        try {
-          addSnap(await withTimeout(getDocs(q), 7000, "Shelf lookup"));
-        } catch (error) {
-          console.warn("Shelf query failed; trying next plan", error);
-        }
-      }
-
-      // Final early-launch fallback: public read is allowed and the extension review
-      // collection is still small. This prevents a frozen/empty shelf from a query
-      // issue while Chrome is reviewing the extension.
-      if (!docs.length) {
-        try {
-          const snap = await withTimeout(getDocs(collection(db, "shares")), 9000, "Shelf fallback lookup");
-          addSnap(snap);
-        } catch (error) {
-          console.warn("Shelf fallback failed", error);
-          throw error;
-        }
-      }
-
-      return docs;
+      });
     }
 
-    async function loadShelf() {
+    function storeButtonLabel(item) {
+      const merchant = String(item.merchant || "").trim();
+      if (merchant && merchant !== "direct") return `View on ${merchant.charAt(0).toUpperCase()}${merchant.slice(1)}`;
+      return "View Store";
+    }
+
+    function isHostedShareShuffleUrl(value = "") {
+      try {
+        const parsed = new URL(String(value || ""));
+        const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+        return host === "shareshuffle.com" ||
+          host === "shfl.me" ||
+          host === "shflz.com" ||
+          host === "shelfmix.com" ||
+          host.endsWith(".web.app") ||
+          host.endsWith(".firebaseapp.com");
+      } catch {
+        return false;
+      }
+    }
+
+    const AMAZON_ASSOCIATE_TAG = "shareshuffle-20";
+    const WALMART_IMPACT_CONFIG = {
+      publisherId: "1936697",
+      campaignId: "565706",
+      creativeId: "9383",
+      sourceId: "imp_000011112222333344"
+    };
+
+    function hostnameOf(value = "") {
+      try {
+        return new URL(String(value || "")).hostname.replace(/^www\./, "").toLowerCase();
+      } catch {
+        return "";
+      }
+    }
+
+    function isAmazonUrl(value = "") {
+      const host = hostnameOf(value);
+      return host === "amazon.com" ||
+        host.endsWith(".amazon.com") ||
+        host === "a.co" ||
+        host === "amzn.to";
+    }
+
+    function isWalmartUrl(value = "") {
+      const host = hostnameOf(value);
+      return host === "walmart.com" || host.endsWith(".walmart.com");
+    }
+
+    function isWalmartImpactUrl(value = "") {
+      const host = hostnameOf(value);
+      return host === "goto.walmart.com" || host.endsWith(".impactradius.com");
+    }
+
+    function withAmazonAffiliateTag(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || !isAmazonUrl(raw)) return raw;
+      try {
+        const parsed = new URL(raw);
+        if (!parsed.searchParams.has("tag")) {
+          parsed.searchParams.set("tag", AMAZON_ASSOCIATE_TAG);
+        }
+        return parsed.toString();
+      } catch {
+        return raw;
+      }
+    }
+
+    function withWalmartAffiliateLink(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || !isWalmartUrl(raw) || isWalmartImpactUrl(raw)) return raw;
+      try {
+        const destination = new URL(raw);
+        const affiliate = new URL(`https://goto.walmart.com/c/${WALMART_IMPACT_CONFIG.publisherId}/${WALMART_IMPACT_CONFIG.campaignId}/${WALMART_IMPACT_CONFIG.creativeId}`);
+        affiliate.searchParams.set("veh", "aff");
+        affiliate.searchParams.set("sourceid", WALMART_IMPACT_CONFIG.sourceId);
+        affiliate.searchParams.set("u", destination.toString());
+        return affiliate.toString();
+      } catch {
+        return raw;
+      }
+    }
+
+    function withAffiliateUrl(value = "") {
+      const amazon = withAmazonAffiliateTag(value);
+      if (amazon !== value) return amazon;
+      return withWalmartAffiliateLink(value);
+    }
+
+    function chooseStoreUrl(item = {}) {
+      const candidates = [item.storeUrl, item.originalUrl, item.productUrl, item.merchantUrl, item.url]
+        .map((value) => String(value || "").trim())
+        .filter(Boolean);
+      const chosen = candidates.find((value) => /^https?:\/\//i.test(value) && !isHostedShareShuffleUrl(value)) || "";
+      return withAffiliateUrl(chosen);
+    }
+
+    function cropVarsForItem(item = {}) {
+      const text = `${item.title || ""} ${item.merchant || ""}`.toLowerCase();
+      const id = String(item.id || "");
+      let hash = 0;
+      for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) % 997;
+      const x = 45 + (hash % 13);
+      const y = text.includes("pedal") || text.includes("compressor") || text.includes("boost") ? 48 : 50;
+      const scale = text.includes("cable") || text.includes("velcro") ? 1.0 : 1.04;
+      return `--crop-x:${x}%;--crop-y:${y}%;--crop-scale:${scale};`;
+    }
+
+    function renderError(message, detail = "", debug = []) {
       const title = document.getElementById("shelfTitle");
       const status = document.getElementById("status");
       const items = document.getElementById("items");
-
-      if (!slug && !handleSlug) {
-        title.textContent = "Missing shelf";
-        status.textContent = "No shelf or @username found.";
-        return;
-      }
-
-      let shelfName = slug ? titleFromSlug(slug) : `@${handleSlug}`;
-      let handleDisplay = handleSlug ? handleSlug : "";
-
-      status.innerHTML = `<i class="fa-solid fa-box-open"></i> Loading items…`;
-      const docs = await loadShelfDocs();
-
-      docs.sort((a, b) => {
-        const aDate = a.created?.toDate ? a.created.toDate() : new Date(a.created || 0);
-        const bDate = b.created?.toDate ? b.created.toDate() : new Date(b.created || 0);
-        return bDate - aDate;
-      });
-
-      if (docs.length) {
-        const firstWithShelf = docs.find(item => String(item.shelfName || "").trim());
-        const firstWithRealHandle = docs.find(item => String(item.handleSlug || "").trim());
-        const firstWithHandleDisplay = docs.find(item => String(item.handleDisplay || item.handleSlug || "").trim());
-        if (firstWithShelf?.shelfName && slug) shelfName = String(firstWithShelf.shelfName).trim();
-        if (firstWithHandleDisplay) handleDisplay = String(firstWithHandleDisplay.handleDisplay || firstWithHandleDisplay.handleSlug || handleDisplay).trim();
-        if (!resolvedHandleSlug && firstWithRealHandle?.handleSlug) resolvedHandleSlug = String(firstWithRealHandle.handleSlug).toLowerCase();
-      }
-
-      resolvedShelfUrl = buildResolvedShelfUrl();
-      const copyShelf = document.getElementById("copyShelf");
-      if (copyShelf) {
-        copyShelf.title = resolvedShelfUrl.includes("shelfmix.com")
-          ? `Copy ${resolvedShelfUrl}`
-          : "Copy Chrome-review-safe legacy shelf link";
-      }
-
-      title.textContent = (resolvedHandleSlug || handleSlug) && slug ? `${shelfName} by ${handleDisplay || resolvedHandleSlug || handleSlug}` : (handleDisplay || shelfName);
-      document.title = `${title.textContent} — ShareShuffle`;
-
-      items.innerHTML = "";
-      status.innerHTML = `
-  <i class="fa-solid fa-box-open"></i>
-  ${docs.length} item${docs.length === 1 ? "" : "s"}
-`;
-
-      if (!docs.length) {
+      if (title) title.textContent = "Shelf did not load";
+      if (status) status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error`;
+      if (items) {
         items.innerHTML = `
           <div class="col-12">
-            <div class="hero-card p-4 text-center">
-              <h2 class="fw-bold">No items yet</h2>
-              <p class="text-secondary mb-0">Save something to this shelf from the ShareShuffle app or extension.</p>
+            <div class="hero-card p-4">
+              <h2 class="fw-bold">${escapeHtml(message)}</h2>
+              ${detail ? `<p class="text-secondary">${escapeHtml(detail)}</p>` : ""}
+              <pre class="small text-start bg-light border rounded-3 p-3 mb-0" style="white-space:pre-wrap;">${escapeHtml((debug || []).join("\n"))}</pre>
             </div>
           </div>
         `;
-        return;
       }
+    }
 
-      docs.forEach(item => {
-        const shareUrl = `${SHARE_BASE_URL}${String(item.id).toLowerCase()}`;
-        const displayTitle = smartTruncate(cleanProductTitle(item.title || "Shared find"), 96);
-        const displayNote = smartTruncate(item.note || "I saw this and thought of you.", 120);
-        const outboundMessage = buildShareMessage({ title: displayTitle, note: displayNote, shareUrl, handleDisplay: item.handleDisplay || "" });
-        const shareText = encodeURIComponent(outboundMessage);
-        const emailSubject = encodeURIComponent(displayTitle);
-        const emailBody = encodeURIComponent(outboundMessage);
-        const image = item.id ? `/i-${String(item.id).toLowerCase()}` : (item.cachedImageUrl || item.cachedImage || item.image || item.imageUrl || "");
+    function renderEmpty(payload) {
+      const items = document.getElementById("items");
+      const status = document.getElementById("status");
+      if (status) status.innerHTML = `<i class="fa-solid fa-box-open"></i> 0 picks`;
+      if (items) {
+        items.innerHTML = `
+          <div class="col-12">
+            <div class="hero-card p-4">
+              <h2 class="fw-bold">No items found for this shelf</h2>
+              <p class="text-secondary mb-2">This route loaded, but no shares matched the shelf slug yet.</p>
+              <pre class="small text-start bg-light border rounded-3 p-3 mb-0" style="white-space:pre-wrap;">${escapeHtml((payload.debug || []).join("\n"))}</pre>
+            </div>
+          </div>
+        `;
+      }
+    }
 
+    function renderItems(payload) {
+      const items = document.getElementById("items");
+      const docs = dedupeShelfItems(payload.items || []);
+      items.innerHTML = "";
 
-const merchant = (item.merchant || "").toLowerCase();
-
-const storeName =
-  merchant === "walmart" ? "Walmart" :
-  merchant === "target" ? "Target" :
-  merchant === "bestbuy" ? "Best Buy" :
-  merchant === "ebay" ? "eBay" :
-  "Amazon";
-
-const storeIcon =
-  merchant === "amazon"
-    ? '<i class="fa-brands fa-amazon me-1"></i>'
-    : '<i class="fa-solid fa-cart-shopping me-1"></i>';
-
-
-const storeUrl = item.url || "#";
-
+      docs.forEach((item) => {
+        const shareUrl = sharePageUrl(item);
+        const img = productImageUrl(item);
+        const title = smartTruncate(cleanProductTitle(item.title || "Shared find"), 95);
+        const note = smartTruncate(item.note || "Shared recommendation", 150);
+        const storeUrl = chooseStoreUrl(item);
+        const cropStyle = cropVarsForItem(item);
 
         const card = document.createElement("div");
-        card.className = "col-md-6 col-xl-4";
+        card.className = "shelf-grid-item col-md-6 col-xl-4";
         card.innerHTML = `
-          <article class="card product-card product-card-clickable" data-share-url="${escapeHtml(shareUrl)}">
-            <div class="product-img-wrap">
-              ${image
-                ? `<img class="product-img" src="${escapeHtml(image)}" alt="" onerror="this.parentElement.innerHTML='<div class=&quot;missing-image-state&quot;>Image not added yet<small>Tap to open the recommendation</small></div>'">`
-                : `<div class="missing-image-state">Image not added yet<small>Tap to open the recommendation</small></div>`
-              }
+          <article class="card product-card product-card-clickable h-100" data-share-url="${escapeHtml(shareUrl)}">
+            <div class="product-image-wrap" style="${escapeHtml(cropStyle)}">
+              ${img ? `<img class="editorial-product-img" src="${escapeHtml(img)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.outerHTML='<div class=&quot;missing-image-state&quot;><span><small>Product photo not added yet</small></span></div>'">` : `<div class="missing-image-state"><span><small>Product photo not added yet</small></span></div>`}
             </div>
-            <div class="card-body p-4 d-flex flex-column">
-              <h2 class="product-title product-note fw-bold mb-2 clamp-3">
-  ${escapeHtml(displayTitle)}
-</h2>
-              <p class="small-muted mb-3 clamp-2 product-note">${escapeHtml(displayNote)}</p>
-              <div class="d-grid gap-2 mt-auto">
-  <a
-    class="btn btn-ss"
-    href="${escapeHtml(storeUrl)}"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    ${storeIcon} View on ${storeName}
-  </a>
-
-  <a
-    class="btn btn-outline-secondary share-link-btn"
-    href="${escapeHtml(shareUrl)}"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <i class="fa-solid fa-share-nodes me-1"></i>
-    Open Share Page
-  </a>
-</div>
-               
-
-
-
-                <div class="share-actions mt-3">
-  <button
-    class="share-action-btn copy-share-btn"
-    type="button"
-    data-url="${escapeHtml(shareUrl)}"
-    title="Copy link"
-  >
-    <i class="fa-solid fa-link"></i>
-  </button>
-
-  <a
-    class="share-action-btn"
-    href="sms:?&body=${shareText}"
-    title="Message"
-  >
-    <i class="fa-solid fa-comment-sms"></i>
-  </a>
-
-  <a
-    class="share-action-btn"
-    href="https://voice.google.com/u/0/messages?item=${encodeURIComponent(shareUrl)}"
-    target="_blank"
-    rel="noopener noreferrer"
-    title="Google Voice"
-  >
-    <i class="fa-brands fa-google"></i>
-  </a>
-
-  <a
-    class="share-action-btn"
-    href="mailto:?subject=${emailSubject}&body=${emailBody}"
-    title="Email"
-  >
-    <i class="fa-solid fa-envelope"></i>
-  </a>
-</div>
-<p class="affiliate-disclosure">Some product links may be affiliate links. As an Amazon Associate I earn from qualifying purchases.</p>
+            <div class="card-body d-flex flex-column">
+              <h2 class="product-title">${escapeHtml(title)}</h2>
+              <p class="product-note">${escapeHtml(note)}</p>
+              <div class="product-actions mt-auto">
+                <a class="btn btn-primary rounded-pill fw-bold" href="${escapeHtml(shareUrl)}">
+                  <i class="fa-solid fa-up-right-from-square me-1"></i> Open
+                </a>
+                ${storeUrl ? `<a class="btn btn-outline-secondary rounded-pill fw-bold" href="${escapeHtml(storeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(storeButtonLabel(item))}</a>` : ""}
+              </div>
             </div>
           </article>
         `;
-
         items.appendChild(card);
       });
     }
 
+    async function loadShelf() {
+      const title = document.getElementById("shelfTitle");
+      const description = document.getElementById("shelfDescription");
+      const status = document.getElementById("status");
+
+      if (!slug) {
+        renderError("Missing shelf slug", "Expected a URL like /shelf.html?s=bass-gear.");
+        return;
+      }
+
+      status.innerHTML = `<i class="fa-solid fa-box-open"></i> Loading items…`;
+
+      const response = await fetch(getShelfDataUrl(), { cache: "no-store" });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) {
+        renderError("Shelf data request failed", payload.error || `${response.status} ${response.statusText}`, payload.debug || []);
+        return;
+      }
+
+      const resolved = payload.resolved || {};
+      const shelfName = resolved.shelfName || slug.replace(/-/g, " ");
+      const handleDisplay = resolved.handleDisplay || resolved.handleSlug || "";
+      const rawCount = Number(payload.count || 0);
+      const renderedCount = dedupeShelfItems(payload.items || []).length;
+      const count = renderedCount || rawCount;
+
+      title.textContent = handleDisplay ? `${shelfName} by ${handleDisplay}` : shelfName;
+      description.textContent = count ? `${count} pick${count === 1 ? "" : "s"} shared with ShareShuffle.` : "A collection of recommendations shared with ShareShuffle.";
+      document.title = `${title.textContent} — ShareShuffle`;
+      status.innerHTML = `<i class="fa-solid fa-box-open"></i> ${count} pick${count === 1 ? "" : "s"}`;
+
+      const copyShelf = document.getElementById("copyShelf");
+      const cleanShelfUrl = buildResolvedShelfUrl(resolved);
+      copyShelf.dataset.url = cleanShelfUrl;
+      copyShelf.title = `Copy ${cleanShelfUrl}`;
+
+      if (!count) {
+        renderEmpty(payload);
+        return;
+      }
+
+      renderItems(payload);
+    }
+
     document.getElementById("copyShelf").addEventListener("click", async () => {
-      const cleanShelfUrl = resolvedShelfUrl || buildResolvedShelfUrl();
-      await navigator.clipboard.writeText(cleanShelfUrl);
       const btn = document.getElementById("copyShelf");
+      const url = btn.dataset.url || buildResolvedShelfUrl();
+      await navigator.clipboard.writeText(url);
       btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied';
       setTimeout(() => {
         btn.innerHTML = '<i class="fa-solid fa-link me-1"></i> Copy Shelf';
       }, 1600);
     });
 
-    loadShelf().catch(error => {
-      console.error(error);
-      setShelfFailure("Could not load shelf.", error);
+    document.addEventListener("click", (event) => {
+      const card = event.target.closest(".product-card.product-card-clickable");
+      if (card && !event.target.closest("a, button, .share-actions")) {
+        const shareUrl = card.dataset.shareUrl;
+        if (shareUrl) window.location.href = shareUrl;
+      }
     });
 
-    document.addEventListener("click", async (event) => {
-  const card = event.target.closest(".product-card.product-card-clickable");
-  if (card && !event.target.closest("a, button, .share-actions")) {
-    const shareUrl = card.dataset.shareUrl;
-    if (shareUrl) {
-      window.location.href = shareUrl;
-      return;
-    }
-  }
-
-  const btn = event.target.closest(".copy-share-btn");
-  if (!btn) return;
-
-  await navigator.clipboard.writeText(btn.dataset.url);
-
-  const oldHtml = btn.innerHTML;
-  btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-
-  setTimeout(() => {
-    btn.innerHTML = oldHtml;
-  }, 1300);
-});
+    loadShelf().catch((error) => {
+      console.error(error);
+      renderError("Could not load shelf", error.message || String(error), []);
+    });
   </script>
 </body>
 

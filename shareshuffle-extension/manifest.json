@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ShareShuffle",
-  "version": "0.1.0",
-  "description": "Save products, add personal notes, and share recommendations in shelves.",
+  "version": "0.1.1",
+  "description": "Save product recommendations to shareable shelves. Links may include affiliate links, including Amazon and Walmart.",
   "permissions": [
     "activeTab",
     "tabs",

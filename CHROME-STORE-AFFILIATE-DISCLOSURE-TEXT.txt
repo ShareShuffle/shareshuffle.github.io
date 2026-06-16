@@ -1,0 +1,15 @@
+Chrome Web Store description paste text
+
+Short description option:
+Save and share product recommendations in visual shelves. Links may include affiliate links, including Amazon and Walmart.
+
+Long description / listing text:
+ShareShuffle helps you save product recommendations, add a personal note, and create shareable links or shelves for friends, family, and followers.
+
+Affiliate disclosure: ShareShuffle may create, display, or share links that include affiliate tracking for participating retailers, including Amazon and Walmart. ShareShuffle may earn from qualifying purchases at no additional cost to the user. Affiliate links are used to support the service.
+
+Suggested first line for existing listing:
+ShareShuffle saves product recommendations and shelves. Some product links may include affiliate tracking, including Amazon and Walmart, and ShareShuffle may earn from qualifying purchases.
+
+Appeal/resubmission note:
+We updated the Chrome Web Store description and the extension popup UI to prominently disclose affiliate usage before users create a share link. The extension now states that links may include affiliate tracking for retailers including Amazon and Walmart and that ShareShuffle may earn from qualifying purchases at no extra cost to the user.

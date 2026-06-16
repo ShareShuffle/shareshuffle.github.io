@@ -74,6 +74,27 @@
         }
       },
       {
+        "source": "/shareData",
+        "function": {
+          "functionId": "shareData",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/trackShareClick",
+        "function": {
+          "functionId": "trackShareClick",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/shelfData",
+        "function": {
+          "functionId": "shelfData",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "/shelfCard",
         "function": {
           "functionId": "shelfCardImage",

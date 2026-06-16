@@ -1,5 +1,5 @@
 {
-  "build": "2026.06.12-chrome-review-compat-18",
-  "createdAt": "2026-06-12T20:45:00Z",
-  "patch": "chrome-review-backwards-compatible-routes"
+  "build": "2026.06.13-chrome-affiliate-disclosure-29",
+  "createdAt": "2026-06-13T00:25:00Z",
+  "patch": "chrome-store-affiliate-disclosure-compliance"
 }
