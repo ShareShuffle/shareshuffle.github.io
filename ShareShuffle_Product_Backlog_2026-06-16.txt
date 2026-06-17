@@ -1,0 +1,465 @@
+ShareShuffle Product Backlog & Rebuild Notes
+Created: 2026-06-16
+
+NORTH STAR
+- Send the thing you meant to send.
+- Traditional sharing moves URLs. ShareShuffle moves recommendations.
+- Affiliate-aware, not affiliate-first.
+- No LLM API fees for now; avoid server scraping; use the page/browser/context the user already has open.
+
+KEY BUILDS
+- Static build: 2026.06.16-share-rescue-web-copy-30
+- Function build: 2026.06.13-chrome-affiliate-disclosure-29
+- Firebase project: shareshuffle-c7f96
+- Repo: /Users/richwilliams/Documents/GitHub/shareshuffle.github.io
+
+BACKLOG
+
+SS-001 [P0] Chrome approval — Affiliate disclosure compliance
+Status: In review | Surface: Chrome extension | Target: 0.1.1 | Complexity: S | Cost/Risk: Low
+User story: As a Chrome reviewer/user, I need ShareShuffle to clearly disclose affiliate links before I create/share links.
+Why: Gets extension approved; builds trust; avoids misleading monetization.
+Acceptance: Manifest/Store/popup all disclose affiliate programs; disclosure appears before share creation.
+Notes: Do not alter until Chrome review returns.
+
+SS-002 [P0] Affiliate links — Amazon affiliate tag preservation
+Status: Built | Surface: Functions + web | Target: Live | Complexity: M | Cost/Risk: Medium
+User story: As a creator, I want Amazon product URLs to include ShareShuffle's affiliate tag when eligible.
+Why: Core referral revenue while staying honest and compliant.
+Acceptance: Amazon outbound URL includes tag=shareshuffle-20 unless an existing Amazon tag is already present.
+Notes: Never overwrite existing tags.
+
+SS-003 [P0] Affiliate links — Walmart Impact wrapping
+Status: Built | Surface: Functions + web | Target: Live | Complexity: M | Cost/Risk: Medium
+User story: As a creator, I want Walmart links wrapped through the configured Impact affiliate URL when eligible.
+Why: Adds non-Amazon revenue support.
+Acceptance: Walmart destination wraps through goto.walmart.com with encoded destination; existing Impact links are not double-wrapped.
+Notes: Keep readable button label as Walmart/View Store.
+
+SS-004 [P0] Link safety — Reject hosted ShareShuffle URLs as store destinations
+Status: Built | Surface: Functions + web | Target: Live | Complexity: S | Cost/Risk: Low
+User story: As a recipient, I need View Store buttons to go to the merchant, not loop back into ShareShuffle.
+Why: Prevents confusing loops and protects trust.
+Acceptance: Store URL chooser rejects shareshuffle.com, shfl.me, shelfmix, firebase/web.app as merchant destinations.
+Notes: Prefer originalUrl/storeUrl/productUrl/merchantUrl before url.
+
+SS-005 [P0] App stability — Server-backed shelf data
+Status: Built | Surface: Functions + shelf.html | Target: Live | Complexity: M | Cost/Risk: Low
+User story: As a visitor, I want shelf pages to load reliably without browser Firebase module failures.
+Why: Fixed stuck Loading pages; reduces frontend fragility.
+Acceptance: /shelfData?s=bass-gear and /shelfData?u=rich&s=bass-gear return usable JSON; shelf.html renders via fetch.
+Notes: Must keep no-user shelfSlug route working for extension review/legacy shares.
+
+SS-006 [P0] App stability — Server-backed share data
+Status: Built | Surface: Functions + share.html | Target: Live | Complexity: M | Cost/Risk: Low
+User story: As a visitor, I want individual share pages to load reliably.
+Why: Fixed stuck Loading pages; improves unfurl and landing reliability.
+Acceptance: /shareData?id=abc12 returns title, note, image, merchant, store URL; share.html renders via fetch.
+Notes: Avoid browser Firebase import failures.
+
+SS-007 [P1] Analytics — Share click tracking
+Status: Built | Surface: Functions | Target: Live | Complexity: S | Cost/Risk: Low
+User story: As the product owner, I want outbound share/store clicks tracked.
+Why: Shows whether recommendations convert into meaningful actions.
+Acceptance: /trackShareClick?id=abc12 increments safely without breaking outbound navigation.
+Notes: Keep privacy-light; no creepy tracking.
+
+SS-008 [P0] Image quality — Image Rescue / pick best image
+Status: Built | Surface: Extension/web flow | Target: Live-ish | Complexity: M | Cost/Risk: Low
+User story: As a creator, I want to choose the best image when a product page offers multiple image candidates.
+Why: Made shares feel much more polished; user control without LLM cost.
+Acceptance: UI shows image options, selected image persists on share, bad tiny images avoided when possible.
+Notes: Pattern should inspire Search Result Rescue.
+
+SS-009 [P0] Image quality — Generated rescue/card image route
+Status: In progress | Surface: Functions/OG | Target: Next hosted patch | Complexity: M | Cost/Risk: Medium
+User story: As a recipient/social platform, I want a reliable card image even if merchant image is bad.
+Why: Improves iMessage/social previews; prevents blank white cards.
+Acceptance: shfl.me/share routes expose absolute og:image; /i-{id} or /c-{id} returns real image bytes with correct content type.
+Notes: Current iMessage preview works but can show blank image.
+
+SS-010 [P0] Share previews — OG metadata hardening
+Status: In progress | Surface: Functions + routes | Target: Next hosted patch | Complexity: M | Cost/Risk: Medium
+User story: As a recipient, I want the share preview to show title, source, image, and destination clearly.
+Why: First impression in iMessage/social; critical to trust.
+Acceptance: shfl.me links include title, description, absolute image URL, image width/height/type, and redirect cleanly.
+Notes: Do not overreact to one platform's inconsistent unfurling.
+
+SS-011 [P1] Share Rescue — Search-result URL detection in web app
+Status: Built | Surface: Web app /app | Target: Patch 30 | Complexity: S | Cost/Risk: Low
+User story: As a user pasting a link, I want ShareShuffle to warn me if I pasted search results instead of a specific thing.
+Why: Prevents the YouTube/Amazon mistake; makes app feel helpful.
+Acceptance: Pasting Amazon/YouTube/Google/Walmart/Target/eBay/Best Buy search URLs shows friendly guidance and does not block saving.
+Notes: Hosted-only; no extension package change.
+
+SS-012 [P1] Share Rescue — Search Result Rescue chooser in extension
+Status: Waiting | Surface: Chrome extension | Target: 0.1.2 | Complexity: M | Cost/Risk: Low/Medium
+User story: As a user on Amazon search results, I want to pick the product I meant to share from visible results.
+Why: Most useful next extension feature after approval; turns messy links into recommendations.
+Acceptance: On supported search pages, popup lists first visible result cards with title/image/url; choosing one fills popup with the real product.
+Notes: Use DOM already loaded by browser; no server scrape.
+
+SS-013 [P2] Share Rescue — YouTube search-result chooser
+Status: Idea | Surface: Chrome extension | Target: Later | Complexity: M | Cost/Risk: Low/Medium
+User story: As a user on YouTube search results, I want to pick the video I meant to share.
+Why: Perfect non-commerce proof that ShareShuffle fixes broken sharing generally.
+Acceptance: Detect /results?search_query; show visible video results; selected video becomes the shared URL.
+Notes: No affiliate angle; supports product story.
+
+SS-014 [P2] Share Rescue — Blue hover-box page selection mode
+Status: Idea | Surface: Chrome extension content script | Target: Later | Complexity: L | Cost/Risk: Medium
+User story: As a user, I want to click the exact product/video/card on the page that I mean to share.
+Why: Demo magic; feels like 'rescued' sharing.
+Acceptance: User enters pick mode; hover outlines eligible share items; click captures title/image/url; Esc cancels.
+Notes: Sexy but more complex and more review-sensitive.
+
+SS-015 [P1] Share Rescue — Warn-only fallback
+Status: Built/extend | Surface: Web + extension | Target: 0.1.2 | Complexity: S | Cost/Risk: Low
+User story: As a user, I still want help even if ShareShuffle cannot extract choices.
+Why: Tiny, sustainable rescue that avoids bad shares.
+Acceptance: For search/category pages, display: 'This looks like search results. Open the exact item first, or save the search if that is what you mean.'
+Notes: Do not scold. Rescue tone.
+
+SS-016 [P1] Web app — Homepage feature language refresh
+Status: Built | Surface: Home page | Target: Patch 30 | Complexity: S | Cost/Risk: Low
+User story: As a first-time visitor, I want to understand that ShareShuffle sends recommendations, not just links.
+Why: Positions product beyond affiliate tagging.
+Acceptance: Homepage adds Share Rescue, Image Rescue, message-ready sharing, affiliate-aware language without removing existing sections.
+Notes: Tagline: Send the thing you meant to send.
+
+SS-017 [P1] Web app — Mobile creator / paste flow
+Status: Built/ongoing | Surface: /app | Target: Live | Complexity: M | Cost/Risk: Low
+User story: As a phone user, I want to paste a product link, add note/shelf, and send it again.
+Why: Supports non-extension use cases and PWA direction.
+Acceptance: App has product URL input, paste button, preview filled message, note/shelf fields, and last share state.
+Notes: Current UI shows search-result warning.
+
+SS-018 [P2] PWA — Add to Home Screen messaging
+Status: Built/ongoing | Surface: /app PWA | Target: Live | Complexity: S | Cost/Risk: Low
+User story: As a mobile user, I want ShareShuffle to behave like an app without installing from an app store.
+Why: Important low-cost mobile path.
+Acceptance: Add to Home Screen CTA present; app remains usable as standalone PWA.
+Notes: Later: share target support.
+
+SS-019 [P1] PWA — Native Web Share outbound
+Status: Backlog | Surface: Web/PWA | Target: Soon | Complexity: M | Cost/Risk: Low
+User story: As a user, I want one Share button that opens the iOS/Android share sheet.
+Why: More convenient than copy/paste; no Xcode needed.
+Acceptance: Use navigator.share where available; keep Copy URL and Copy Text separate; fallback to SMS/email.
+Notes: Desired: Copy URL = short link; Copy Text = full 'Shared via Shuffle' message.
+
+SS-020 [P2] PWA — PWA Share Target inbound
+Status: Backlog | Surface: PWA manifest/service worker | Target: Later | Complexity: L | Cost/Risk: Medium
+User story: As a phone user, I want to send a product URL to ShareShuffle from the phone share sheet.
+Why: Transforms mobile capture workflow.
+Acceptance: ShareShuffle appears as a share target; inbound URL pre-fills creator flow.
+Notes: Requires careful testing across iOS/Android.
+
+SS-021 [P0] Shelf pages — Rich's Bass Gear demo shelf
+Status: In progress | Surface: shelf.html/data | Target: Now | Complexity: M | Cost/Risk: Low
+User story: As a prospective user/reviewer, I want a polished real-world shelf demo.
+Why: Demo credibility; bass gear niche is authentic.
+Acceptance: Bass gear shelf loads, cards look polished, duplicates cleaned, affiliate buttons correct, public route works.
+Notes: Use Rich's bass products and personal notes.
+
+SS-022 [P1] Shelf design — Stable editorial card rails
+Status: Built/ongoing | Surface: shelf.html | Target: Live | Complexity: M | Cost/Risk: Low
+User story: As a visitor, I want product cards to look premium but not chaotic.
+Why: Preserves 'hot zoom' look while avoiding giant unpredictable images.
+Acceptance: Fixed crop window, consistent card body height, clamped title/note, stable button row, intentional placeholder.
+Notes: Keep moodboard energy.
+
+SS-023 [P0] Shelves — No-user legacy shelf route support
+Status: Built | Surface: shelfData/shelf.html | Target: Live | Complexity: S | Cost/Risk: Low
+User story: As a legacy extension share, I need shelves created without handleSlug to still render.
+Why: Protects Chrome review and old links.
+Acceptance: shelf.html?s=bass-gear works even without u=rich.
+Notes: Do not break while adding username routing.
+
+SS-024 [P1] Routing — Username routing
+Status: In progress | Surface: Functions/router | Target: Soon | Complexity: L | Cost/Risk: Medium
+User story: As a creator, I want clean public shelf/profile routes like shfl.me/@rich/bass-gear/abc12.
+Why: Better personal sharing and brand value.
+Acceptance: Support shfl.me/@rich/shelf/share style routes; canonical redirects avoid duplicate/confusing pages.
+Notes: Current link in test: shfl.me/@rich/bass-gear/3ycrk.
+
+SS-025 [P0] Routing — Short-link route cleanup
+Status: Built/ongoing | Surface: Functions/router | Target: Live | Complexity: M | Cost/Risk: Medium
+User story: As a recipient, I want shfl.me links to land cleanly on the right content.
+Why: Core user experience.
+Acceptance: shfl.me/{id} resolves; old shfl.me/share.html?id= redirects to shareshuffle.com/share.html?id=.
+Notes: Do not let short-link domain serve old app pages incorrectly.
+
+SS-026 [P1] Admin — Clean up duplicate/old test shares
+Status: Backlog | Surface: Admin/data | Target: Soon | Complexity: S | Cost/Risk: Low
+User story: As product owner, I want the demo shelf to avoid duplicates and junk test data.
+Why: Polish for reviewers and friends.
+Acceptance: Admin can identify duplicate normalized title/url/image; old test entries hidden/deleted.
+Notes: Do carefully; preserve useful test cases.
+
+SS-027 [P2] Admin — Minimal password-protected admin/dashboard
+Status: Built/ongoing | Surface: admin/dashboard | Target: Live-ish | Complexity: M | Cost/Risk: Medium
+User story: As product owner, I want basic control pages without exposing management actions publicly.
+Why: Operational hygiene.
+Acceptance: Admin titles one-line ellipsis; simple password gating; no sensitive secrets in client.
+Notes: Not a full auth system yet.
+
+SS-028 [P1] Firestore — Rules in repo / GitHub-driven deploy
+Status: Backlog | Surface: Repo/deploy | Target: Soon | Complexity: M | Cost/Risk: Low
+User story: As product owner, I want Firebase rules versioned with the site.
+Why: Safer deployments; easier rebuild.
+Acceptance: firestore.rules is committed; deploy command deploys hosting, functions, firestore:rules.
+Notes: CLI EACCES issue noted on Mac.
+
+SS-029 [P2] Waitlist — Firebase waitlist capture
+Status: Built | Surface: Home/investor Firebase | Target: Live | Complexity: M | Cost/Risk: Low
+User story: As an interested visitor, I want to join a waitlist and share what kind of recommendations I care about.
+Why: Captures demand before full auth.
+Acceptance: waitlist collection captures email, firstName, source, interestType, favoriteRecommendation, createdAt=request.time, pageUrl.
+Notes: Later: confirmation email.
+
+SS-030 [P1] Messaging — Message-ready share text
+Status: Built/ongoing | Surface: Web/extension | Target: Live-ish | Complexity: M | Cost/Risk: Low
+User story: As a sender, I want a share message that explains the recommendation, not just a link.
+Why: Makes recommendations human and clear.
+Acceptance: Text includes creator handle/name, personal note, product title, and shfl.me link.
+Notes: Example shown in iMessage: 'rich shared via Shuffle: This is my lottery bass…'
+
+SS-031 [P2] Messaging — SMS fallback / Message button
+Status: Backlog | Surface: Web/extension | Target: Soon | Complexity: S | Cost/Risk: Low
+User story: As a user, I want a quick way to send shares through Messages/SMS.
+Why: Convenience on mobile and desktop.
+Acceptance: Message button opens sms: fallback with prefilled message where supported.
+Notes: Keep separate from native Share.
+
+SS-032 [P3] Messaging — Email share fallback
+Status: Backlog | Surface: Web/extension | Target: Later | Complexity: S | Cost/Risk: Low
+User story: As a user, I want to send a recommendation by email.
+Why: Basic universal sharing path.
+Acceptance: Email button opens mailto with subject/body including note/title/link.
+Notes: Less urgent than SMS/native share.
+
+SS-033 [P0] Merchant UX — Dynamic merchant button labels
+Status: Built/ongoing | Surface: share/shelf cards | Target: Live | Complexity: S | Cost/Risk: Low
+User story: As a recipient, I want the button to say the actual merchant, not always Amazon.
+Why: Avoids weird Walmart/Amazon mismatch.
+Acceptance: Button label changes by merchant: View on Amazon, View at Walmart, View Store, etc.
+Notes: Earlier bug showed Amazon for Walmart.
+
+SS-034 [P2] Merchant UX — Supported merchant badge
+Status: Built | Surface: Chrome extension | Target: 0.1.1 | Complexity: S | Cost/Risk: Low
+User story: As a user browsing, I want to know when ShareShuffle supports the current site.
+Why: Makes extension feel present but unobtrusive.
+Acceptance: Extension badge uses plus sign + with tooltip 'ShareShuffle supports this site.'
+Notes: Supported domains: Amazon, Walmart, Target, Best Buy, eBay.
+
+SS-035 [P1] Security — Title/note link safety
+Status: Backlog/ongoing | Surface: Web/rendering | Target: Soon | Complexity: M | Cost/Risk: Medium
+User story: As a recipient, I do not want malicious/clickable junk in titles/notes.
+Why: Prevents accidental linkification/injection and confusing previews.
+Acceptance: URL characters in user text are escaped/sanitized; Amazon.com in title does not become clickable.
+Notes: Use escapeHtml and careful text rendering.
+
+SS-036 [P2] Brand — Simplify public brand around ShareShuffle + shfl.me
+Status: Decision pending | Surface: Brand/home/shelves | Target: Soon | Complexity: S | Cost/Risk: Low
+User story: As a visitor, I want one clear brand instead of ShelfMix confusion.
+Why: Cleaner launch/reviewer experience.
+Acceptance: Public pages primarily say ShareShuffle; ShelfMix can remain internal/collection wording.
+Notes: ShelfMix.com owned but not replacing ShareShuffle.
+
+SS-037 [P2] Brand — S-node logo/icon system
+Status: Built/ongoing | Surface: Assets | Target: Live | Complexity: M | Cost/Risk: Low
+User story: As a user, I want the app icon to feel recognizable and polished.
+Why: Brand trust and home screen presence.
+Acceptance: Baby blue #EEF6FF icon background; transparent favicon small; dark-mode favicon white-on-black.
+Notes: Avoid gooey S, avoid circle, include padding.
+
+SS-038 [P1] Build ops — Build status page
+Status: Built | Surface: status.html/_build | Target: Live | Complexity: S | Cost/Risk: Low
+User story: As product owner, I want to confirm static and function builds after deploy.
+Why: Prevents guessing after patches.
+Acceptance: Status page shows static build, function build, smoke test links.
+Notes: Next: clarify expected static vs expected function build.
+
+SS-039 [P0] Build ops — Folder-based patch install command
+Status: Built process | Surface: Workflow | Target: Ongoing | Complexity: S | Cost/Risk: Low
+User story: As Rich on Mac, I want patch commands that work when downloads auto-unzip.
+Why: Reduces friction and mistakes.
+Acceptance: Use ditto folder command first, then npm --prefix functions install, firebase deploy.
+Notes: Avoid only zip extraction instructions.
+
+SS-040 [P0] Chrome review — Do not turn compliance resubmission into feature release
+Status: Active constraint | Surface: Extension release mgmt | Target: Now | Complexity: S | Cost/Risk: Low
+User story: As product owner, I want to avoid re-triggering review risk with unrelated changes.
+Why: Maximizes approval odds.
+Acceptance: No new extension package unless Chrome asks/rejects; hosted changes okay if not breaking review routes.
+Notes: 0.1.2 waits after approval.
+
+SS-041 [P1] Roadmap — Affiliate-aware, not affiliate-first positioning
+Status: Built language | Surface: Home/copy | Target: Patch 30 | Complexity: S | Cost/Risk: Low
+User story: As a user, I want to feel like ShareShuffle improves sharing, not like it hijacks links.
+Why: Trust + product differentiation.
+Acceptance: Copy says recommendations first; affiliate links support service at no extra cost; compliant disclosure remains visible.
+Notes: Important for Chrome and users.
+
+SS-042 [P1] Roadmap — Universal 'thing you meant to send' thesis
+Status: Accepted | Surface: Strategy | Target: Ongoing | Complexity: S | Cost/Risk: Low
+User story: As a stakeholder, I want a clear north star for product decisions.
+Why: Guides features beyond commerce.
+Acceptance: North-star tagline is used in planning/copy: 'Send the thing you meant to send.'
+Notes: Related: 'Traditional sharing moves URLs. ShareShuffle moves recommendations.'
+
+SS-043 [P2] Future — Reverb/music gear merchant support
+Status: Idea | Surface: Extension/web | Target: Later | Complexity: M | Cost/Risk: Medium
+User story: As a musician, I want ShareShuffle to understand music gear marketplaces.
+Why: Authentic niche expansion for bass demo and affiliate/recommendation use.
+Acceptance: Detect Reverb product pages/search pages; merchant button/metadata work; possible affiliate program researched later.
+Notes: Fits Rich's bass gear audience.
+
+SS-044 [P3] Future — AI/LLM features held until affordable
+Status: Decision | Surface: Strategy | Target: Later | Complexity: L | Cost/Risk: High cost
+User story: As product owner, I want to avoid recurring LLM API fees until revenue supports them.
+Why: Keeps costs near zero.
+Acceptance: No LLM-dependent features in near-term roadmap.
+Notes: Use browser DOM, metadata, explicit user choices instead.
+
+SS-045 [P0] Future — No server scraping strategy
+Status: Decision | Surface: Architecture | Target: Ongoing | Complexity: S | Cost/Risk: Low
+User story: As product owner, I want to avoid bot/scraping risk from retailers.
+Why: Reduces blocks, dog pages, compliance worries.
+Acceptance: Search/result rescue uses extension DOM where possible; web app warns only; backend does not crawl Amazon search pages.
+Notes: Amazon dog pages validate this caution.
+
+COPY / LANGUAGE
+- Tagline: Send the thing you meant to send. (Home hero, Chrome listing, pitch) — Strongest north-star line.
+- Thesis: Traditional sharing moves URLs. ShareShuffle moves recommendations. (Homepage/investor) — Explains why this is bigger than short links.
+- Feature name: Share Rescue (Internal + possibly public feature heading) — Umbrella for search/image/preview/link rescue.
+- Feature name: Search Result Rescue (Feature card) — Detects search pages and helps user share the exact thing.
+- Feature name: Image Rescue (Feature card) — Pick best image / avoid bad thumbnails.
+- Feature name: Preview Rescue (Feature card) — Generate reliable social/iMessage preview cards.
+- UX line: This looks like search results. Which one did you mean? (Extension chooser) — Warm; not scolding.
+- UX line: I found a few things on this page. Pick what you meant to share. (Extension chooser) — Feels rescued.
+- UX line: ShareShuffle works best when you share the exact product you mean. (Web app paste warning) — Helpful guidance.
+- UX line: You can still save this search if the search itself is what you mean to recommend. (Web app paste warning) — Does not block user.
+- Commerce positioning: Affiliate-aware, not affiliate-first. (Internal/pitch) — Keeps trust front and center.
+- Commerce disclosure: ShareShuffle may earn from qualifying purchases at no additional cost to you. (Disclosure/UI) — Compliance-safe wording.
+- Feature line: From messy link to clear recommendation. (Homepage) — Compact benefit.
+- Feature line: Pick the best image, add your note, and send a clean shfl.me link. (Homepage/app) — Describes current value.
+- Chrome explanation: We updated the Chrome Web Store description and extension popup UI to prominently disclose affiliate usage before users create a share link. (Chrome appeal/reply) — Use if reviewer asks what changed.
+- Tone rule: Do not make the user feel corrected. Make them feel rescued. (UX principle) — Very Don't Make Me Think.
+
+ROUTES / COMMANDS
+- Build check: curl -s https://shareshuffle.com/_build — Check public app build — Static patch 30 may differ from function build 29.
+- Build check: curl -s https://shfl.me/_build — Check short domain function build — Function build currently 2026.06.13-chrome-affiliate-disclosure-29.
+- App: https://shareshuffle.com/app/ — Mobile/web creator paste flow — Search Result Rescue warning appears for search URLs.
+- Home: https://shareshuffle.com/ — Homepage copy/positioning — Should include new Share Rescue/tagline features without removing existing content.
+- Share data: https://shareshuffle.com/shareData?id=zhcaa — Server JSON for share page — Verify affiliate-safe store URL/image.
+- Share page: https://shareshuffle.com/share.html?id=zhcaa — Canonical share landing page — Should render from server data.
+- Short share: https://shfl.me/zhcaa — Short link redirect/render — Must work for social previews.
+- Shelf data: https://shareshuffle.com/shelfData?s=bass-gear — Legacy/no-user shelf JSON — Must keep working for extension/review.
+- Shelf page: https://shareshuffle.com/shelf.html?s=bass-gear — Legacy/no-user shelf page — Must render bass gear shelf.
+- Shelf page: https://shareshuffle.com/shelf.html?u=rich&s=bass-gear — User shelf page — Preferred public shelf route for Rich.
+- Test paste URL: https://www.amazon.com/s?k=Precision+Bass&crid=2KD27AZZCNI32&sprefix=precision+bass%2Caps%2C171&ref=nb_sb_noss_1 — Search Result Rescue test input — Should warn: Amazon search results.
+- Patch install: ditto "/Users/richwilliams/Downloads/PATCH-FOLDER/shareshuffle.github.io" "/Users/richwilliams/Documents/GitHub/shareshuffle.github.io" — Mac auto-unzip friendly patch install — Use folder-based ditto first.
+- Deploy: cd "/Users/richwilliams/Documents/GitHub/shareshuffle.github.io" && npm --prefix functions install && npx firebase-tools@latest deploy --only hosting,functions,firestore:rules — Deploy all core Firebase assets — Avoid extension package changes during review.
+
+RISKS / DECISIONS
+- LLM features: Hold — No LLM API fees until revenue/support exists. Revisit: Revenue, grants, or very clear ROI.
+- Server scraping Amazon/search pages: Avoid — Bot/dog-page/blocking/compliance risk; brittle. Revisit: Only if official API or user-authorized safe method exists.
+- Extension changes while in review: Avoid — Compliance-only resubmission is safest. Revisit: Chrome rejects and asks for changes, or approval completes.
+- ShelfMix public brand: De-emphasize for now — ShareShuffle + shfl.me is clearer during launch. Revisit: When shelf product identity needs separate brand.
+- Social unfurl consistency: Improve but don't obsess — iMessage/social previews are inconsistent by platform. Revisit: Repeated failures after OG hardening.
+- Blue hover selection mode: Later — High UX wow, but extension/content-script complexity and review sensitivity. Revisit: After chooser works and extension approval is stable.
+- Affiliate links: Compliant and transparent — Revenue engine, but must never feel deceptive. Revisit: Review feedback or user confusion.
+- Firestore/browser Firebase in public pages: Prefer server fetch endpoints — Avoid module/loading fragility on public routes. Revisit: Auth/user-owned write workflows mature.
+SS-046 [P0] Done — No blank fallback card state
+Status: Done in Patch 40 | Surface: Web app + Functions | Target: 2026.06.17-no-blank-fallback-40 | Complexity: M | Cost/Risk: Low
+User story: As a sender, I want shares with blocked product images to still look intentional, so my message preview never shows a blank box or "Image not added yet."
+Why: Blank/white image boxes killed the ShareShuffle magic in iMessage, especially for Guitar Center and Walmart links.
+Acceptance: If no product image can be cached, the share document uses imageStatus=placeholder-card; /c-{id} renders a clean fallback panel directly; /i-{id} returns a designed square fallback; no placeholder is uploaded as a fake product image.
+Notes: Patch 40 treats the ShareShuffle card as a final-card state, not as an uploaded image.
+
+SS-047 [P0] Done — Placeholder is not a product image
+Status: Done in Patch 40 | Surface: Web app create flow | Target: 2026.06.17-no-blank-fallback-40 | Complexity: S | Cost/Risk: Low
+User story: As product owner, I want the app to distinguish a user-uploaded product photo from a ShareShuffle fallback card.
+Why: Prior states said "uploaded photo" or placed a title-card inside the product image slot, confusing users and creating blank-looking cards.
+Acceptance: Choosing ShareShuffle card sets selectedImageSource=placeholder-card and does not create a data URL/product image upload; image caching is skipped for placeholder-card shares.
+Notes: This closes the white-box failure loop from patches 36-38.
+
+SS-048 [P1] Future — Improve image after share creation
+Status: Backlog | Surface: Web app | Target: Post Patch 40 | Complexity: M | Cost/Risk: Low
+User story: As a sender, I want to improve a fallback image after the share is already created, so the share completes quickly but I can still make it prettier.
+Why: Image rescue can be slow or unreliable; share creation should never feel frozen.
+Acceptance: If imageStatus=placeholder-card, Last Share Ready shows an "Improve image" action; selecting a backup image updates the share image/cache and refreshes imageVersion.
+Notes: Keeps "Don't Make Me Think" flow fast while preserving polish.
+
+SS-049 [P1] Future — Image rescue progress states
+Status: Backlog | Surface: Web app UX | Target: Post Patch 40 | Complexity: S | Cost/Risk: Low
+User story: As a user, I want clear progress messages while ShareShuffle searches/caches images, so I know the app is working and not frozen.
+Why: Patch 36 showed that long create time feels broken even when it completes.
+Acceptance: Progress steps distinguish looking for backup images, saving image, falling back to ShareShuffle card, and share created.
+Notes: Should not block creation beyond a short timeout.
+
+REPORTS / HANDOFF ADDED
+- reports/SHARESHUFFLE_PATCH_40_REPORT.md — documents the no-blank fallback decision, implementation, and test plan.
+- reports/SHARESHUFFLE_NEW_CHAT_HANDOFF_20260617.md — new chat summary covering domains, Chrome review freeze, Share Rescue, Image Rescue, Patch 40, and next steps.
+
+SS-050 [P0] Done — URL-derived product identity for weak retailer titles
+Status: Done in Patch 41 | Surface: Web app + Functions | Target: 2026.06.17-url-title-image-refresh-41 | Complexity: M | Cost/Risk: Low
+User story: As a sender, I want ShareShuffle to use the product name hiding in the URL when the store only gives a brand title, so my recommendation title and image search are specific.
+Why: Guitar Center returned “Toms Line Engineering” while the URL contained “Used Toms Line Engineering BASS LIMITER Bass Effect Pedal,” causing Brave Image Rescue to search too broadly.
+Acceptance: Retailer URL slugs can supply the title; weak brand-only titles lose to stronger URL-derived product names; .gc and similar path extensions are stripped.
+Notes: Keeps “send the thing they meant to send” intact without asking the user to understand metadata failure.
+
+SS-051 [P0] Done — Refresh Image Rescue after title edits
+Status: Done in Patch 41 | Surface: Web app UX | Target: 2026.06.17-url-title-image-refresh-41 | Complexity: S | Cost/Risk: Low
+User story: As a sender, when I fix or improve the title, I want ShareShuffle to look for better images automatically.
+Why: If a weak title caused weak Brave results, the natural correction is to edit the title; the app should then refresh image candidates without another button.
+Acceptance: Title edits debounce and rerun Image Rescue when the image is missing, placeholder-card based, or currently image-rescue based; stale rescue image URLs are cleared when refreshing.
+Notes: This is the “Don’t Make Me Think” version of a manual “redo Brave search” button.
+
+REPORTS / HANDOFF ADDED
+- reports/SHARESHUFFLE_PATCH_41_REPORT.md — documents URL-derived product identity and automatic image refresh after title edits.
+
+SS-052 — Gracefully handle missing Firebase Storage bucket
+Status: Done in Patch 42
+Notes: uploadShareImage now downgrades to placeholder-card instead of returning a hard 500 when Storage is unavailable.
+
+SS-053 — Do not let fallback image updates fail Firestore permissions
+Status: Done in Patch 42
+Notes: Browser fallback writes avoid direct image mutation; rules also allow image maintenance if needed.
+
+SS-054 — Reject blank/mostly-white image candidates server-side
+Status: Done in Patch 42
+Notes: Server image fetch now rejects very light/flat or transparent image buffers before card render.
+
+SS-055 — Hide broken image candidates in picker
+Status: Done in Patch 42
+Notes: Candidate thumbnails that fail browser loading are hidden and disabled.
+
+SS-056 | Done | Image pipeline | First-party Firestore image cache fallback when Firebase Storage is missing/failing.
+SS-057 | Done | Image pipeline | Update share image field to /i-{shareId} after successful caching so third-party URLs do not remain the canonical share image.
+SS-058 | Done | Image pipeline | Extend selected-image cache wait window to reduce false fallback title cards.
+SS-059 | Future | Image pipeline | Add background retry queue for slow third-party image hosts so shares can improve after creation.
+
+
+SS-060 — Trim note/title whitespace before save and SMS body generation
+Status: Done in Patch 44 | Surface: Web app + Functions | Target: 2026.06.17-share-text-polish-44 | Complexity: S | Cost/Risk: Low
+Notes: Share notes are now normalized through cleanShareNote / cleanOgNote so copy text and social cards do not preserve accidental trailing quote/space artifacts.
+
+SS-061 — Normalize accidental wrapping quote spacing
+Status: Done in Patch 44 | Surface: Web app + Functions | Target: 2026.06.17-share-text-polish-44 | Complexity: S | Cost/Risk: Low
+Notes: Internal quotes like "taxi" remain, but leading/trailing straight or smart quotes around the whole note are stripped before ShareShuffle adds its own smart quote wrapper.
+
+SS-062 — Keep note preview from awkwardly clipping
+Status: Done in Patch 44 | Surface: Social card text | Target: 2026.06.17-share-text-polish-44 | Complexity: S | Cost/Risk: Low
+Notes: Note truncation trims dangling punctuation/spacing before ellipsis.
+
+SS-063 — Confirm card image cached before showing success
+Status: Done in Patch 44 | Surface: Web app UX | Target: 2026.06.17-share-text-polish-44 | Complexity: S | Cost/Risk: Low
+Notes: The app now briefly checks the first-party /i-{id} route before saying Image cached. If the route is not ready yet, it says preview image is being prepared instead.
+
+
+SS-064 — Preserve cached image when resharing after note/title edits
+Status: Done in Patch 45
+Notes: Existing first-party /i-{id} images are cloned into the new share instead of being treated as invalid external image URLs.

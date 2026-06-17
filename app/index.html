@@ -47,6 +47,11 @@
     .pill-row button{border:1px solid #d8e2f0;background:#fff;color:var(--ss-ink);border-radius:999px;padding:7px 10px;font-weight:850;}
     .status{min-height:22px;margin:10px 2px 0;color:#1c4ed8;font-weight:850;font-size:.92rem;}
     .field-help{min-height:18px;margin:6px 2px 0;color:#4b647a;font-size:.82rem;line-height:1.25;}
+    .rescue-panel{display:none;margin:10px 2px 0;padding:12px 13px;border:1px solid rgba(13,110,253,.18);border-radius:18px;background:#eef6ff;color:#16335a;line-height:1.35;}
+    .rescue-panel strong{display:block;font-weight:950;margin-bottom:4px;color:#102033;}
+    .rescue-panel p{margin:5px 0 0;font-size:.9rem;color:#4b647a;}
+    .rescue-panel .rescue-query{display:inline-flex;margin-top:8px;max-width:100%;padding:6px 9px;border-radius:999px;background:white;color:#1c4ed8;font-size:.78rem;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rescue-panel .rescue-note{margin-top:9px;font-size:.82rem;color:#667085;}
     .image-preview{display:none;align-items:center;gap:10px;margin:8px 2px 0;padding:10px;border:1px solid #d8e2f0;border-radius:14px;background:#f8fbff;color:#4b647a;font-size:.86rem;line-height:1.25;}
     .image-preview img{width:58px;height:58px;border-radius:12px;object-fit:cover;background:#eef3fb;border:1px solid #d8e2f0;flex:0 0 auto;}
     .image-preview a{color:#0d6efd;font-weight:850;text-decoration:none;}
@@ -56,6 +61,8 @@
     .image-choice{border:2px solid transparent;background:white;border-radius:14px;padding:3px;cursor:pointer;min-height:72px;}
     .image-choice.selected{border-color:#0d6efd;box-shadow:0 0 0 3px rgba(13,110,253,.12);}
     .image-choice img{width:100%;height:68px;object-fit:cover;border-radius:10px;background:#eef3fb;display:block;}
+    .image-choice.placeholder{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:#1d4ed8;font-weight:900;font-size:.72rem;line-height:1.05;text-align:center;background:linear-gradient(135deg,#eef6ff,#fff7ed);min-height:76px;}
+    .image-choice.placeholder i{font-size:1.15rem;color:#0d6efd;}
     .image-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
     .hidden-file{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
     .image-source-pill{display:inline-flex;align-items:center;gap:6px;margin-top:8px;border-radius:999px;background:#eef6ff;color:#1d4ed8;font-weight:850;font-size:.78rem;padding:6px 9px;}
@@ -97,6 +104,7 @@
                         <button id="clearBtn" class="app-btn secondary" type="button"><i class="fa-solid fa-rotate-left"></i> Clear</button>
                     </div>
                     <div id="clipboardStatus" class="status"></div>
+                    <div id="shareRescue" class="rescue-panel" aria-live="polite"></div>
                 </div>
                 <div class="field">
                     <label for="title">Title <span class="optional">(optional)</span></label>
@@ -109,13 +117,13 @@
                 <div class="field">
                     <label for="shelfName">Share to shelf <span class="optional">(optional)</span></label>
                     <input id="shelfName" class="input" type="text" maxlength="100" placeholder="Bass Gear, Gift Ideas, Kitchen...">
-                    <div id="shelfUrlExample" class="field-help">ShelfMix.com/you/shelf-name</div>
+                    <div id="shelfUrlExample" class="field-help">shfl.me/you/shelf-name</div>
                     <div id="shelfPills" class="pill-row"></div>
                 </div>
                 <div class="field">
                     <label for="handle">@user <span class="optional">(optional, saved locally for later)</span></label>
                     <input id="handle" class="input" type="text" maxlength="60" placeholder="Rich, rchwms, Rich (*the remix)...">
-                    <div id="handleUrlExample" class="field-help">ShelfMix.com/rich-the-remix</div>
+                    <div id="handleUrlExample" class="field-help">shfl.me/rich-the-remix</div>
                 </div>
                 <div class="field">
                     <label for="imageUrl">Image <span class="optional">(optional, but recommended)</span></label>
@@ -128,7 +136,7 @@
                     <div id="selectedImageSource" class="image-source-pill" style="display:none;"><i class="fa-solid fa-check"></i><span></span></div>
                     <div id="previewStatus" class="field-help" aria-live="polite"></div>
                     <div id="imagePreview" class="image-preview"><img id="imagePreviewImg" alt="Product preview"><span id="imagePreviewText">Preview image found. You can replace it before saving.</span></div>
-                    <div id="imageChoices" class="image-choices"><div class="image-choices-title">Pick the best image</div><div id="imageChoiceGrid" class="image-choice-grid"></div></div>
+                    <div id="imageChoices" class="image-choices"><div id="imageChoicesTitle" class="image-choices-title">Pick the best image</div><div id="imageChoiceGrid" class="image-choice-grid"></div></div>
                 </div>
                 <button id="createBtn" class="app-btn primary" type="button" style="width:100%;margin-top:18px;"><i class="fa-solid fa-shuffle"></i> Create Share Link</button>
                 <div id="createStatus" class="status"></div>
@@ -171,7 +179,7 @@ const FIREBASE_CONFIG = {
 };
 
 const SHARE_BASE_URL = "https://shfl.me/";
-const SHELF_BASE_URL = "https://shelfmix.com/";
+const SHELF_BASE_URL = "https://shfl.me/";
 
 const AFFILIATE_CONFIG = {
   amazon: { tag: "shareshuffle-20" },
@@ -211,7 +219,7 @@ function extractPrimaryUrl(text = "") {
   // Pull every URL-like thing from messy share text, then choose the URL
   // most likely to be the actual product link. Amazon share sheets often
   // include text like "Rich sent you this from Amazon.com — amzn.to/abc".
-  const matches = raw.match(/https?:\/\/[^\s<>"']+|\b(?:amzn\.to|a\.co|walmart\.com|www\.walmart\.com|amazon\.com|www\.amazon\.com|target\.com|www\.target\.com|bestbuy\.com|www\.bestbuy\.com|ebay\.com|www\.ebay\.com)\/[^\s<>"']+/gi) || [];
+  const matches = raw.match(/https?:\/\/[^\s<>"']+|\b(?:amzn\.to|a\.co|walmart\.com|www\.walmart\.com|amazon\.com|www\.amazon\.com|target\.com|www\.target\.com|bestbuy\.com|www\.bestbuy\.com|guitarcenter\.com|www\.guitarcenter\.com|musiciansfriend\.com|www\.musiciansfriend\.com|sweetwater\.com|www\.sweetwater\.com|reverb\.com|www\.reverb\.com|ebay\.com|www\.ebay\.com)\/[^\s<>"']+/gi) || [];
 
   const normalized = matches
     .map((url) => url.startsWith("http") ? url : `https://${url}`)
@@ -231,10 +239,14 @@ function extractPrimaryUrl(text = "") {
       if (host === "walmart.com" || host.endsWith(".walmart.com")) score += 75;
       if (host === "target.com" || host.endsWith(".target.com")) score += 70;
       if (host === "bestbuy.com" || host.endsWith(".bestbuy.com")) score += 70;
+      if (host === "guitarcenter.com" || host.endsWith(".guitarcenter.com")) score += 70;
+      if (host === "musiciansfriend.com" || host.endsWith(".musiciansfriend.com")) score += 68;
+      if (host === "sweetwater.com" || host.endsWith(".sweetwater.com")) score += 68;
+      if (host === "reverb.com" || host.endsWith(".reverb.com")) score += 68;
       if (host === "ebay.com" || host.endsWith(".ebay.com")) score += 70;
 
       // Prefer URLs that look like product links.
-      if (/\/(?:dp|gp\/product|ip|p|itm)\//i.test(url.pathname)) score += 15;
+      if (/\/(?:dp|gp\/product|ip|p|itm|product|pd)\//i.test(url.pathname)) score += 15;
       if (url.pathname.length > 1) score += 5;
 
       return score;
@@ -255,9 +267,36 @@ function getAffiliateMerchant(originalUrl = "") {
     if (hostname === "walmart.com" || hostname.endsWith(".walmart.com") || hostname.includes("goto.walmart.com")) return "walmart";
     if (hostname === "target.com" || hostname.endsWith(".target.com")) return "target";
     if (hostname === "bestbuy.com" || hostname.endsWith(".bestbuy.com")) return "bestbuy";
+    if (hostname === "guitarcenter.com" || hostname.endsWith(".guitarcenter.com")) return "guitarcenter";
+    if (hostname === "musiciansfriend.com" || hostname.endsWith(".musiciansfriend.com")) return "musiciansfriend";
+    if (hostname === "sweetwater.com" || hostname.endsWith(".sweetwater.com")) return "sweetwater";
+    if (hostname === "reverb.com" || hostname.endsWith(".reverb.com")) return "reverb";
     if (hostname === "ebay.com" || hostname.endsWith(".ebay.com")) return "ebay";
     return "direct";
   } catch { return "direct"; }
+}
+
+function merchantDisplayName(merchant = "") {
+  const names = {
+    amazon: "Amazon",
+    walmart: "Walmart",
+    target: "Target",
+    bestbuy: "Best Buy",
+    ebay: "eBay",
+    guitarcenter: "Guitar Center",
+    musiciansfriend: "Musician's Friend",
+    sweetwater: "Sweetwater",
+    reverb: "Reverb",
+    direct: "Direct"
+  };
+  return names[String(merchant || "").toLowerCase()] || "Product";
+}
+
+function displayNameFromHandle(value = "") {
+  const cleaned = String(value || "").trim().replace(/^@+/, "");
+  if (!cleaned) return "";
+  if (cleaned.toLowerCase() === cleaned) return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  return cleaned;
 }
 
 function buildAmazonAffiliateUrl(originalUrl) {
@@ -387,7 +426,7 @@ function buildHandleShareUrl({ handleSlug = "", shelfSlug = "", id = "" } = {}) 
   const shareId = canonicalShareId(id) || String(id || "").trim().toLowerCase();
 
   // Keep individual item links as short as possible for text/iMessage.
-  // Shelves/profiles get the richer ShelfMix routes; item shares are SHFL.ME/a2c4e.
+  // Shelves/profiles get readable shfl.me routes; item shares are SHFL.ME/a2c4e.
   return buildShareUrl(shareId);
 }
 
@@ -400,7 +439,7 @@ function routeToDestination({ hostname = "", pathname = "/", search = "" } = {})
   if (!parts.length) return { href: "/", replace: false, canonicalPath: "/" };
 
   const first = parts[0] || "";
-  if (["app", "share.html", "shelf.html", "index.html", "status.html", "_status", "_build", "img", "getpreview", "ogimage"].includes(first)) return null;
+  if (["app", "share.html", "shelf.html", "index.html", "status.html", "_status", "_build", "img", "getpreview", "imagerescue", "ogimage"].includes(first)) return null;
   if (/^(?:i-|~|-)[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(first)) return null;
 
   // Root short links: /A2C4E, /a2c4e, /A2c4E all resolve to the same share.
@@ -449,9 +488,28 @@ function firstNameOrDisplay(value = "") {
   return cleaned.split(/\s+/)[0].slice(0, 40);
 }
 
+function stripWrappingQuotes(value = "") {
+  let text = String(value || "").replace(/\s+/g, " ").trim();
+  // People often type a quote at the end because they know the message will be quoted.
+  // Keep internal quotes like "taxi", but remove accidental wrapping/trailing quote marks.
+  for (let i = 0; i < 3; i += 1) {
+    const next = text
+      .replace(/^[\s"“”'‘’]+/, "")
+      .replace(/[\s"“”'‘’]+$/, "")
+      .trim();
+    if (next === text) break;
+    text = next;
+  }
+  return text.replace(/\s+([?.!,;:])/g, "$1").trim();
+}
+
+function cleanShareNote(value = "", max = 180) {
+  return smartTruncate(stripWrappingQuotes(neutralizeText(value || "")), max);
+}
+
 function buildMessage({ title, note, shareUrl, handleDisplay = "" }) {
   const cleanProductTitle = smartTruncate(cleanTitle(title), 86);
-  const cleanNote = smartTruncate(neutralizeText(note).trim(), 150);
+  const cleanNote = cleanShareNote(note, 150);
   const cleanShareUrl = shareUrlForOpening(shareUrl || "").replace(/\/+$/g, "");
   const signature = firstNameOrDisplay(handleDisplay);
   return [
@@ -463,9 +521,69 @@ function buildMessage({ title, note, shareUrl, handleDisplay = "" }) {
   ].filter((line) => line !== null && line !== undefined).join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
+function titleFromProductUrl(url = "") {
+  try {
+    const parsed = new URL(url);
+    const parts = decodeURIComponent(parsed.pathname)
+      .split("/")
+      .filter(Boolean)
+      .map(part => part.replace(/\.(?:html?|aspx?|php|gc)$/i, ""))
+      .filter(Boolean)
+      .filter(part => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear)$/i.test(part))
+      .filter(part => !/^\d{4,}$/.test(part))
+      .filter(part => !/^[A-Z0-9]{10}$/i.test(part));
+
+    const scored = parts
+      .map(part => ({
+        part,
+        score: part.length + ((part.match(/[-_]/g) || []).length * 8) + (/bass|limiter|pedal|effect|guitar|amp|keyboard|drum|used|new/i.test(part) ? 18 : 0)
+      }))
+      .sort((a, b) => b.score - a.score);
+
+    const best = scored[0]?.part || "";
+    if (!best || best.length < 4) return "";
+    return best
+      .replace(/[-_+]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, letter => letter.toUpperCase());
+  } catch {
+    return "";
+  }
+}
+
+function isWeakPreviewTitle(title = "", url = "") {
+  const clean = cleanTitle(title);
+  if (!clean || isGenericAutoTitle(clean)) return true;
+  const merchant = merchantDisplayName(getAffiliateMerchant(url));
+  const merchantLoose = merchant.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  const cleanLoose = clean.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  if (merchantLoose && cleanLoose === merchantLoose) return true;
+  const urlTitle = titleFromProductUrl(url);
+  const urlLoose = urlTitle.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  return Boolean(urlLoose && cleanLoose && urlLoose.includes(cleanLoose) && urlLoose.length >= cleanLoose.length + 8);
+}
+
+function bestPreviewTitle(previewTitle = "", url = "") {
+  const urlTitle = titleFromProductUrl(url);
+  const cleanPreview = cleanTitle(previewTitle || "");
+  if (urlTitle && isWeakPreviewTitle(cleanPreview, url)) return cleanTitle(urlTitle);
+  return cleanPreview || cleanTitle(urlTitle || "");
+}
+
+function rescueQueryFromTitleAndUrl(title = "", url = "") {
+  const clean = cleanTitle(title || "");
+  const urlTitle = cleanTitle(titleFromProductUrl(url) || "");
+  if (urlTitle && (!clean || isWeakPreviewTitle(clean, url))) return urlTitle;
+  if (urlTitle && clean && urlTitle.toLowerCase().includes(clean.toLowerCase()) && urlTitle.length > clean.length + 6) return urlTitle;
+  return clean || urlTitle;
+}
+
 function titleFromUrl(url = "") {
+  const productTitle = titleFromProductUrl(url);
+  if (productTitle) return cleanTitle(productTitle);
   const merchant = getAffiliateMerchant(url);
-  const names = { amazon: "Amazon", walmart: "Walmart", target: "Target", bestbuy: "Best Buy", ebay: "eBay" };
+  const names = { amazon: "Amazon", walmart: "Walmart", target: "Target", bestbuy: "Best Buy", ebay: "eBay", guitarcenter: "Guitar Center", musiciansfriend: "Musician's Friend", sweetwater: "Sweetwater", reverb: "Reverb" };
   return `Shared find${names[merchant] ? ` from ${names[merchant]}` : ""}`;
 }
 
@@ -485,6 +603,8 @@ function titleFromUrl(url = "") {
     let selectedImageName = "";
     let selectedImageSource = "";
     let previewImageChoices = [];
+    let titleRescueTimer = null;
+    let lastImageRescueQuery = "";
 
     function previewEndpoint() {
       const config = window.SHARESHUFFLE_CONFIG || {};
@@ -546,6 +666,70 @@ function titleFromUrl(url = "") {
       }
     }
 
+    function escapeHtml(value = "") {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function analyzeShareIntent(rawUrl = "") {
+      const candidate = normalizeMerchantUrlForInput(rawUrl);
+      if (!candidate || !/^https?:\/\//i.test(candidate)) return null;
+      try {
+        const parsed = new URL(candidate);
+        const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+        const path = parsed.pathname.toLowerCase();
+        const params = parsed.searchParams;
+        const query = params.get("k") || params.get("field-keywords") || params.get("search_query") || params.get("q") || params.get("searchTerm") || params.get("_nkw") || "";
+        const productishPath = /\/(?:dp|gp\/product|ip|p|itm)\//i.test(path);
+
+        if ((host === "amazon.com" || host.endsWith(".amazon.com")) && !productishPath && (path === "/s" || path.startsWith("/s/") || params.has("k") || params.has("field-keywords") || params.get("url") === "search-alias=aps")) {
+          return { service: "Amazon", thing: "product", query, headline: "This looks like Amazon search results.", guidance: "ShareShuffle works best when you share the exact product you mean. Open the item first, then paste that product page here.", saveAnyway: "You can still save this search if the search itself is what you mean to recommend." };
+        }
+        if ((host === "youtube.com" || host === "m.youtube.com") && path === "/results") {
+          return { service: "YouTube", thing: "video", query, headline: "This looks like YouTube search results.", guidance: "Open the exact video first, then share that video URL so your friend lands on the one you meant.", saveAnyway: "You can still save the search if the search itself is useful." };
+        }
+        if ((host === "google.com" || host.endsWith(".google.com")) && path === "/search") {
+          return { service: "Google", thing: "result", query, headline: "This looks like Google search results.", guidance: "If you mean one specific page, open that result first and paste the destination page instead.", saveAnyway: "You can still save the search if that is the recommendation." };
+        }
+        if ((host === "walmart.com" || host.endsWith(".walmart.com")) && (path.includes("/search") || params.has("query") || params.has("q"))) {
+          return { service: "Walmart", thing: "product", query: params.get("query") || params.get("q") || query, headline: "This looks like Walmart search results.", guidance: "Open the exact product first, then paste that product page for a cleaner recommendation.", saveAnyway: "You can still save this search if that is what you mean." };
+        }
+        if ((host === "target.com" || host.endsWith(".target.com")) && (path === "/s" || params.has("searchTerm"))) {
+          return { service: "Target", thing: "product", query, headline: "This looks like Target search results.", guidance: "Open the exact product first, then paste that product page for a cleaner recommendation.", saveAnyway: "You can still save this search if that is what you mean." };
+        }
+        if ((host === "ebay.com" || host.endsWith(".ebay.com")) && (path.includes("/sch") || params.has("_nkw"))) {
+          return { service: "eBay", thing: "item", query, headline: "This looks like eBay search results.", guidance: "Open the exact listing first, then paste that item page for a cleaner recommendation.", saveAnyway: "You can still save this search if that is what you mean." };
+        }
+        if ((host === "bestbuy.com" || host.endsWith(".bestbuy.com")) && (path.includes("/site/searchpage.jsp") || params.has("st"))) {
+          return { service: "Best Buy", thing: "product", query: params.get("st") || query, headline: "This looks like Best Buy search results.", guidance: "Open the exact product first, then paste that product page for a cleaner recommendation.", saveAnyway: "You can still save this search if that is what you mean." };
+        }
+      } catch {}
+      return null;
+    }
+
+    function renderShareRescue(rawUrl = $("productUrl")?.value || "") {
+      const panel = $("shareRescue");
+      if (!panel) return null;
+      const insight = analyzeShareIntent(rawUrl);
+      if (!insight) {
+        panel.style.display = "none";
+        panel.innerHTML = "";
+        return null;
+      }
+      panel.innerHTML = `
+        <strong><i class="fa-solid fa-life-ring"></i> ${escapeHtml(insight.headline)}</strong>
+        <p>${escapeHtml(insight.guidance)}</p>
+        ${insight.query ? `<span class="rescue-query">Search: ${escapeHtml(insight.query)}</span>` : ""}
+        <div class="rescue-note">${escapeHtml(insight.saveAnyway)}</div>
+      `;
+      panel.style.display = "block";
+      return insight;
+    }
+
     function normalizeMerchantUrlForInput(value = "") {
       const primary = extractPrimaryUrl(value) || value.trim();
       return decodeWalmartBlockedUrl(primary) || primary;
@@ -555,9 +739,9 @@ function titleFromUrl(url = "") {
       const handleSlug = normalizeHandle($("handle").value) || "you";
       const shelfSlug = makeSlug($("shelfName").value) || "shelf-name";
       const handleText = handleSlug === "you"
-        ? "ShelfMix.com/you"
-        : `ShelfMix.com/${handleSlug}`;
-      const shelfText = `ShelfMix.com/${handleSlug}/${shelfSlug}`;
+        ? "shfl.me/you"
+        : `shfl.me/${handleSlug}`;
+      const shelfText = `shfl.me/${handleSlug}/${shelfSlug}`;
       const handleEl = $("handleUrlExample");
       const shelfEl = $("shelfUrlExample");
       if (handleEl) handleEl.textContent = handleText;
@@ -570,6 +754,152 @@ function titleFromUrl(url = "") {
       if (select) {
         try { input.select(); input.setSelectionRange(0, input.value.length); } catch {}
       }
+    }
+
+
+    function imageRescueEndpoint() {
+      const config = window.SHARESHUFFLE_CONFIG || {};
+      const hostedHosts = config.previewHostedHosts || ["shareshuffle.com", "www.shareshuffle.com", "shfl.me", "www.shfl.me", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"];
+      if (hostedHosts.includes(location.hostname) || location.hostname.endsWith(".web.app") || location.hostname.endsWith(".firebaseapp.com")) return "/imageRescue";
+      return "https://imagerescue-tai5vntoaq-uc.a.run.app";
+    }
+
+    function getImageRescueCache() {
+      try { return JSON.parse(localStorage.getItem(IMAGE_RESCUE_CACHE_KEY) || "{}"); } catch { return {}; }
+    }
+
+    function setImageRescueCache(query, images) {
+      try {
+        const cache = getImageRescueCache();
+        cache[String(query || "").toLowerCase()] = { images: (images || []).slice(0, 5), savedAt: Date.now() };
+        const entries = Object.entries(cache).sort((a, b) => (b[1]?.savedAt || 0) - (a[1]?.savedAt || 0)).slice(0, 30);
+        localStorage.setItem(IMAGE_RESCUE_CACHE_KEY, JSON.stringify(Object.fromEntries(entries)));
+      } catch {}
+    }
+
+    function rescueQueryFromPreview(preview = {}, fallbackUrl = "") {
+      const title = rescueQueryFromTitleAndUrl($("title").value || preview.title || "", fallbackUrl);
+      return String(title || "").replace(/[“”"']/g, "").replace(/\s+/g, " ").trim().slice(0, 120);
+    }
+
+    function createShareShufflePlaceholderDataUrl() {
+      const title = cleanTitle($("title").value || titleFromUrl($("productUrl").value) || "Shared recommendation");
+      const merchant = getAffiliateMerchant($("productUrl").value);
+      const canvas = document.createElement("canvas");
+      canvas.width = 900;
+      canvas.height = 900;
+      const ctx = canvas.getContext("2d");
+      const bg = ctx.createLinearGradient(0, 0, 900, 900);
+      bg.addColorStop(0, "#eef6ff");
+      bg.addColorStop(1, "#fff7ed");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 900, 900);
+      ctx.fillStyle = "rgba(13,110,253,.10)";
+      ctx.beginPath(); ctx.arc(760, 120, 170, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(251,146,60,.18)";
+      ctx.beginPath(); ctx.arc(140, 780, 190, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#172033";
+      ctx.font = "900 46px Arial, sans-serif";
+      ctx.fillText("Shared via Shuffle", 70, 120);
+      ctx.fillStyle = "#2563eb";
+      ctx.font = "800 34px Arial, sans-serif";
+      ctx.fillText(merchant === "direct" ? "Product recommendation" : `${merchantDisplayName(merchant)} find`, 70, 178);
+      ctx.fillStyle = "#172033";
+      ctx.font = "900 58px Arial, sans-serif";
+      const words = title.split(" ");
+      let line = "";
+      let y = 330;
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > 740 && line) {
+          ctx.fillText(line, 70, y);
+          line = word;
+          y += 72;
+          if (y > 620) break;
+        } else {
+          line = test;
+        }
+      }
+      if (line && y <= 650) ctx.fillText(line, 70, y);
+      ctx.fillStyle = "#475569";
+      ctx.font = "700 30px Arial, sans-serif";
+      ctx.fillText("Image rescued by ShareShuffle", 70, 800);
+      return canvas.toDataURL("image/jpeg", 0.86);
+    }
+
+    function imageHost(url = "") {
+      try { return new URL(String(url || ""), location.origin).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; }
+    }
+
+    function isBotHostileMerchantImage(url = "", merchant = "") {
+      const host = imageHost(url);
+      const m = String(merchant || "").toLowerCase();
+      if (!host) return false;
+      // These stores often show an image in a browser but block card fetch/cache later.
+      // Treat their raw CDN/page images as discovery-only, not final share images.
+      if ((m === "guitarcenter" || m === "musiciansfriend") && /(^|\.)?(guitarcenter|musiciansfriend)\.com$/i.test(host)) return true;
+      if (m === "walmart" && /(^|\.)(walmartimages|walmart)\.com$/i.test(host)) return true;
+      return false;
+    }
+
+    function shouldReplaceAutoPreviewImageWithRescue(url = "", merchant = "") {
+      if (!url || selectedImageDataUrl) return false;
+      if (/image-rescue|uploaded|placeholder/i.test(String(selectedImageSource || ""))) return false;
+      return isBotHostileMerchantImage(url, merchant);
+    }
+
+    async function fetchJsonWithTimeout(url, timeoutMs = 8000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(url, { cache: "no-store", signal: controller.signal });
+        return await response.json().catch(() => ({}));
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function fetchImageRescueCandidates(query, { statusElementId = "previewStatus", merchant = "" } = {}) {
+      const cleanQuery = String(query || "").replace(/\s+/g, " ").trim();
+      if (!cleanQuery || cleanQuery.length < 3) return [];
+      const cacheKey = cleanQuery.toLowerCase();
+      const cached = getImageRescueCache()[cacheKey];
+      if (cached?.images?.length) return cached.images;
+      const endpoint = imageRescueEndpoint();
+      try {
+        setPreviewStatus("Store image blocked. Looking for backup images…", statusElementId);
+        const payload = await fetchJsonWithTimeout(`${endpoint}?q=${encodeURIComponent(cleanQuery)}&count=50&merchant=${encodeURIComponent(merchant || "")}`, 8000);
+        const rawImages = Array.isArray(payload.candidates) ? payload.candidates.map(item => item && (item.cachedUrl || item.image || item.previewUrl)).filter(Boolean) : (Array.isArray(payload.images) ? payload.images.filter(Boolean) : []);
+        const notRecursive = rawImages.filter(url => !isRecursiveShareShuffleImage(url));
+        const preferred = notRecursive.filter(url => !isBotHostileMerchantImage(url, merchant));
+        const images = (preferred.length ? preferred : notRecursive).slice(0, 5);
+        if (images.length) {
+          setImageRescueCache(cleanQuery, images);
+          return images;
+        }
+      } catch (error) {
+        console.warn("Image rescue candidates failed", error);
+      }
+      return [];
+    }
+
+    function isRecursiveShareShuffleImage(url = "") {
+      try {
+        const parsed = new URL(String(url || ""), location.origin);
+        const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+        const path = parsed.pathname.toLowerCase();
+        const isShuffleHost = ["shareshuffle.com", "shfl.me", "shelfmix.com", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"].includes(host);
+        if (!isShuffleHost) return false;
+        // Rescue image routes are safe product-image candidates. Social card routes are not.
+        if (/^\/rimg-[a-f0-9]{24}$/.test(path) || /^\/i-[a-z0-9]{5,}$/.test(path) || path === "/uploadshareimage") return false;
+        return /^\/c-[a-z0-9]/.test(path) || path.includes("cardimage") || path.includes("shareimage") || path.includes("shelfcardimage") || path.includes("ogimage");
+      } catch {
+        return false;
+      }
+    }
+
+    function cleanImageCandidateList(list = []) {
+      return [...new Set((list || []).filter(Boolean).filter(url => !isRecursiveShareShuffleImage(url)))];
     }
 
     function uploadEndpoint() {
@@ -620,28 +950,70 @@ function titleFromUrl(url = "") {
       return canvas.toDataURL("image/jpeg", 0.82);
     }
 
-    async function uploadSelectedShareImage(shareId, fallbackImageUrl = "") {
-      const imageDataUrl = selectedImageDataUrl || "";
-      const imageUrl = imageDataUrl ? "" : String(fallbackImageUrl || "").trim();
-      if (!imageDataUrl && !imageUrl) return null;
-      const response = await fetch(uploadEndpoint(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareId, imageDataUrl, imageUrl })
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || payload.error) throw new Error(payload.detail || payload.error || "Image cache failed");
-      return payload;
+    function imageUrlForCacheRequest(url = "") {
+      const raw = String(url || "").trim();
+      if (!raw) return "";
+      if (/^\/(i|rimg)-[a-z0-9]/i.test(raw)) return new URL(raw, SHARE_BASE_URL).href;
+      if (/^https?:\/\//i.test(raw)) return raw;
+      return raw;
     }
 
-    function setImageChoices(choices = []) {
-      previewImageChoices = [...new Set((choices || []).filter(Boolean))].slice(0, 8);
+    async function uploadSelectedShareImage(shareId, fallbackImageUrl = "") {
+      const imageDataUrl = selectedImageDataUrl || "";
+      const imageUrl = imageDataUrl ? "" : imageUrlForCacheRequest(fallbackImageUrl);
+      if (!imageDataUrl && !imageUrl) return null;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 24000);
+      try {
+        const response = await fetch(uploadEndpoint(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({ shareId, imageDataUrl, imageUrl })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.error) throw new Error(payload.detail || payload.error || "Image cache failed");
+        if (payload.imageRoute && $("imageUrl")) $("imageUrl").value = payload.imageRoute;
+        return payload;
+      } catch (error) {
+        if (error?.name === "AbortError") throw new Error("Image cache timed out");
+        throw error;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function waitForFirstPartyImage(imageRoute = "", { attempts = 6, delayMs = 450 } = {}) {
+      if (!imageRoute || !/^\/i(?:-|\/|$)/.test(imageRoute)) return false;
+      const url = `${imageRoute}${imageRoute.includes("?") ? "&" : "?"}ready=${Date.now()}`;
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          const response = await fetch(url, { cache: "no-store" });
+          const type = response.headers.get("content-type") || "";
+          if (response.ok && type.startsWith("image/")) {
+            const blob = await response.blob();
+            if (blob.size > 256) return true;
+          }
+        } catch (error) {
+          // Keep retrying briefly; the function/doc write may still be settling.
+        }
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+      return false;
+    }
+
+    function setImageChoices(choices = [], options = {}) {
+      previewImageChoices = cleanImageCandidateList(choices).slice(0, 8);
       const wrap = $("imageChoices");
       const grid = $("imageChoiceGrid");
+      const titleEl = $("imageChoicesTitle");
       if (!wrap || !grid) return;
       grid.innerHTML = "";
       const current = $("imageUrl").value.trim();
-      if (previewImageChoices.length < 2) {
+      const includePlaceholder = Boolean(options.includePlaceholder);
+      const source = options.source || "preview-choice";
+      if (titleEl) titleEl.textContent = options.title || "Pick the best image";
+      if (previewImageChoices.length < 2 && !includePlaceholder) {
         wrap.style.display = "none";
         return;
       }
@@ -652,26 +1024,62 @@ function titleFromUrl(url = "") {
         btn.title = `Use image ${index + 1}`;
         const safeUrl = url.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
         btn.innerHTML = `<img src="${safeUrl}" alt="Image option ${index + 1}">`;
+        const candidateImg = btn.querySelector("img");
+        if (candidateImg) {
+          candidateImg.onerror = () => {
+            btn.disabled = true;
+            btn.classList.add("broken");
+            btn.title = "This image would not load, so ShareShuffle will skip it.";
+            btn.style.display = "none";
+          };
+        }
         btn.addEventListener("click", () => {
           selectedImageDataUrl = "";
           selectedImageName = "";
-          selectedImageSource = "preview-choice";
+          selectedImageSource = source;
           $("imageUrl").value = url;
           $("imageFile").value = "";
-          setImageChoices(previewImageChoices);
+          setImageChoices(previewImageChoices, options);
           updateImagePreview();
           saveDraft();
         });
         grid.appendChild(btn);
       });
+      if (includePlaceholder) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "image-choice placeholder";
+        btn.title = "Use ShareShuffle placeholder";
+        btn.innerHTML = `<i class="fa-solid fa-layer-group"></i><span>ShareShuffle<br>card</span>`;
+        btn.addEventListener("click", () => {
+          // no-blank-card-fallback-40: a ShareShuffle card is a final-card state, not an uploaded product image.
+          selectedImageDataUrl = "";
+          selectedImageName = "ShareShuffle card";
+          selectedImageSource = "placeholder-card";
+          $("imageUrl").value = "";
+          $("imageFile").value = "";
+          updateImagePreview();
+          saveDraft();
+        });
+        grid.appendChild(btn);
+      }
       wrap.style.display = "block";
     }
 
-    function updateImagePreview() {
+    function updateImagePreview() { // no-blank-card-fallback-40
       const url = $("imageUrl").value.trim();
       const box = $("imagePreview");
       const img = $("imagePreviewImg");
       const text = $("imagePreviewText");
+
+      if (!selectedImageDataUrl && /placeholder|ShareShuffle card/i.test(String(selectedImageSource || selectedImageName || ""))) {
+        box.style.display = "flex";
+        img.style.display = "none";
+        img.removeAttribute("src");
+        text.textContent = "Using ShareShuffle card.";
+        setSelectedImageSource("A clean fallback card will be used if no product image works.");
+        return;
+      }
 
       if (selectedImageDataUrl) {
         box.style.display = "flex";
@@ -679,8 +1087,13 @@ function titleFromUrl(url = "") {
         img.onerror = null;
         img.onload = null;
         img.src = selectedImageDataUrl;
-        text.textContent = selectedImageName ? `Using uploaded photo: ${selectedImageName}` : "Using uploaded photo.";
-        setSelectedImageSource("Uploaded photo will be cached when you save.");
+        const isPlaceholder = /placeholder|ShareShuffle card/i.test(String(selectedImageSource || selectedImageName || ""));
+        text.textContent = isPlaceholder
+          ? "Using ShareShuffle card."
+          : (selectedImageName ? `Using your photo: ${selectedImageName}` : "Using your photo.");
+        setSelectedImageSource(isPlaceholder
+          ? "Clean fallback card will be saved when you create the share."
+          : "Your photo will be cached when you save.");
         return;
       }
 
@@ -719,7 +1132,8 @@ function titleFromUrl(url = "") {
         fields.forEach(id => { if (draft[id]) $(id).value = draft[id]; });
       updateImagePreview();
       updateRouteExamples();
-      } catch { updateRouteExamples(); }
+      renderShareRescue();
+      } catch { updateRouteExamples(); renderShareRescue(); }
     }
 
     function getShelves() {
@@ -836,7 +1250,7 @@ ${url}`;
       $("smsLastBtn").href = `sms:?&body=${encodedMessage}`;
       $("emailLastBtn").href = `mailto:?subject=${encodeURIComponent("I saw this and thought of you")}&body=${encodedMessage}`;
       const hint = $("lastShareHint");
-      if (hint) hint.textContent = "Now pick Message, Email, Share, Copy Text, or Open below.";
+      if (hint) hint.textContent = "Choose what to do next: message, email, share, copy text, or open.";
       $("lastSharePanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
       if (share.shelfUrl) {
         $("openShelfBtn").style.display = "inline-flex";
@@ -868,6 +1282,7 @@ ${url}`;
       if (incomingUrl) {
         $("clipboardStatus").textContent = params.get("source") === "share-target" ? "Link received from Share Sheet." : "Link loaded from URL.";
         saveDraft();
+        renderShareRescue(incomingUrl);
         fetchPreviewForUrl(incomingUrl, { onlyFillBlanks: true, statusElementId: "clipboardStatus" });
       }
     }
@@ -913,9 +1328,10 @@ ${url}`;
           throw new Error(preview.detail || preview.error || `Preview failed (${response.status})`);
         }
 
-        const nextTitle = cleanTitle(preview.title || "");
+        const nextTitle = bestPreviewTitle(preview.title || "", url);
         const nextDescription = neutralizeText(preview.description || "");
-        const nextImage = preview.image || "";
+        const rawNextImage = preview.image || "";
+        const nextImage = isRecursiveShareShuffleImage(rawNextImage) ? "" : rawNextImage;
         const previewBlocked = Boolean(preview.blocked || preview.blockedReason);
 
         const currentTitle = $("title").value.trim();
@@ -923,7 +1339,7 @@ ${url}`;
         if (nextTitle && canReplaceTitle) $("title").value = nextTitle;
         // Product descriptions are metadata, not a personal note. Keep the note field for the sender.
         // if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
-        const nextImages = Array.isArray(preview.images) ? preview.images.filter(Boolean) : [];
+        const nextImages = cleanImageCandidateList(Array.isArray(preview.images) ? preview.images : []);
         if (!previewBlocked && nextImage && (!onlyFillBlanks || !$("imageUrl").value.trim())) $("imageUrl").value = nextImage;
         setImageChoices(nextImages);
         updateImagePreview();
@@ -941,6 +1357,26 @@ ${url}`;
             ? "Preview filled. You can edit anything before saving."
             : "No clean preview found. Add a title or image manually.";
         setPreviewStatus(message, statusElementId);
+
+        const merchantForPreview = getAffiliateMerchant(url);
+        const imageNeedsRescue = (!nextImage || shouldReplaceAutoPreviewImageWithRescue(nextImage, merchantForPreview)) && (nextTitle || $("title").value.trim());
+        const shouldRescueImage = imageNeedsRescue && nextImages.length < 2;
+        if (shouldRescueImage) {
+          if (nextImage && shouldReplaceAutoPreviewImageWithRescue(nextImage, merchantForPreview)) {
+            $("imageUrl").value = "";
+            updateImagePreview();
+          }
+          const rescueQuery = rescueQueryFromPreview(preview, url);
+          const rescueImages = await fetchImageRescueCandidates(rescueQuery, { statusElementId, merchant: merchantForPreview });
+          if (rescueImages.length) {
+            setImageChoices(rescueImages, { title: "Pick a backup image", includePlaceholder: true, source: "image-rescue" });
+            setPreviewStatus(`Store image was blocked. Pick a backup image for “${smartTruncate(rescueQuery, 54)}.” The chosen image will be cached when you save.`, statusElementId);
+          } else {
+            setImageChoices([], { title: "Pick a backup image", includePlaceholder: true, source: "image-rescue" });
+            setPreviewStatus("Store image was blocked. I can use a clean ShareShuffle card, or you can upload a photo.", statusElementId);
+          }
+        }
+
         saveDraft();
         return preview;
       } catch (error) {
@@ -953,6 +1389,41 @@ ${url}`;
       } finally {
         clearTimeout(timeout);
       }
+    }
+
+
+    function scheduleTitleImageRescue() {
+      clearTimeout(titleRescueTimer);
+      titleRescueTimer = setTimeout(async () => {
+        const sourceUrl = normalizeMerchantUrlForInput($("productUrl").value);
+        if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return;
+        const merchant = getAffiliateMerchant(sourceUrl);
+        const query = rescueQueryFromTitleAndUrl($("title").value, sourceUrl);
+        if (!query || query.length < 3) return;
+
+        const currentImageSource = String(selectedImageSource || "");
+        const currentImageUrl = $("imageUrl").value.trim();
+        const rescueContext = /image-rescue|placeholder/i.test(currentImageSource) || previewImageChoices.length || !currentImageUrl;
+        if (!rescueContext || query.toLowerCase() === lastImageRescueQuery) return;
+        lastImageRescueQuery = query.toLowerCase();
+
+        if (/image-rescue/i.test(currentImageSource)) {
+          $("imageUrl").value = "";
+          selectedImageSource = "";
+          updateImagePreview();
+        }
+
+        setPreviewStatus(`Title updated. Looking for better images for “${smartTruncate(query, 54)}”…`, "previewStatus");
+        const rescueImages = await fetchImageRescueCandidates(query, { statusElementId: "previewStatus", merchant });
+        if (rescueImages.length) {
+          setImageChoices(rescueImages, { title: "Pick the best image", includePlaceholder: true, source: "image-rescue-title-refresh" });
+          setPreviewStatus(`I refreshed backup images for “${smartTruncate(query, 54)}.”`, "previewStatus");
+        } else {
+          setImageChoices([], { title: "Pick the best image", includePlaceholder: true, source: "image-rescue-title-refresh" });
+          setPreviewStatus("I could not find better backup images. The clean ShareShuffle card is still safe.", "previewStatus");
+        }
+        saveDraft();
+      }, 850);
     }
 
     function schedulePreviewLookup() {
@@ -981,7 +1452,8 @@ ${url}`;
         $("productUrl").value = url;
         focusProductUrl({ select: true });
         if (isGenericAutoTitle($("title").value)) $("title").value = "";
-        status.textContent = "Product link pasted. Looking up title and image…";
+        const rescue = renderShareRescue(url);
+        status.textContent = rescue ? "Link pasted. This may be search results, not one exact item." : "Product link pasted. Looking up title and image…";
         saveDraft();
         await fetchPreviewForUrl(url, { onlyFillBlanks: false, statusElementId: "clipboardStatus" });
       } catch (error) {
@@ -998,19 +1470,58 @@ ${url}`;
         status.textContent = "Add a product URL first.";
         return;
       }
+      const rescue = renderShareRescue(sourceUrl);
+      if (rescue) status.textContent = "Heads up: this looks like search results. Saving it anyway because you clicked Create.";
       $("createBtn").disabled = true;
       status.textContent = "Creating share link...";
       try {
         const id = await createUniqueId();
-        const handleDisplay = String(data.handle || "").trim().replace(/^@+/, "");
+        const handleDisplay = displayNameFromHandle(data.handle);
         const handleSlug = normalizeHandle(data.handle);
         const shelf = await createShelfIfNeeded(data.shelfName, handleSlug, handleDisplay);
         saveShelfName(data.shelfName);
         const affiliateUrl = buildAffiliateUrl(sourceUrl);
         const merchant = getAffiliateMerchant(sourceUrl);
         const title = cleanTitle(data.title || titleFromUrl(sourceUrl));
-        const note = neutralizeText(data.note || "");
-        const image = String(data.imageUrl || "").slice(0, 1900);
+        const note = cleanShareNote(data.note || "", 180);
+        const hasPlaceholderChoice = /placeholder|ShareShuffle card/i.test(String(selectedImageSource || selectedImageName || ""));
+        let placeholderCard = hasPlaceholderChoice && !selectedImageDataUrl && !data.imageUrl;
+        let imageCandidate = placeholderCard ? "" : String(data.imageUrl || "").slice(0, 1900);
+        let image = isRecursiveShareShuffleImage(imageCandidate) ? "" : imageCandidate;
+        const autoPreviewImageMayFail = shouldReplaceAutoPreviewImageWithRescue(image, merchant);
+        if (autoPreviewImageMayFail) {
+          image = "";
+          imageCandidate = "";
+          $("imageUrl").value = "";
+          status.textContent = `${merchantDisplayName(merchant)} image may not work in message cards. Looking for a backup image…`;
+        }
+
+        // Required image state: never let a final card render blank / "Image not added yet".
+        // If the store blocks images and the sender did not pick/upload one, try Brave rescue once.
+        // If that cannot be cached later, fall back to a designed ShareShuffle card.
+        if (!selectedImageDataUrl && !image) {
+          const rescueQuery = rescueQueryFromTitleAndUrl(title, sourceUrl);
+          if (rescueQuery) {
+            status.textContent = "Looking for a backup image…";
+            const rescueImages = await fetchImageRescueCandidates(rescueQuery, { statusElementId: "createStatus", merchant });
+            if (rescueImages.length) {
+              image = rescueImages[0];
+              imageCandidate = image;
+              $("imageUrl").value = image;
+              selectedImageSource = "image-rescue-auto";
+              setImageChoices(rescueImages, { title: "Pick a backup image", includePlaceholder: true, source: "image-rescue" });
+              updateImagePreview();
+            }
+          }
+          if (!image && !selectedImageDataUrl) {
+            placeholderCard = true;
+            selectedImageDataUrl = "";
+            selectedImageName = "ShareShuffle card";
+            selectedImageSource = "placeholder-card-auto";
+            status.textContent = "Using a clean ShareShuffle card so the share can finish.";
+            updateImagePreview();
+          }
+        }
 
         await setDoc(doc(db, "shares", id), {
           title,
@@ -1019,7 +1530,9 @@ ${url}`;
           merchant,
           affiliateApplied: affiliateUrl !== sourceUrl,
           note,
-          image,
+          image: placeholderCard ? "" : image,
+          imageStatus: placeholderCard ? "placeholder-card" : (image ? "url-pending" : "none"),
+          imageSource: placeholderCard ? "placeholder-card" : (selectedImageSource || ""),
           shelfName: shelf.shelfName,
           shelfSlug: shelf.shelfSlug,
           handleSlug,
@@ -1038,13 +1551,31 @@ ${url}`;
         if (!verifySnap.exists()) throw new Error(`Share document ${id} was not readable after save.`);
 
         let imageCacheResult = null;
-        if (selectedImageDataUrl || image) {
-          status.textContent = "Caching image for preview card...";
+        let firstPartyImageReady = false;
+        if (!placeholderCard && (selectedImageDataUrl || image)) {
+          status.textContent = "Saving image for the preview card…";
           try {
             imageCacheResult = await uploadSelectedShareImage(id, image);
+            if (imageCacheResult?.imageRoute) {
+              status.textContent = "Checking the cached card image…";
+              firstPartyImageReady = await waitForFirstPartyImage(imageCacheResult.imageRoute);
+            }
           } catch (imageError) {
-            console.warn("Image cache failed; share still works", imageError);
-            status.textContent = "Share created. Image cache did not finish, but the link works.";
+            console.warn("Image cache failed; trying ShareShuffle placeholder", imageError);
+            placeholderCard = true;
+            selectedImageDataUrl = "";
+            selectedImageName = "ShareShuffle card";
+            selectedImageSource = "placeholder-after-cache-fail";
+            imageCacheResult = { ok: true, imageStatus: "placeholder-card", imageSource: "placeholder-after-cache-fail" };
+            await setDoc(doc(db, "shares", id), {
+              cachedImagePath: "",
+              cachedImageContentType: "",
+              imageStatus: "placeholder-card",
+              imageSource: "placeholder-after-cache-fail",
+              imageUpdatedAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            }, { merge: true });
+            status.textContent = "The backup image could not be cached, so I used a clean ShareShuffle card instead.";
           }
         }
 
@@ -1057,11 +1588,11 @@ ${url}`;
 
         const message = buildMessage({ title, note, shareUrl: canonicalShareUrl, handleDisplay });
 
-        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, shareDisplayUrl, canonicalShareUrl, cardUrl: `${SHARE_BASE_URL}c-${id}`, imageUrl: `${SHARE_BASE_URL}i-${id}`, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, imageStatus: imageCacheResult?.imageStatus || (image ? "url-pending" : "none"), savedAt: Date.now() };
+        const payload = { id, title, note, originalUrl: sourceUrl, shareUrl, shareDisplayUrl, canonicalShareUrl, cardUrl: `${SHARE_BASE_URL}c-${id}`, imageUrl: `${SHARE_BASE_URL}i-${id}`, message, shelfName: shelf.shelfName, shelfSlug: shelf.shelfSlug, shelfUrl: shelf.shelfUrl, futurePath, imageStatus: imageCacheResult?.imageStatus || (placeholderCard ? "placeholder-card" : (image ? "url-pending" : "none")), savedAt: Date.now() };
         showLastShare(payload);
         try {
           await navigator.clipboard.writeText(message);
-          status.textContent = imageCacheResult ? `Copied: ${id}. Now pick Message, Email, Share, Copy Text, or Open below. Image cached.` : `Copied: ${id}. Now pick Message, Email, Share, Copy Text, or Open below.`;
+          status.textContent = firstPartyImageReady ? `Copied: ${id}. Choose what to do next below. Image cached.` : (imageCacheResult ? `Copied: ${id}. Choose what to do next below. Preview image is being prepared.` : `Copied: ${id}. Choose what to do next below.`);
         } catch (clipboardError) {
           console.warn("Clipboard write failed", clipboardError);
           status.textContent = `Share created: ${id}. Tap Copy below if Safari blocked auto-copy.`;
@@ -1076,7 +1607,7 @@ ${url}`;
       }
     }
 
-    fields.forEach(id => $(id).addEventListener("input", () => { saveDraft(); if (id === "handle" || id === "shelfName") updateRouteExamples(); }));
+    fields.forEach(id => $(id).addEventListener("input", () => { saveDraft(); if (id === "handle" || id === "shelfName") updateRouteExamples(); if (id === "title") scheduleTitleImageRescue(); }));
     $("imageUrl").addEventListener("input", () => { if ($("imageUrl").value.trim()) { selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = "url"; $("imageFile").value = ""; } updateImagePreview(); saveDraft(); });
     $("pickImageBtn").addEventListener("click", () => $("imageFile").click());
     $("clearImageBtn").addEventListener("click", () => { selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; $("imageUrl").value = ""; setImageChoices([]); updateImagePreview(); saveDraft(); });
@@ -1104,14 +1635,15 @@ ${url}`;
       const currentProductUrl = $("productUrl").value.trim();
       const fixed = normalizeMerchantUrlForInput(currentProductUrl);
       if (fixed && fixed !== currentProductUrl && isWalmartBlockedUrl(currentProductUrl)) $("productUrl").value = fixed;
+      renderShareRescue(fixed || currentProductUrl);
       schedulePreviewLookup();
     });
-    $("productUrl").addEventListener("blur", () => fetchPreviewForUrl($("productUrl").value, { onlyFillBlanks: true }));
+    $("productUrl").addEventListener("blur", () => { renderShareRescue(); fetchPreviewForUrl($("productUrl").value, { onlyFillBlanks: true }); });
     $("pasteBtn").addEventListener("pointerdown", () => focusProductUrl({ select: true }));
     $("pasteBtn").addEventListener("click", pasteFromClipboard);
     $("selectUrlBtn").addEventListener("pointerdown", () => focusProductUrl({ select: true }));
     $("selectUrlBtn").addEventListener("click", () => focusProductUrl({ select: true }));
-    $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; setImageChoices([]); updateImagePreview(); saveDraft(); $("clipboardStatus").textContent = "Cleared."; });
+    $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; setImageChoices([]); updateImagePreview(); saveDraft(); $("clipboardStatus").textContent = "Cleared."; renderShareRescue(); });
     $("createBtn").addEventListener("click", createShare);
     $("copyUrlBtn").addEventListener("click", async () => {
       if (!lastShare) return;
@@ -1135,7 +1667,7 @@ ${url}`;
       }
     });
     $("nativeShareBtn").addEventListener("click", nativeShareLast);
-    $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; setImageChoices([]); updateImagePreview(); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; });
+    $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; setImageChoices([]); updateImagePreview(); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; renderShareRescue(); });
 
     fetch("/assets/build-info.json", { cache: "no-store" })
       .then(r => r.ok ? r.json() : null)

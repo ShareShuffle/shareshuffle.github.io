@@ -1,0 +1,3 @@
+Patch 44 — share text polish and cache-ready wording
+Build: 2026.06.17-share-text-polish-44aa
+Chrome extension package: untouched

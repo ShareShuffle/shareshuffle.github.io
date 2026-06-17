@@ -1,0 +1,4 @@
+ShareShuffle patch 33
+Patch ID: 20260616-1532-image-rescue-brave-33
+Purpose: Image Rescue with Brave Search API candidates and designed fallback placeholder.
+Apply rule: this folder contains patch files directly. Use ditto "$PATCH_DIR" "/Users/richwilliams/Documents/GitHub/shareshuffle.github.io".

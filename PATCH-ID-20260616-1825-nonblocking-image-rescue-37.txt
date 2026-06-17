@@ -1,0 +1,1 @@
+shareshuffle patch 37: nonblocking image rescue and bot-hostile merchant guardrails

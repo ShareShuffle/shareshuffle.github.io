@@ -1,0 +1,5 @@
+ShareShuffle Patch 41
+Build: 2026.06.17-url-title-image-refresh-41
+Focus: URL-derived product titles + automatic image rescue refresh after title edits
+
+This hosted web/functions patch does not modify or package the Chrome extension.

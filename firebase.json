@@ -21,6 +21,20 @@
         }
       },
       {
+        "source": "/imageRescue",
+        "function": {
+          "functionId": "imageRescue",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/rimg-**",
+        "function": {
+          "functionId": "rescueImage",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "/_build",
         "function": {
           "functionId": "getBuildInfo",

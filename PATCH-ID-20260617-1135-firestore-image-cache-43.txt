@@ -1,0 +1,3 @@
+ShareShuffle Patch 43
+Build: 2026.06.17-firestore-image-cache-43
+Purpose: cache selected/backup product images into a first-party ShareShuffle route even when Firebase Storage bucket writes fail.

@@ -1,18 +1,21 @@
 import { onRequest } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import sharp from "sharp";
+import crypto from "crypto";
 
 initializeApp();
 const db = getFirestore();
 const storage = getStorage();
+const BRAVE_SEARCH_API_KEY = defineSecret("BRAVE_SEARCH_API_KEY");
 
 const BUILD_INFO = {
-  build: "2026.06.13-chrome-affiliate-disclosure-29",
-  createdAt: "2026-06-13T00:25:00Z",
-  patch: "chrome-store-affiliate-disclosure-compliance",
-  functions: ["getPreview", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "getBuildInfo"]
+  build: "2026.06.17-preserve-cached-image-45",
+  createdAt: "2026-06-17T16:45:00Z",
+  patch: "preserve-cached-image-45",
+  functions: ["getPreview", "imageRescue", "rescueImage", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "getBuildInfo"]
 };
 
 const MAX_HTML_BYTES = 900000;
@@ -511,19 +514,34 @@ function titleFromRetailUrl(url = "") {
     const parts = decodeURIComponent(parsed.pathname)
       .split("/")
       .filter(Boolean)
-      .filter((part) => !/^(ip|cp|c|browse|shop|product|search)$/i.test(part))
+      .map((part) => part.replace(/\.(?:html?|aspx?|php|gc)$/i, ""))
+      .filter(Boolean)
+      .filter((part) => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear)$/i.test(part))
       .filter((part) => !/^\d{4,}$/.test(part))
       .filter((part) => !/^[A-Z0-9]{10}$/i.test(part));
-    const best = parts.find((part) => /[-_]/.test(part) && part.length > 8) || parts.find((part) => part.length > 8) || "";
+    const best = parts
+      .map((part) => ({ part, score: part.length + ((part.match(/[-_]/g) || []).length * 8) + (/bass|limiter|pedal|effect|guitar|amp|keyboard|drum/i.test(part) ? 18 : 0) }))
+      .sort((a, b) => b.score - a.score)[0]?.part || "";
     if (!best) return "";
     return best
-      .replace(/[-_]+/g, " ")
+      .replace(/[-_+]+/g, " ")
       .replace(/\b\w/g, (letter) => letter.toUpperCase())
       .replace(/\s+/g, " ")
       .trim();
   } catch {
     return "";
   }
+}
+
+function isWeakPreviewTitleForUrl(title = "", url = "") {
+  const clean = String(title || "").replace(/\s+/g, " ").trim();
+  if (!clean) return true;
+  const host = hostOf(url).replace(/[^a-z0-9]/g, "");
+  const loose = clean.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  if (host && loose && (host.includes(loose) || loose.includes(host))) return true;
+  const urlTitle = titleFromRetailUrl(url);
+  const urlLoose = urlTitle.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  return Boolean(urlLoose && loose && urlLoose.includes(loose) && urlLoose.length >= loose.length + 8);
 }
 
 async function readLimitedHtml(response) {
@@ -581,7 +599,8 @@ function extractPreview(html, finalUrl, requestedUrl) {
     };
   }
 
-  if (isBadRetailTitle(title)) title = titleFromRetailUrl(requestedUrl) || titleFromRetailUrl(safeFinalUrl) || titleFromRetailUrl(finalUrl);
+  const urlDerivedTitle = titleFromRetailUrl(requestedUrl) || titleFromRetailUrl(safeFinalUrl) || titleFromRetailUrl(finalUrl);
+  if (isBadRetailTitle(title) || isWeakPreviewTitleForUrl(title, requestedUrl) || isWeakPreviewTitleForUrl(title, finalUrl)) title = urlDerivedTitle || title;
   if (isBadRetailImage(image)) image = "";
 
   if (isAmazonPreview) {
@@ -609,6 +628,221 @@ function extractPreview(html, finalUrl, requestedUrl) {
 
   return { title, description, image, images: imageCandidates, finalUrl: safeFinalUrl };
 }
+
+
+function cleanImageRescueQuery(value = "") {
+  return String(value || "")
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/\b(?:amazon|walmart|guitar center|target|best buy|ebay)\b\s*[:|-]?/gi, " ")
+    .replace(/[^a-z0-9\s'&+.-]/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+}
+
+function isUsableRescueImage(url = "") {
+  try {
+    const parsed = new URL(url);
+    if (!/^https?:$/.test(parsed.protocol)) return false;
+    const hostPath = `${parsed.hostname}${parsed.pathname}`.toLowerCase();
+    if (/logo|sprite|favicon|icon|pixel|tracking|beacon|placeholder|blank/.test(hostPath)) return false;
+    if (/\.svg(?:$|[?#])/i.test(parsed.pathname)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function normalizeBraveImageResult(result = {}) {
+  return result?.properties?.url
+    || result?.thumbnail?.src
+    || result?.thumbnail?.original
+    || result?.url
+    || result?.meta_url?.path
+    || "";
+}
+
+function rescueImageIdForUrl(rawUrl = "") {
+  return crypto.createHash("sha256").update(String(rawUrl || "")).digest("hex").slice(0, 24);
+}
+
+function absoluteHostUrl(req, path = "/") {
+  const host = req.get("x-forwarded-host") || req.get("host") || "shareshuffle.com";
+  const proto = host.includes("localhost") ? "http" : "https";
+  return `${proto}://${host}${path}`;
+}
+
+async function readRescueImageCache(id = "") {
+  if (!/^[a-f0-9]{24}$/.test(String(id || ""))) return null;
+  const file = storage.bucket().file(`rescue-images/${id}`);
+  try {
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    const [metadata] = await file.getMetadata();
+    const [buffer] = await file.download();
+    return { buffer, contentType: metadata.contentType || "image/jpeg" };
+  } catch (error) {
+    console.warn("Rescue image cache read failed", id, error);
+    return null;
+  }
+}
+
+async function cacheRescueImage(rawUrl = "", signal) {
+  if (!isUsableRescueImage(rawUrl) || isLikelyBadProductImage(rawUrl)) return null;
+  const id = rescueImageIdForUrl(rawUrl);
+  const cached = await readRescueImageCache(id);
+  if (cached?.buffer?.length) return { id, contentType: cached.contentType, bytes: cached.buffer.length, cached: true };
+
+  const fetched = await fetchImageBuffer(rawUrl, signal);
+  let meta = {};
+  try { meta = await sharp(fetched.buffer).metadata(); } catch {}
+  const width = Number(meta.width || 0);
+  const height = Number(meta.height || 0);
+  if (width && height && (width < 180 || height < 180)) throw new Error(`Rescue image too small: ${width}x${height}`);
+
+  await storage.bucket().file(`rescue-images/${id}`).save(fetched.buffer, {
+    resumable: false,
+    metadata: {
+      contentType: fetched.contentType,
+      cacheControl: "public, max-age=604800",
+      metadata: { originalUrl: String(rawUrl).slice(0, 500) }
+    }
+  });
+  return { id, contentType: fetched.contentType, bytes: fetched.buffer.length, cached: false };
+}
+
+export const imageRescue = onRequest(
+  {
+    invoker: "public",
+    secrets: [BRAVE_SEARCH_API_KEY],
+    cors: [
+      "https://shareshuffle.com",
+      "https://www.shareshuffle.com",
+      "https://shfl.me",
+      "https://www.shfl.me",
+      "https://shareshuffle-c7f96.web.app",
+      "http://localhost:5000",
+      "http://localhost:5173"
+    ],
+    timeoutSeconds: 12,
+    memory: "256Mi"
+  },
+  async (req, res) => {
+    if (req.method === "OPTIONS") return sendJson(res, 204, {});
+    if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
+
+    const q = cleanImageRescueQuery(req.query.q || "");
+    const count = Math.min(50, Math.max(10, Number(req.query.count || 50) || 50));
+    const debug = String(req.query.debug || "") === "1";
+    if (!q || q.length < 3) return sendJson(res, 400, { error: "Missing image search query" });
+
+    const key = BRAVE_SEARCH_API_KEY.value();
+    if (!key) return sendJson(res, 200, { ok: true, configured: false, q, images: [], candidates: [] });
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 11000);
+    try {
+      const url = new URL("https://api.search.brave.com/res/v1/images/search");
+      url.searchParams.set("q", q);
+      url.searchParams.set("count", String(count));
+      url.searchParams.set("safesearch", "strict");
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        signal: controller.signal,
+        headers: {
+          "Accept": "application/json",
+          "X-Subscription-Token": key
+        }
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return sendJson(res, 200, {
+          ok: false,
+          configured: true,
+          q,
+          images: [],
+          candidates: [],
+          error: payload?.error || payload?.message || `Brave image search failed (${response.status})`
+        });
+      }
+
+      const rawResults = Array.isArray(payload?.results) ? payload.results : [];
+      const seen = new Set();
+      const candidates = [];
+      const rejected = [];
+
+      for (const result of rawResults) {
+        const rawImage = normalizeBraveImageResult(result);
+        const image = String(rawImage || "").trim();
+        if (!image) {
+          if (debug) rejected.push({ reason: "missing image url" });
+          continue;
+        }
+        if (seen.has(image)) {
+          if (debug) rejected.push({ url: image, reason: "duplicate" });
+          continue;
+        }
+        seen.add(image);
+        if (!isUsableRescueImage(image) || isLikelyBadProductImage(image)) {
+          if (debug) rejected.push({ url: image, reason: "obvious bad image url" });
+          continue;
+        }
+        candidates.push({
+          image,
+          previewUrl: image,
+          cachedUrl: "",
+          title: String(result?.title || result?.properties?.title || "").slice(0, 180),
+          source: String(result?.source || result?.meta_url?.hostname || result?.page_fetched || "").slice(0, 140)
+        });
+        if (candidates.length >= 5) break;
+      }
+
+      return sendJson(res, 200, {
+        ok: true,
+        configured: true,
+        mode: "preview-candidates",
+        q,
+        searched: rawResults.length,
+        usable: candidates.length,
+        rejected: debug ? rejected.length : Math.max(0, rawResults.length - candidates.length),
+        images: candidates.map((item) => item.image),
+        candidates,
+        note: "Preview candidates are used only for the chooser. The selected image is cached when the share is created.",
+        ...(debug ? { rejectedDetails: rejected.slice(0, 25) } : {})
+      });
+    } catch (error) {
+      console.warn("Image rescue failed", error);
+      return sendJson(res, 200, { ok: false, configured: true, q, images: [], candidates: [], error: error?.name === "AbortError" ? "Image rescue timed out" : "Image rescue failed" });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+);
+
+export const rescueImage = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 15,
+    memory: "512Mi"
+  },
+  async (req, res) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.status(405).send("Method not allowed");
+      return;
+    }
+    const path = String(req.path || req.url || "").split("?")[0];
+    const last = path.split("/").filter(Boolean).pop() || "";
+    const id = String(req.query.id || last.replace(/^rimg-/i, "")).trim().toLowerCase();
+    const cached = await readRescueImageCache(id);
+    if (!cached?.buffer?.length) {
+      res.redirect(302, "/assets/no-product-image.svg");
+      return;
+    }
+    res.set("Cache-Control", "public, max-age=604800, s-maxage=604800, immutable");
+    res.set("Content-Type", cached.contentType || "image/jpeg");
+    res.status(200).send(cached.buffer);
+  }
+);
 
 export const getPreview = onRequest(
   {
@@ -688,24 +922,77 @@ export const getPreview = onRequest(
 
 function isLikelyBadProductImage(url = "") {
   const value = String(url || "").toLowerCase();
-  return !value || /sprite|logo|icon|avatar|pixel|blank|transparent|loading|favicon|share-?shuffle|icon512|icon192|gift/i.test(value) || /\.svg(?:\?|$)|base64/.test(value);
+  return !value || /sprite|logo|icon|avatar|pixel|blank|transparent|loading|favicon|share-?shuffle|no-product-image|icon512|icon192|gift/i.test(value) || /\.svg(?:\?|$)|base64/.test(value);
 }
 
-async function saveCachedShareImage(shareId, fetched, source = "url") {
-  const cachePath = `share-images/${shareId}`;
-  await storage.bucket().file(cachePath).save(fetched.buffer, {
-    resumable: false,
-    metadata: { contentType: fetched.contentType, cacheControl: "public, max-age=604800" }
-  });
+function isPlaceholderCardShare(data = {}) {
+  const status = String(data.imageStatus || "").toLowerCase();
+  const source = String(data.imageSource || "").toLowerCase();
+  const image = String(data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "").toLowerCase();
+  return status === "placeholder-card" || source.includes("placeholder") || image.includes("no-product-image.svg");
+}
+
+function shareDataImageField(data = {}) {
+  if (isPlaceholderCardShare(data)) return "";
+  const image = String(data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "").trim();
+  return isLikelyBadProductImage(image) ? "" : image;
+}
+
+async function normalizeCachedImageBuffer(fetched) {
+  const input = fetched?.buffer || Buffer.alloc(0);
+  if (!input.length) throw new Error("No image bytes to cache");
+  const output = await sharp(input)
+    .rotate()
+    .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: 84, mozjpeg: true })
+    .toBuffer();
+  if (!output.length) throw new Error("Normalized image was empty");
+  if (await isMostlyBlankImageBuffer(output)) throw new Error("Normalized image was blank or mostly white");
+  return { buffer: output, contentType: "image/jpeg" };
+}
+
+async function saveCachedShareImageToFirestore(shareId, fetched, source = "url-firestore") {
+  const normalized = await normalizeCachedImageBuffer(fetched);
+  const base64 = normalized.buffer.toString("base64");
+  if (base64.length > 850000) throw new Error("Image too large for Firestore cache");
   await db.collection("shares").doc(shareId).set({
-    cachedImagePath: cachePath,
-    cachedImageContentType: fetched.contentType,
-    imageStatus: "cached",
+    image: `/i-${shareId}`,
+    cachedImagePath: "",
+    cachedImageContentType: normalized.contentType,
+    cachedImageBase64: base64,
+    cachedImageBytes: normalized.buffer.length,
+    imageStatus: "cached-firestore",
     imageSource: source,
     imageUpdatedAt: new Date(),
     updatedAt: new Date()
   }, { merge: true });
-  return { ...fetched, source };
+  return { ...normalized, source };
+}
+
+async function saveCachedShareImage(shareId, fetched, source = "url") {
+  const normalized = await normalizeCachedImageBuffer(fetched);
+  const cachePath = `share-images/${shareId}`;
+  try {
+    await storage.bucket().file(cachePath).save(normalized.buffer, {
+      resumable: false,
+      metadata: { contentType: normalized.contentType, cacheControl: "public, max-age=604800" }
+    });
+    await db.collection("shares").doc(shareId).set({
+      image: `/i-${shareId}`,
+      cachedImagePath: cachePath,
+      cachedImageContentType: normalized.contentType,
+      cachedImageBase64: "",
+      cachedImageBytes: normalized.buffer.length,
+      imageStatus: "cached",
+      imageSource: source,
+      imageUpdatedAt: new Date(),
+      updatedAt: new Date()
+    }, { merge: true });
+    return { ...normalized, source };
+  } catch (storageError) {
+    console.warn("Storage cache write failed; saving first-party Firestore image cache", shareId, storageError);
+    return await saveCachedShareImageToFirestore(shareId, normalized, `${source}-firestore`);
+  }
 }
 
 async function fetchBestImageRescue(originalUrl = "") {
@@ -765,6 +1052,59 @@ function extractImageShareId(req) {
   return isPublicShareId(id) ? id : "";
 }
 
+
+function extractFirstPartyImageShareId(rawUrl = "") {
+  const value = String(rawUrl || "").trim();
+  if (!value) return "";
+  try {
+    const parsed = value.startsWith("/") ? new URL(value, "https://shfl.me") : new URL(value);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    const path = parsed.pathname.toLowerCase();
+    const isShuffleHost = ["shfl.me", "shareshuffle.com", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"].includes(host);
+    if (!isShuffleHost) return "";
+    const match = path.match(/^\/(?:img\/)?i-([a-z0-9]{5,})$/) || path.match(/^\/img\/([a-z0-9]{5,})$/);
+    const id = match ? String(match[1] || "").toLowerCase() : "";
+    return isPublicShareId(id) ? id : "";
+  } catch {
+    return "";
+  }
+}
+
+async function isMostlyBlankImageBuffer(buffer) {
+  try {
+    const stats = await sharp(buffer).stats();
+    const channels = stats.channels || [];
+    const rgb = channels.slice(0, 3);
+    if (rgb.length < 3) return false;
+    const veryLight = rgb.every((channel) => Number(channel.mean || 0) > 245);
+    const veryFlat = rgb.every((channel) => Number(channel.stdev || 0) < 8);
+    const alpha = channels[3];
+    const mostlyTransparent = alpha && Number(alpha.mean || 255) < 10;
+    return Boolean((veryLight && veryFlat) || mostlyTransparent);
+  } catch (error) {
+    console.warn("Blank image check skipped", error);
+    return false;
+  }
+}
+
+function isMissingStorageBucketError(error) {
+  const message = String(error?.message || error || "").toLowerCase();
+  return message.includes("bucket does not exist") || message.includes("specified bucket does not exist") || message.includes("not found");
+}
+
+async function markSharePlaceholder(shareId, source = "placeholder-after-cache-fail") {
+  await db.collection("shares").doc(shareId).set({
+    image: "",
+    cachedImagePath: "",
+    cachedImageContentType: "",
+    cachedImageUrl: "",
+    imageStatus: "placeholder-card",
+    imageSource: source,
+    imageUpdatedAt: new Date(),
+    updatedAt: new Date()
+  }, { merge: true });
+}
+
 async function fetchImageBuffer(rawUrl, signal) {
   const response = await fetch(rawUrl, {
     signal,
@@ -783,6 +1123,7 @@ async function fetchImageBuffer(rawUrl, signal) {
   const buffer = Buffer.from(arrayBuffer);
   if (!buffer.length) throw new Error("Image was empty");
   if (buffer.length > 2_000_000) throw new Error("Image was too large for first-pass cache");
+  if (await isMostlyBlankImageBuffer(buffer)) throw new Error("Image was blank or mostly white");
   return { buffer, contentType };
 }
 
@@ -794,17 +1135,27 @@ function extractCardShareId(req) {
   return isPublicShareId(id) ? id : "";
 }
 
-async function readCachedShareImage(shareId) {
+async function readCachedShareImage(shareId, data = {}) {
+  const inlineBase64 = String(data.cachedImageBase64 || "").trim();
+  if (inlineBase64) {
+    try {
+      const buffer = Buffer.from(inlineBase64, "base64");
+      if (buffer.length) return { buffer, contentType: data.cachedImageContentType || "image/jpeg", source: "firestore-cache" };
+    } catch (error) {
+      console.warn("Firestore cached image decode failed", shareId, error);
+    }
+  }
+
   const bucket = storage.bucket();
-  const paths = [`share-images/${shareId}`];
-  for (const cachePath of paths) {
+  const paths = [String(data.cachedImagePath || "").trim(), `share-images/${shareId}`].filter(Boolean);
+  for (const cachePath of [...new Set(paths)]) {
     const file = bucket.file(cachePath);
     try {
       const [exists] = await file.exists();
       if (!exists) continue;
       const [metadata] = await file.getMetadata();
       const [buffer] = await file.download();
-      return { buffer, contentType: metadata.contentType || "image/jpeg", source: "cache" };
+      return { buffer, contentType: metadata.contentType || "image/jpeg", source: "storage-cache" };
     } catch (error) {
       console.warn("Cached image read failed", shareId, error);
     }
@@ -813,7 +1164,8 @@ async function readCachedShareImage(shareId) {
 }
 
 async function getShareImageBuffer(shareId, data = {}) {
-  const cached = await readCachedShareImage(shareId);
+  if (isPlaceholderCardShare(data)) return null;
+  const cached = await readCachedShareImage(shareId, data);
   if (cached) return cached;
 
   const rawImage = String(data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "").trim();
@@ -883,7 +1235,7 @@ function dataUriForImage(imageData) {
 
 async function makeSocialCardPng({ shareId, data, imageData }) {
   const title = cleanOgText(data.title || "Shared recommendation", 90);
-  const note = cleanOgText(data.note || data.description || "", 120);
+  const note = cleanOgNote(data.note || data.description || "", 120);
   const merchant = cleanOgText(data.merchant || "", 30);
   const handleDisplay = cleanOgText(data.handleDisplay || "", 30);
   const signature = handleDisplay ? `${handleDisplay} shared via Shuffle` : "Shared via Shuffle";
@@ -893,9 +1245,10 @@ async function makeSocialCardPng({ shareId, data, imageData }) {
   const noteLines = wrapText(note, 36, 2);
   const titleTspans = titleLines.map((line, i) => `<tspan x="640" dy="${i ? 58 : 0}">${svgText(line)}</tspan>`).join("");
   const noteTspans = noteLines.map((line, i) => `<tspan x="640" dy="${i ? 34 : 0}">${svgText(line)}</tspan>`).join("");
+  const fallbackImageTitle = wrapText(title || "Shared recommendation", 18, 3).map((line, i) => `<tspan x="320" dy="${i ? 42 : 0}">${svgText(line)}</tspan>`).join("");
   const imageBlock = imageHref
     ? `<rect x="70" y="92" width="500" height="446" rx="34" fill="#ffffff"/><image href="${imageHref}" x="100" y="122" width="440" height="386" preserveAspectRatio="xMidYMid meet"/>`
-    : `<rect x="70" y="92" width="500" height="446" rx="34" fill="#ffffff"/><rect x="118" y="148" width="404" height="320" rx="28" fill="#f1f5f9"/><text x="320" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#64748b">Image not added yet</text>`;
+    : `<rect x="70" y="92" width="500" height="446" rx="38" fill="#eef6ff"/><circle cx="475" cy="165" r="90" fill="#bfdbfe" opacity="0.72"/><circle cx="150" cy="460" r="110" fill="#fed7aa" opacity="0.74"/><rect x="105" y="132" width="430" height="320" rx="32" fill="#ffffff" opacity="0.82"/><text x="320" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#2563eb">Shared via Shuffle</text><text x="320" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="900" fill="#172033">${fallbackImageTitle}</text><text x="320" y="492" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#475569">Clean recommendation card</text>`;
   const merchantPill = merchant ? `<rect x="640" y="482" width="${Math.min(230, merchant.length * 13 + 56)}" height="48" rx="24" fill="#dbeafe"/><text x="666" y="514" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#1d4ed8">${svgText(merchant)}</text>` : "";
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -912,6 +1265,26 @@ async function makeSocialCardPng({ shareId, data, imageData }) {
   ${noteLines.length ? `<text x="640" y="382" font-family="Arial, sans-serif" font-size="28" font-style="italic" fill="#475569">${noteTspans}</text>` : ""}
   ${merchantPill}
   <text x="640" y="572" font-family="Arial, sans-serif" font-size="27" font-weight="800" fill="#0f172a">${svgText(urlLabel)}</text>
+</svg>`;
+  return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
+}
+
+async function makeSquareFallbackPng({ shareId = "", data = {} } = {}) {
+  const title = cleanOgText(data.title || "Shared recommendation", 80);
+  const merchant = cleanOgText(data.merchant || "", 30);
+  const titleLines = wrapText(title, 20, 4).map((line, i) => `<tspan x="450" dy="${i ? 52 : 0}">${svgText(line)}</tspan>`).join("");
+  const merchantText = merchant ? `<text x="450" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="800" fill="#1d4ed8">${svgText(merchant)}</text>` : "";
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#EEF6FF"/><stop offset="1" stop-color="#FFF7ED"/></linearGradient></defs>
+  <rect width="900" height="900" rx="70" fill="url(#bg)"/>
+  <circle cx="745" cy="150" r="150" fill="#bfdbfe" opacity="0.66"/>
+  <circle cx="130" cy="760" r="170" fill="#fed7aa" opacity="0.72"/>
+  <rect x="90" y="110" width="720" height="600" rx="52" fill="#ffffff" opacity="0.86"/>
+  <text x="450" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="900" fill="#2563eb">Shared via Shuffle</text>
+  <text x="450" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="52" font-weight="900" fill="#172033">${titleLines}</text>
+  ${merchantText}
+  <text x="450" y="790" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#475569">${svgText(shareId ? `shfl.me/${shareId}` : "Recommendation card")}</text>
 </svg>`;
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
@@ -959,11 +1332,30 @@ function isPublicShareId(value = "") {
   return /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(String(value || "").trim());
 }
 
+function stripWrappingQuotes(value = "") {
+  let text = String(value || "").replace(/\s+/g, " ").trim();
+  for (let i = 0; i < 3; i += 1) {
+    const next = text
+      .replace(/^[\s"“”'‘’]+/, "")
+      .replace(/[\s"“”'‘’]+$/, "")
+      .trim();
+    if (next === text) break;
+    text = next;
+  }
+  return text.replace(/\s+([?.!,;:])/g, "$1").trim();
+}
+
 function cleanOgText(value = "", max = 180) {
   const text = decodeEntities(String(value || ""))
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+  if (text.length <= max) return text;
+  return text.slice(0, max - 1).replace(/[\s,;:.-]+$/g, "") + "…";
+}
+
+function cleanOgNote(value = "", max = 180) {
+  const text = stripWrappingQuotes(cleanOgText(value, max + 20));
   if (text.length <= max) return text;
   return text.slice(0, max - 1).replace(/[\s,;:.-]+$/g, "") + "…";
 }
@@ -1080,7 +1472,7 @@ async function getSharePreview(route) {
   if (!snap.exists) return null;
   const data = snap.data() || {};
   const title = cleanOgText(data.title || "Shared product recommendation", 95);
-  const note = cleanOgText(data.note || data.description || "", 180);
+  const note = cleanOgNote(data.note || data.description || "", 180);
   const merchant = cleanOgText(data.merchant || "", 40);
   const desc = note || (merchant ? `A ${merchant} recommendation shared via Shuffle.` : "A product recommendation shared via Shuffle.");
   return {
@@ -1088,7 +1480,7 @@ async function getSharePreview(route) {
     kind: "share",
     title,
     description: desc,
-    image: data.cachedImage || data.cachedImageUrl || data.image || data.imageUrl || "",
+    image: shareDataImageField(data),
     imageVersion: versionFromTimestamp(data.imageUpdatedAt || data.updatedAt || data.created),
     destination: shareDestination(route),
     typeLabel: "Product recommendation"
@@ -1125,7 +1517,7 @@ async function getShelfPreview(route) {
         itemCount += 1;
         if (!inferredName && data.shelfName) inferredName = cleanOgText(data.shelfName, 95);
         if (!inferredHandle && (data.handleDisplay || data.handleSlug)) inferredHandle = cleanOgText(data.handleDisplay || data.handleSlug, 40);
-        if (!image) image = data.cachedImage || data.cachedImageUrl || data.image || data.imageUrl || "";
+        if (!image) image = shareDataImageField(data);
         versionSeed = versionFromTimestamp(data.imageUpdatedAt || data.updatedAt || data.created) || versionSeed;
       }
     } catch (error) {
@@ -1338,13 +1730,13 @@ export const shareData = onRequest(
 
       const data = snap.data() || {};
       const title = cleanOgText(data.title || "Shared find", 160);
-      const note = cleanOgText(data.note || "I saw this and thought of you.", 260);
+      const note = cleanOgNote(data.note || "I saw this and thought of you.", 260);
       const savedUrl = data.url || "";
       const originalUrl = data.originalUrl || data.url || "";
       const storeUrl = chooseStoreUrl(data);
       const url = storeUrl;
       const merchant = cleanOgText(data.merchant || "", 60);
-      const image = data.cachedImageUrl || data.cachedImage || data.image || data.imageUrl || "";
+      const image = shareDataImageField(data);
       const shelfSlug = normalizeToken(data.shelfSlug || "");
       const handleSlug = normalizeToken(data.handleSlug || "");
       const shelfName = cleanOgText(data.shelfName || "", 100);
@@ -1456,7 +1848,7 @@ export const shelfData = onRequest(
         items.push({
           id: doc.id,
           title: cleanOgText(data.title || "Shared find", 140),
-          note: cleanOgText(data.note || "", 220),
+          note: cleanOgNote(data.note || "", 220),
           url: chooseStoreUrl(data),
           savedUrl: data.url || "",
           originalUrl: data.originalUrl || data.url || "",
@@ -1582,7 +1974,7 @@ async function makeShelfSocialCardPng({ handle = "", shelfSlug = "", shares = []
   const shelfName = cleanOgText(first.shelfName || (shelfSlug ? shelfSlug.replace(/-/g, " ") : `${handle || "Shelf"}`), 72);
   const title = shelfName.replace(/\b\w/g, (m) => m.toUpperCase());
   const handleDisplay = cleanOgText(first.handleDisplay || handle || "", 40);
-  const urlLabel = handle && shelfSlug ? `shelfmix.com/${handle}/${shelfSlug}` : "shelfmix.com";
+  const urlLabel = handle && shelfSlug ? `shfl.me/${handle}/${shelfSlug}` : "shfl.me";
   const countLabel = `${shares.length || 0} pick${shares.length === 1 ? "" : "s"}`;
   const selected = shares.slice(0, 9);
   const imageData = [];
@@ -1610,7 +2002,7 @@ async function makeShelfSocialCardPng({ handle = "", shelfSlug = "", shares = []
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="52" y="52" width="1096" height="526" rx="38" fill="#ffffff" filter="url(#shadow)"/>
-  <g transform="translate(88 90)"><rect x="0" y="0" width="46" height="46" rx="12" fill="#dbeafe"/><text x="23" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#2563eb">S</text><text x="62" y="32" font-family="Arial, sans-serif" font-size="33" font-weight="900" fill="#0f172a">ShelfMix</text></g>
+  <g transform="translate(88 90)"><rect x="0" y="0" width="46" height="46" rx="12" fill="#dbeafe"/><text x="23" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#2563eb">S</text><text x="62" y="32" font-family="Arial, sans-serif" font-size="33" font-weight="900" fill="#0f172a">ShareShuffle</text></g>
   <text x="88" y="236" font-family="Arial, sans-serif" font-size="64" font-weight="900" fill="#0f172a">${svgText(title)}</text>
   <text x="88" y="292" font-family="Arial, sans-serif" font-size="29" font-weight="600" fill="#475569">${svgText(handleDisplay ? `${handleDisplay}'s curated gear shelf` : "A curated recommendation shelf")}</text>
   <line x1="88" y1="342" x2="508" y2="342" stroke="#bfdbfe" stroke-width="3"/>
@@ -1668,7 +2060,13 @@ export const shareImage = onRequest(
       if (!snap.exists) return sendFallbackImage(res);
       const data = snap.data() || {};
       const imageData = await getShareImageBuffer(shareId, data);
-      if (!imageData?.buffer?.length) return sendFallbackImage(res);
+      if (!imageData?.buffer?.length) {
+        const fallback = await makeSquareFallbackPng({ shareId, data });
+        res.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
+        res.set("Content-Type", "image/png");
+        res.status(200).send(fallback);
+        return;
+      }
       res.set("Cache-Control", "public, max-age=604800, s-maxage=604800, immutable");
       res.set("Content-Type", imageData.contentType || "image/jpeg");
       res.status(200).send(imageData.buffer);
@@ -1730,8 +2128,8 @@ function parseImageDataUrl(value = "") {
 export const uploadShareImage = onRequest(
   {
     invoker: "public",
-    timeoutSeconds: 20,
-    memory: "512Mi",
+    timeoutSeconds: 35,
+    memory: "1GiB",
     cors: [
       "https://shareshuffle.com",
       "https://www.shareshuffle.com",
@@ -1758,46 +2156,46 @@ export const uploadShareImage = onRequest(
 
       let parsed = parseImageDataUrl(body.imageDataUrl || "");
       let source = "upload";
+      const imageUrlRaw = String(body.imageUrl || "").trim();
 
-      if (!parsed && body.imageUrl && isAllowedUrl(String(body.imageUrl))) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-        try {
-          parsed = await fetchImageBuffer(String(body.imageUrl), controller.signal);
-          source = "url";
-        } finally {
-          clearTimeout(timer);
+      if (!parsed && imageUrlRaw) {
+        const sourceShareId = extractFirstPartyImageShareId(imageUrlRaw);
+        if (sourceShareId && sourceShareId !== shareId) {
+          const sourceSnap = await db.collection("shares").doc(sourceShareId).get();
+          if (sourceSnap.exists) {
+            parsed = await readCachedShareImage(sourceShareId, sourceSnap.data() || {});
+            source = "first-party-clone";
+          }
+        }
+      }
+
+      if (!parsed && imageUrlRaw) {
+        const fetchUrl = imageUrlRaw.startsWith("/") ? new URL(imageUrlRaw, "https://shfl.me").href : imageUrlRaw;
+        if (isAllowedUrl(fetchUrl)) {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+          try {
+            parsed = await fetchImageBuffer(fetchUrl, controller.signal);
+            source = "url";
+          } finally {
+            clearTimeout(timer);
+          }
         }
       }
 
       if (!parsed) return sendCorsJson(res, 400, { error: "No valid image supplied" }, "POST, OPTIONS");
 
-      const cachePath = `share-images/${shareId}`;
-      await storage.bucket().file(cachePath).save(parsed.buffer, {
-        resumable: false,
-        metadata: {
-          contentType: parsed.contentType,
-          cacheControl: "public, max-age=604800"
-        }
-      });
-
-      await db.collection("shares").doc(shareId).set({
-        cachedImagePath: cachePath,
-        cachedImageContentType: parsed.contentType,
-        imageStatus: "cached",
-        imageSource: source,
-        imageUpdatedAt: new Date(),
-        updatedAt: new Date()
-      }, { merge: true });
+      const cached = await saveCachedShareImage(shareId, parsed, source);
 
       return sendCorsJson(res, 200, {
         ok: true,
         shareId,
         imageRoute: `/i-${shareId}`,
-        imageStatus: "cached",
-        imageSource: source,
-        bytes: parsed.buffer.length,
-        contentType: parsed.contentType
+        cardRoute: `/c-${shareId}?v=${Date.now()}`,
+        imageStatus: cached.source && String(cached.source).includes("firestore") ? "cached-firestore" : "cached",
+        imageSource: cached.source || source,
+        bytes: cached.buffer.length,
+        contentType: cached.contentType
       }, "POST, OPTIONS");
     } catch (error) {
       console.error("uploadShareImage failed", error);

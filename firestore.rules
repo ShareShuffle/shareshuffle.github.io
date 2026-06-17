@@ -134,6 +134,7 @@ service cloud.firestore {
           "views",
           "amazonClicks",
           "shares",
+          "image",
           "cachedImagePath",
           "cachedImageContentType",
           "cachedImageUrl",
@@ -145,6 +146,7 @@ service cloud.firestore {
         && optionalNumber(request.resource.data, "views")
         && optionalNumber(request.resource.data, "amazonClicks")
         && optionalNumber(request.resource.data, "shares")
+        && optionalString(request.resource.data, "image", 2000)
         && optionalString(request.resource.data, "cachedImagePath", 500)
         && optionalString(request.resource.data, "cachedImageContentType", 80)
         && optionalString(request.resource.data, "cachedImageUrl", 1000)

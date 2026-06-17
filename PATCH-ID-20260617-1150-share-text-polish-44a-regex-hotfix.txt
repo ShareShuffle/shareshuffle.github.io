@@ -1,0 +1,4 @@
+Patch 44a regex hotfix
+Build: 2026.06.17-share-text-polish-44a
+Fixes invalid regular expression in app/index.html waitForFirstPartyImage().
+Chrome extension package untouched.

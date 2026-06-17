@@ -1,0 +1,2 @@
+Patch 45: preserve/re-cache existing first-party product images when creating another share after adding/editing notes.
+Build: 2026.06.17-preserve-cached-image-45
