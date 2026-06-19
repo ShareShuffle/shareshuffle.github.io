@@ -8,7 +8,7 @@ Why:
 - The share page also needs to avoid old saved merchant image URLs that can be tiny transparent/1x1 pixels.
 
 What changed:
-- share.html now redirects if loaded on shfl.me or shelfmix.com:
+- share.html now redirects if loaded on shfl.me or shareshuffle.com/shelf.html:
     https://shfl.me/share.html?id=jt8v6
   becomes:
     https://shareshuffle.com/share.html?id=jt8v6

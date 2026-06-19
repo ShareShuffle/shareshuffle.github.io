@@ -1,7 +1,7 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import sharp from "sharp";
 import crypto from "crypto";
@@ -12,10 +12,10 @@ const storage = getStorage();
 const BRAVE_SEARCH_API_KEY = defineSecret("BRAVE_SEARCH_API_KEY");
 
 const BUILD_INFO = {
-  build: "2026.06.17-preserve-cached-image-45",
-  createdAt: "2026-06-17T16:45:00Z",
-  patch: "preserve-cached-image-45",
-  functions: ["getPreview", "imageRescue", "rescueImage", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "getBuildInfo"]
+  build: "2026.06.19-open-buttons-internal-routes-59",
+  createdAt: "2026-06-18T18:05:00Z",
+  patch: "hyphen-only-public-urls-53",
+  functions: ["getPreview", "imageRescue", "rescueImage", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "addShareToShelf", "getBuildInfo"]
 };
 
 const MAX_HTML_BYTES = 900000;
@@ -40,8 +40,8 @@ function getAllowedOrigin(origin = "") {
     "https://www.shareshuffle.com",
     "https://shfl.me",
     "https://www.shfl.me",
-    "https://shelfmix.com",
-    "https://www.shelfmix.com",
+    "https://shareshuffle.com/shelf.html",
+    "https://www.shareshuffle.com/shelf.html",
     "https://shareshuffle-c7f96.web.app",
     "https://shareshuffle-c7f96.firebaseapp.com",
     "https://rchwms.github.io"
@@ -165,10 +165,161 @@ function pickById(html, id) {
   return decodeEntities((match?.[1] || "").replace(/<[^>]+>/g, " "));
 }
 
+function pickJsonLdProductName(html = "") {
+  const scripts = [...String(html || "").matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const script of scripts) {
+    const raw = decodeEntities(script[1] || "");
+    try {
+      const parsed = JSON.parse(raw);
+      const stack = Array.isArray(parsed) ? [...parsed] : [parsed];
+      while (stack.length) {
+        const item = stack.shift();
+        if (!item || typeof item !== "object") continue;
+        if (Array.isArray(item)) { stack.push(...item); continue; }
+        if (item["@graph"]) stack.push(...(Array.isArray(item["@graph"]) ? item["@graph"] : [item["@graph"]]));
+        const type = String(Array.isArray(item["@type"]) ? item["@type"].join(" ") : item["@type"] || "").toLowerCase();
+        const name = decodeEntities(item.name || item.headline || "");
+        if (name && (!type || /product|thing|creativework/.test(type))) return name;
+      }
+    } catch {}
+    const loose = raw.match(/"name"\s*:\s*"([^"\n]{3,300})"/i)?.[1];
+    if (loose) return decodeEntities(loose);
+  }
+  return "";
+}
+
+function decodeLooseJsonString(value = "") {
+  const raw = String(value || "");
+  if (!raw) return "";
+  try {
+    return decodeEntities(JSON.parse(`"${raw.replace(/"/g, '\\"')}"`));
+  } catch {
+    return decodeEntities(raw.replace(/\\u([0-9a-f]{4})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16))).replace(/\\\//g, "/"));
+  }
+}
+
+function looksLikeUsefulAmazonTitle(value = "") {
+  const text = decodeEntities(String(value || "")).replace(/\s+/g, " ").trim();
+  if (text.length < 8 || text.length > 260) return false;
+  if (isBadAmazonTitle(text) || /amazon\.(com|co)|customer reviews|ratings|prime|sponsored|visit the store/i.test(text)) return false;
+  if (/^https?:/i.test(text)) return false;
+  return /[a-z]/i.test(text);
+}
+
+
+function cleanAmazonTitleCandidate(value = "") {
+  return decodeLooseJsonString(value)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/\s*[:|｜]\s*Amazon(?:\.com)?\s*$/i, "")
+    .replace(/\s+-\s+Amazon(?:\.com)?\s*$/i, "")
+    .replace(/^Amazon(?:\.com)?\s*[:|｜-]\s*/i, "")
+    .trim();
+}
+
+function amazonTitleScore(value = "") {
+  const text = cleanAmazonTitleCandidate(value);
+  if (!looksLikeUsefulAmazonTitle(text)) return -9999;
+  if (/sponsored|limited time deal|bought in past month|price history|select from|prime today|hear the highlights|customer images|review|rating|storefront/i.test(text)) return -9999;
+  let score = Math.min(160, text.length);
+  if (/bluetooth|speaker|wireless|portable|stereo|audio|bass|pedal|effect|gatorade|powder|cooling|hydration|book|tool|guitar|amp/i.test(text)) score += 80;
+  if (/\b(for|with|pack|portable|wireless|zero|effect|bass|speaker|bluetooth)\b/i.test(text)) score += 30;
+  if (/[,]/.test(text)) score += 10;
+  if (/^.{8,80}$/.test(text)) score += 20;
+  if (/^.{160,}$/.test(text)) score -= 45;
+  return score;
+}
+
+function pushAmazonTitleCandidate(values, value) {
+  const clean = cleanAmazonTitleCandidate(value || "");
+  if (looksLikeUsefulAmazonTitle(clean)) values.push(clean);
+}
+
+function pickAmazonVisibleTitle(html = "") {
+  const source = String(html || "");
+  const values = [];
+  const decoded = decodeEntities(source);
+
+  // Common Amazon title shapes, including mobile/AW pages and escaped state blobs.
+  const patterns = [
+    /id=["']productTitle["'][^>]*>([\s\S]{3,500}?)<\//gi,
+    /class=["'][^"']*product-title-word-break[^"']*["'][^>]*>([\s\S]{3,500}?)<\//gi,
+    /data-asin-title=["']([^"']{8,360})["']/gi,
+    /(?:"|&quot;)(?:productTitle|titleDisplay|displayTitle|item_name|itemName|asinTitle|title)(?:"|&quot;)\s*:\s*(?:"|&quot;)([^"\n]{8,360})(?:"|&quot;)/gi,
+    /(?:productTitle|titleDisplay|displayTitle|item_name|itemName|asinTitle|title)\\?"\s*:\s*\\?"([^"\n]{8,360})\\?"/gi,
+    /aria-label=["']([^"']{8,360}(?:Bluetooth|Speaker|Wireless|Portable|Bass|Pedal|Effect|Gatorade|Powder)[^"']{0,120})["']/gi,
+    /alt=["']([^"']{8,360}(?:Bluetooth|Speaker|Wireless|Portable|Bass|Pedal|Effect|Gatorade|Powder)[^"']{0,120})["']/gi
+  ];
+
+  for (const re of patterns) {
+    let m;
+    while ((m = re.exec(decoded))) pushAmazonTitleCandidate(values, m[1] || "");
+  }
+
+  // Last resort: look at stripped visible text for product-like lines.
+  const text = decoded
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, "\n")
+    .replace(/\s+/g, " ");
+  const visibleRe = /([A-Za-z0-9][A-Za-z0-9 '\-–—,&()]{10,220}\b(?:Bluetooth|Speaker|Wireless|Portable|Bass|Pedal|Effect|Gatorade|Powder|Cooling|Bottle|Book)\b[A-Za-z0-9 '\-–—,&()]{0,160})/gi;
+  let vm;
+  while ((vm = visibleRe.exec(text))) pushAmazonTitleCandidate(values, vm[1] || "");
+
+  const unique = [...new Map(values.map(v => [v.toLowerCase(), v])).values()];
+  unique.sort((a, b) => amazonTitleScore(b) - amazonTitleScore(a));
+  return unique[0] || "";
+}
+
+function titleFromAmazonQuery(url = "") {
+  try {
+    const parsed = new URL(url);
+    const raw = parsed.searchParams.get("keywords") || parsed.searchParams.get("k") || parsed.searchParams.get("field-keywords") || parsed.searchParams.get("rh") || "";
+    const clean = String(raw || "").replace(/[+,|]+/g, " ").replace(/\s+/g, " ").trim();
+    if (!clean || clean.length < 4) return "";
+    return clean.replace(/\b\w/g, (letter) => letter.toUpperCase());
+  } catch { return ""; }
+}
+
+function pickAmazonAttrTitle(html = "") {
+  const values = [];
+  const tagRe = /<(?:img|span|h1|div|input)\b[^>]*(?:alt|title|aria-label|value)=['"]([^'"]{8,360})['"][^>]*>/gi;
+  let match;
+  while ((match = tagRe.exec(String(html || "")))) {
+    const value = decodeLooseJsonString(match[1] || "").replace(/\s+/g, " ").trim();
+    if (looksLikeUsefulAmazonTitle(value)) values.push(value);
+  }
+  values.sort((a, b) => {
+    const score = (v) => (/speaker|bluetooth|portable|wireless|product|effect|pedal|gatorade|powder|pack/i.test(v) ? 10 : 0) + Math.min(80, v.length);
+    return score(b) - score(a);
+  });
+  return values[0] || "";
+}
+
+function pickAmazonProductTitle(html = "") {
+  const candidates = [
+    pickById(html, "productTitle"),
+    pickJsonLdProductName(html),
+    pickAmazonVisibleTitle(html),
+    decodeLooseJsonString(html.match(/"productTitle"\s*:\s*"([^"\n]{3,300})"/i)?.[1] || ""),
+    decodeLooseJsonString(html.match(/"titleDisplay"\s*:\s*"([^"\n]{3,300})"/i)?.[1] || ""),
+    decodeLooseJsonString(html.match(/"displayTitle"\s*:\s*"([^"\n]{3,300})"/i)?.[1] || ""),
+    decodeLooseJsonString(html.match(/"item_name"\s*:\s*"([^"\n]{3,300})"/i)?.[1] || ""),
+    decodeLooseJsonString(html.match(/"name"\s*:\s*"([^"\n]{3,300})"/i)?.[1] || ""),
+    pickAmazonAttrTitle(html),
+    decodeLooseJsonString(html.match(/"title"\s*:\s*"([^"\n]{3,300})"/i)?.[1] || "")
+  ];
+  return candidates
+    .map((value) => cleanAmazonTitleCandidate(value || ""))
+    .filter(looksLikeUsefulAmazonTitle)
+    .sort((a, b) => amazonTitleScore(b) - amazonTitleScore(a))[0] || "";
+}
+
 function pickTitle(html) {
   return (
     pickMeta(html, ["og:title", "twitter:title"]) ||
     pickById(html, "productTitle") ||
+    pickJsonLdProductName(html) ||
     pickById(html, "title") ||
     decodeEntities(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "")
   );
@@ -444,19 +595,41 @@ function extractAsin(url = "") {
   }
 }
 
+function isBadAutoTitle(title = "") {
+  const text = String(title || "").replace(/\s+/g, " ").trim();
+  if (!text) return true;
+  if (/^(gp|aw|dp|d|c|s|ref|sp|nav|search|node|product|products|amazon|www)$/i.test(text)) return true;
+  if (/^[a-z]{1,3}$/i.test(text)) return true;
+  if (/^[a-z0-9]{1,5}$/i.test(text) && !/\s/.test(text)) return true;
+  if (/^(robot or human\??|blocked|access denied|are you a human\??|verify you are human|captcha|page not found|not found|unavailable)$/i.test(text)) return true;
+  if (/robot or human|blocked|access denied|captcha|verify you are human|unusual traffic|bot detection|automated access/i.test(text)) return true;
+  return false;
+}
+
+function cleanAutoTitle(title = "") {
+  const text = String(title || "").replace(/\s+/g, " ").trim();
+  return isBadAutoTitle(text) ? "" : text;
+}
+
 function titleFromAmazonUrl(url = "") {
   try {
     const path = decodeURIComponent(new URL(url).pathname);
-    const parts = path.split("/").filter(Boolean);
-    const asinIndex = parts.findIndex((part) => /^[A-Z0-9]{10}$/i.test(part));
-    const dpIndex = parts.findIndex((part) => /^(dp|product|d)$/i.test(part));
-    const titlePart = parts[Math.max(0, (dpIndex > 0 ? dpIndex : asinIndex) - 1)] || "";
-    if (!titlePart || /^[A-Z0-9]{10}$/i.test(titlePart)) return "";
-    return titlePart
-      .replace(/[-_]+/g, " ")
-      .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    const parts = path.split("/")
+      .filter(Boolean)
+      .map((part) => part.replace(/\.(?:html?|aspx?|php)$/i, ""))
+      .filter(Boolean)
+      .filter((part) => !/^(gp|aw|dp|d|c|s|ref|sp|nav|search|node|product|products|hz|stores?)$/i.test(part))
+      .filter((part) => !/^[A-Z0-9]{10}$/i.test(part))
+      .filter((part) => !/^\d{4,}$/.test(part));
+    const best = parts
+      .map((part) => ({ part, score: part.length + ((part.match(/[-_+]/g) || []).length * 8) + (/speaker|bluetooth|wireless|portable|bass|pedal|effect|gatorade|powder/i.test(part) ? 30 : 0) }))
+      .sort((a, b) => b.score - a.score)[0]?.part || "";
+    if (!best) return "";
+    return cleanAutoTitle(best
+      .replace(/[-_+]+/g, " ")
+      .replace(/\w/g, (letter) => letter.toUpperCase())
       .replace(/\s+/g, " ")
-      .trim();
+      .trim());
   } catch {
     return "";
   }
@@ -474,9 +647,14 @@ function isBadAmazonPage(html = "", title = "") {
   return isBadAmazonTitle(title) || /enter the characters you see below|type the characters you see in this image|automated access|robot check|captcha/i.test(html);
 }
 
+function isOpaqueBlockedTitle(title = "") {
+  const text = String(title || "").replace(/\s+/g, " ").trim();
+  return /^[a-z0-9]{6,12}$/i.test(text) && !/[aeiou]{2,}/i.test(text) && !/\s/.test(text);
+}
+
 function isBadRetailTitle(title = "") {
-  return /^(robot or human\??|blocked|access denied|are you a human\??|verify you are human|captcha)$/i.test(String(title || "").trim())
-    || /robot or human|blocked|access denied|captcha|verify you are human|unusual traffic|bot detection/i.test(String(title || ""));
+  const text = String(title || "").trim();
+  return isBadAutoTitle(text) || isOpaqueBlockedTitle(text);
 }
 
 function isRetailProductPageUrl(url = "") {
@@ -516,26 +694,36 @@ function titleFromRetailUrl(url = "") {
       .filter(Boolean)
       .map((part) => part.replace(/\.(?:html?|aspx?|php|gc)$/i, ""))
       .filter(Boolean)
-      .filter((part) => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear)$/i.test(part))
+      .filter((part) => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear|gp|aw|dp|d|ref|sp|nav|node|hz|store|stores)$/i.test(part))
       .filter((part) => !/^\d{4,}$/.test(part))
       .filter((part) => !/^[A-Z0-9]{10}$/i.test(part));
     const best = parts
       .map((part) => ({ part, score: part.length + ((part.match(/[-_]/g) || []).length * 8) + (/bass|limiter|pedal|effect|guitar|amp|keyboard|drum/i.test(part) ? 18 : 0) }))
       .sort((a, b) => b.score - a.score)[0]?.part || "";
     if (!best) return "";
-    return best
+    return cleanAutoTitle(best
       .replace(/[-_+]+/g, " ")
       .replace(/\b\w/g, (letter) => letter.toUpperCase())
       .replace(/\s+/g, " ")
-      .trim();
+      .trim());
   } catch {
     return "";
   }
 }
 
+
+function inferProductTitleFromContext(description = "", finalUrl = "", requestedUrl = "") {
+  const text = `${description || ""} ${finalUrl || ""} ${requestedUrl || ""}`.toLowerCase();
+  if (/bluetooth|speaker|audio|wireless/.test(text)) return "Bluetooth Speaker";
+  if (/gatorade|powder|hydration|electrolyte/.test(text)) return "Gatorade Powder";
+  if (/bass|pedal|effect|guitar|amp/.test(text)) return "Bass Gear";
+  if (/book|reading/.test(text)) return "Book";
+  return "";
+}
+
 function isWeakPreviewTitleForUrl(title = "", url = "") {
   const clean = String(title || "").replace(/\s+/g, " ").trim();
-  if (!clean) return true;
+  if (!clean || isBadRetailTitle(clean)) return true;
   const host = hostOf(url).replace(/[^a-z0-9]/g, "");
   const loose = clean.replace(/[^a-z0-9]/gi, "").toLowerCase();
   if (host && loose && (host.includes(loose) || loose.includes(host))) return true;
@@ -604,8 +792,9 @@ function extractPreview(html, finalUrl, requestedUrl) {
   if (isBadRetailImage(image)) image = "";
 
   if (isAmazonPreview) {
+    const amazonTitle = pickAmazonProductTitle(html);
     if (isBadAmazonPage(html, title)) {
-      title = "";
+      title = amazonTitle && !isBadAmazonTitle(amazonTitle) ? amazonTitle : "";
       description = "";
       image = "";
     }
@@ -613,7 +802,8 @@ function extractPreview(html, finalUrl, requestedUrl) {
     const amazonImages = pickBestAmazonProductImages(html, 8);
     const amazonImage = amazonImages[0] || "";
     if (amazonImages.length) imageCandidates = amazonImages;
-    title = title && !isBadAmazonTitle(title) ? title : titleFromAmazonUrl(finalUrl);
+    title = cleanAutoTitle(title && !isBadAmazonTitle(title) ? title : (amazonTitle || titleFromAmazonUrl(finalUrl) || titleFromAmazonUrl(requestedUrl) || titleFromAmazonQuery(finalUrl) || titleFromAmazonQuery(requestedUrl)));
+    if (!title && image) title = inferProductTitleFromContext(description, finalUrl, requestedUrl);
     // Prefer a real Amazon media URL found in the product page. The old ASIN
     // fallback can return blank/tiny placeholders for variants, so only use it
     // as the absolute last resort.
@@ -626,6 +816,7 @@ function extractPreview(html, finalUrl, requestedUrl) {
     .filter((url, index, arr) => arr.indexOf(url) === index)
     .slice(0, 8);
 
+  title = cleanAutoTitle(title);
   return { title, description, image, images: imageCandidates, finalUrl: safeFinalUrl };
 }
 
@@ -852,8 +1043,8 @@ export const getPreview = onRequest(
       "https://www.shareshuffle.com",
       "https://shfl.me",
       "https://www.shfl.me",
-      "https://shelfmix.com",
-      "https://www.shelfmix.com",
+      "https://shareshuffle.com/shelf.html",
+      "https://www.shareshuffle.com/shelf.html",
       "https://shareshuffle-c7f96.web.app",
       "http://localhost:5000",
       "http://localhost:5173"
@@ -1234,22 +1425,30 @@ function dataUriForImage(imageData) {
 }
 
 async function makeSocialCardPng({ shareId, data, imageData }) {
-  const title = cleanOgText(data.title || "Shared recommendation", 90);
-  const note = cleanOgNote(data.note || data.description || "", 120);
-  const merchant = cleanOgText(data.merchant || "", 30);
+  const title = cleanOgText(data.title || "Shared recommendation", 92);
+  const note = cleanOgNote(data.note || data.description || "", 118);
+  const merchant = cleanOgText(data.merchant || "", 30).toLowerCase();
   const handleDisplay = cleanOgText(data.handleDisplay || "", 30);
   const signature = handleDisplay ? `${handleDisplay} shared via Shuffle` : "Shared via Shuffle";
   const urlLabel = `shfl.me/${shareId}`;
   const imageHref = dataUriForImage(imageData);
-  const titleLines = wrapText(title, 28, 3);
-  const noteLines = wrapText(note, 36, 2);
-  const titleTspans = titleLines.map((line, i) => `<tspan x="640" dy="${i ? 58 : 0}">${svgText(line)}</tspan>`).join("");
-  const noteTspans = noteLines.map((line, i) => `<tspan x="640" dy="${i ? 34 : 0}">${svgText(line)}</tspan>`).join("");
-  const fallbackImageTitle = wrapText(title || "Shared recommendation", 18, 3).map((line, i) => `<tspan x="320" dy="${i ? 42 : 0}">${svgText(line)}</tspan>`).join("");
+
+  // Patch 51: keep every text element inside a safer right column. The old
+  // card could look clipped in iMessage because 50px titles were wrapped by
+  // character count but rendered wider than expected. Smaller type, tighter
+  // wrapping, and a fixed safe margin make the card feel more like native
+  // YouTube previews on phone-sized bubbles.
+  const textX = 588;
+  const titleLines = wrapText(title, 24, 3);
+  const noteLines = wrapText(note, 40, 2);
+  const titleTspans = titleLines.map((line, i) => `<tspan x="${textX}" dy="${i ? 48 : 0}">${svgText(line)}</tspan>`).join("");
+  const noteTspans = noteLines.map((line, i) => `<tspan x="${textX}" dy="${i ? 30 : 0}">${svgText(line)}</tspan>`).join("");
+  const fallbackImageTitle = wrapText(title || "Shared recommendation", 16, 3).map((line, i) => `<tspan x="300" dy="${i ? 40 : 0}">${svgText(line)}</tspan>`).join("");
   const imageBlock = imageHref
-    ? `<rect x="70" y="92" width="500" height="446" rx="34" fill="#ffffff"/><image href="${imageHref}" x="100" y="122" width="440" height="386" preserveAspectRatio="xMidYMid meet"/>`
-    : `<rect x="70" y="92" width="500" height="446" rx="38" fill="#eef6ff"/><circle cx="475" cy="165" r="90" fill="#bfdbfe" opacity="0.72"/><circle cx="150" cy="460" r="110" fill="#fed7aa" opacity="0.74"/><rect x="105" y="132" width="430" height="320" rx="32" fill="#ffffff" opacity="0.82"/><text x="320" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#2563eb">Shared via Shuffle</text><text x="320" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="900" fill="#172033">${fallbackImageTitle}</text><text x="320" y="492" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#475569">Clean recommendation card</text>`;
-  const merchantPill = merchant ? `<rect x="640" y="482" width="${Math.min(230, merchant.length * 13 + 56)}" height="48" rx="24" fill="#dbeafe"/><text x="666" y="514" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#1d4ed8">${svgText(merchant)}</text>` : "";
+    ? `<rect x="74" y="102" width="452" height="384" rx="34" fill="#ffffff"/><image href="${imageHref}" x="108" y="132" width="384" height="324" preserveAspectRatio="xMidYMid meet"/>`
+    : `<rect x="74" y="102" width="452" height="384" rx="38" fill="#eef6ff"/><circle cx="454" cy="160" r="86" fill="#bfdbfe" opacity="0.72"/><circle cx="150" cy="455" r="108" fill="#fed7aa" opacity="0.74"/><rect x="110" y="138" width="378" height="274" rx="32" fill="#ffffff" opacity="0.85"/><text x="300" y="192" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="#2563eb">Shared via Shuffle</text><text x="300" y="274" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="900" fill="#172033">${fallbackImageTitle}</text><text x="300" y="444" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="800" fill="#475569">Clean recommendation card</text>`;
+  const merchantWidth = Math.min(230, Math.max(92, merchant.length * 12 + 54));
+  const merchantPill = merchant ? `<rect x="${textX}" y="480" width="${merchantWidth}" height="44" rx="22" fill="#dbeafe"/><text x="${textX + 26}" y="509" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#1d4ed8">${svgText(merchant)}</text>` : "";
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
@@ -1257,14 +1456,14 @@ async function makeSocialCardPng({ shareId, data, imageData }) {
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#0f172a" flood-opacity="0.16"/></filter>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <circle cx="1080" cy="88" r="120" fill="#bfdbfe" opacity="0.55"/>
-  <circle cx="150" cy="560" r="140" fill="#fed7aa" opacity="0.50"/>
+  <circle cx="1080" cy="92" r="118" fill="#bfdbfe" opacity="0.50"/>
+  <circle cx="142" cy="556" r="132" fill="#fed7aa" opacity="0.50"/>
   <g filter="url(#shadow)">${imageBlock}</g>
-  <text x="640" y="112" font-family="Arial, sans-serif" font-size="25" font-weight="800" fill="#2563eb">${svgText(signature)}</text>
-  <text x="640" y="186" font-family="Arial, sans-serif" font-size="50" font-weight="800" fill="#172033">${titleTspans}</text>
-  ${noteLines.length ? `<text x="640" y="382" font-family="Arial, sans-serif" font-size="28" font-style="italic" fill="#475569">${noteTspans}</text>` : ""}
+  <text x="${textX}" y="112" font-family="Arial, sans-serif" font-size="23" font-weight="850" fill="#2563eb">${svgText(signature)}</text>
+  <text x="${textX}" y="180" font-family="Arial, sans-serif" font-size="43" font-weight="850" fill="#172033">${titleTspans}</text>
+  ${noteLines.length ? `<text x="${textX}" y="365" font-family="Arial, sans-serif" font-size="24" font-style="italic" fill="#475569">${noteTspans}</text>` : ""}
   ${merchantPill}
-  <text x="640" y="572" font-family="Arial, sans-serif" font-size="27" font-weight="800" fill="#0f172a">${svgText(urlLabel)}</text>
+  <text x="${textX}" y="568" font-family="Arial, sans-serif" font-size="25" font-weight="850" fill="#0f172a">${svgText(urlLabel)}</text>
 </svg>`;
   return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 }
@@ -1318,18 +1517,84 @@ function appUrl(path = "/") {
   return `${APP_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-function normalizeToken(value = "") {
+const PUBLIC_TOKEN_RE = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
+
+function hasEncodedSlash(value = "") {
+  return /%2f|%5c/i.test(String(value || ""));
+}
+
+function safeDecodePathSegment(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw || hasEncodedSlash(raw)) return "";
+  try { return decodeURIComponent(raw); } catch { return ""; }
+}
+
+function slugifyPublicToken(value = "", max = 64) {
   return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .replace(/^@+/, "")
     .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/['’]/g, "")
+    .replace(/[._/\\]+/g, "-")
+    .replace(/[^a-z0-9]+/g, "-")
     .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/^-+|-+$/g, "")
+    .slice(0, max)
+    .replace(/-+$/g, "");
+}
+
+function normalizeToken(value = "") {
+  return slugifyPublicToken(value, 64);
+}
+
+function isValidPublicToken(value = "") {
+  const token = String(value || "").trim().toLowerCase();
+  return PUBLIC_TOKEN_RE.test(token) && !token.includes("--") && !/[._/%\\]/.test(token);
+}
+
+function normalizeHandleToken(value = "") {
+  return slugifyPublicToken(value, 40);
+}
+
+function normalizeShelfToken(value = "") {
+  return slugifyPublicToken(value, 64);
+}
+
+function isForbiddenHandleInput(value = "") {
+  const raw = String(value || "").trim();
+  return hasEncodedSlash(raw) || /[._/\\]/.test(raw);
+}
+
+function publicRouteSegment(raw = "", { allowAt = false } = {}) {
+  const decoded = safeDecodePathSegment(raw);
+  if (!decoded) return "";
+  const withoutAt = allowAt ? decoded.replace(/^@+/, "") : decoded;
+  const token = slugifyPublicToken(withoutAt, 64);
+  const rawComparable = withoutAt.trim().toLowerCase();
+  // Public paths should already be canonical: letters, numbers, hyphens only.
+  // Do not silently accept dots, underscores, spaces, or encoded slashes in public URLs.
+  if (token !== rawComparable || !isValidPublicToken(token)) return "";
+  return token;
 }
 
 function isPublicShareId(value = "") {
   return /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(String(value || "").trim());
+}
+
+function normalizeFriendlyPunctuation(value = "") {
+  return String(value || "")
+    .replace(/[？]/g, "?")
+    .replace(/[！]/g, "!")
+    .replace(/\s+([?.!,;:!?])/g, "$1")
+    .replace(/\s+([？！，；：])/g, "$1")
+    .replace(/([!?])\s+([!?])/g, "$1$2")
+    .replace(/([！？])\s+([！？])/g, "$1$2")
+    .replace(/！\s*？/g, "!?")
+    .replace(/？\s*！/g, "?!")
+    .trim();
 }
 
 function stripWrappingQuotes(value = "") {
@@ -1342,7 +1607,7 @@ function stripWrappingQuotes(value = "") {
     if (next === text) break;
     text = next;
   }
-  return text.replace(/\s+([?.!,;:])/g, "$1").trim();
+  return normalizeFriendlyPunctuation(text);
 }
 
 function cleanOgText(value = "", max = 180) {
@@ -1385,8 +1650,8 @@ function imageForOg(req, rawImage = "", route = {}, preview = {}) {
       "www.shareshuffle.com",
       "shfl.me",
       "www.shfl.me",
-      "shelfmix.com",
-      "www.shelfmix.com",
+      "shareshuffle.com/shelf.html",
+      "www.shareshuffle.com/shelf.html",
       "shareshuffle-c7f96.web.app",
       "shareshuffle-c7f96.firebaseapp.com"
     ]);
@@ -1397,44 +1662,44 @@ function imageForOg(req, rawImage = "", route = {}, preview = {}) {
 }
 
 function parsePublicRoute(pathname = "/") {
-  const parts = String(pathname || "/")
-    .split("/")
-    .filter(Boolean)
-    .map((part) => decodeURIComponent(part).trim())
-    .filter(Boolean);
+  const rawParts = String(pathname || "/").split("/").filter(Boolean);
+  if (!rawParts.length) return { type: "home" };
 
-  if (!parts.length) return { type: "home" };
-  const first = parts[0] || "";
+  const rawFirst = rawParts[0] || "";
+  const firstDecoded = safeDecodePathSegment(rawFirst).trim();
+  const firstLower = firstDecoded.toLowerCase();
 
   // System routes must win before username/profile routes.
   // This prevents /img/a2c4e from being interpreted as user=img, shelf=a2c4e.
-  if (["img", "app", "share.html", "shelf.html", "status.html", "_status", "_build", "getPreview", "ogImage", "uploadShareImage"].includes(first)) {
-    return { type: "system", canonicalPath: `/${parts.join("/")}` };
+  if (["img", "app", "share.html", "shelf.html", "status.html", "_status", "_build", "getPreview", "ogImage", "uploadShareImage"].includes(firstLower)) {
+    return { type: "system", canonicalPath: `/${rawParts.join("/")}` };
   }
-  if (/^(?:i-|c-|~|-)[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(first)) {
-    const kind = first.toLowerCase().startsWith("c-") ? "card" : "image";
-    return { type: kind, shareId: first.replace(/^(?:i-|c-|~|-)/i, "").toLowerCase(), canonicalPath: `/${first.toLowerCase()}` };
-  }
-
-  if (parts.length === 1 && isPublicShareId(first)) {
-    return { type: "share", shareId: first.toLowerCase(), canonicalPath: `/${first.toLowerCase()}` };
+  if (/^(?:i-|c-|~|-)[23456789abcdefghjkmnpqrstuvwxyz]{5}$/i.test(firstLower)) {
+    const kind = firstLower.startsWith("c-") ? "card" : "image";
+    return { type: kind, shareId: firstLower.replace(/^(?:i-|c-|~|-)/i, ""), canonicalPath: `/${firstLower}` };
   }
 
-  if (first.startsWith("@")) {
-    const handle = normalizeToken(first);
-    const second = normalizeToken(parts[1] || "");
-    const third = String(parts[2] || "").trim().toLowerCase();
+  if (rawParts.length === 1 && isPublicShareId(firstLower)) {
+    return { type: "share", shareId: firstLower, canonicalPath: `/${firstLower}` };
+  }
+
+  if (firstDecoded.startsWith("@")) {
+    const handle = publicRouteSegment(rawFirst, { allowAt: true });
+    const second = rawParts[1] ? publicRouteSegment(rawParts[1]) : "";
+    const third = rawParts[2] ? publicRouteSegment(rawParts[2]) : "";
+    if (!handle) return { type: "invalid", canonicalPath: "/" };
 
     if (isPublicShareId(third)) return { type: "share", handle, shelfSlug: second, shareId: third, canonicalPath: `/@${handle}/${second}/${third}` };
-    if (isPublicShareId(second)) return { type: "share", handle, shareId: second.toLowerCase(), canonicalPath: `/@${handle}/${second.toLowerCase()}` };
+    if (isPublicShareId(second)) return { type: "share", handle, shareId: second, canonicalPath: `/@${handle}/${second}` };
     if (second) return { type: "shelf", handle, shelfSlug: second, canonicalPath: `/@${handle}/${second}` };
     return { type: "profile", handle, canonicalPath: `/@${handle}` };
   }
 
   // Future no-@ routes. Root 5-char share IDs already win above.
-  const handle = normalizeToken(first);
-  const second = normalizeToken(parts[1] || "");
-  const third = String(parts[2] || "").trim().toLowerCase();
+  const handle = publicRouteSegment(rawFirst);
+  const second = rawParts[1] ? publicRouteSegment(rawParts[1]) : "";
+  const third = rawParts[2] ? publicRouteSegment(rawParts[2]) : "";
+  if (!handle) return { type: "invalid", canonicalPath: "/" };
   if (handle && isPublicShareId(third)) return { type: "share", handle, shelfSlug: second, shareId: third, canonicalPath: `/${handle}/${second}/${third}` };
   if (handle && second) return { type: "shelf", handle, shelfSlug: second, canonicalPath: `/${handle}/${second}` };
   if (handle) return { type: "profile", handle, canonicalPath: `/${handle}` };
@@ -1526,17 +1791,17 @@ async function getShelfPreview(route) {
   }
 
   const displayName = cleanOgText(shelfData?.name || inferredName || (route.shelfSlug ? route.shelfSlug.replace(/-/g, " ") : `@${route.handle}`), 95);
-  const desc = cleanOgText(shelfData?.description || (itemCount ? `${itemCount} picks shared on ShelfMix.` : `A ShelfMix collection shared via Shuffle.`), 180);
+  const desc = cleanOgText(shelfData?.description || (itemCount ? `${itemCount} picks shared on Shelves.` : `A ShareShuffle shelf shared via Shuffle.`), 180);
   return {
     found: Boolean(shelfData || route.handle || itemCount),
     kind: route.shelfSlug ? "shelf" : "profile",
-    title: route.shelfSlug ? `${displayName} — ShelfMix` : `@${route.handle} on ShareShuffle`,
+    title: route.shelfSlug ? `${displayName} — Shelves` : `@${route.handle} on ShareShuffle`,
     description: desc,
     image,
     itemCount,
     imageVersion: versionSeed || versionFromTimestamp(shelfData?.updatedAt || shelfData?.created),
     destination: shelfDestination(route),
-    typeLabel: route.shelfSlug ? "ShelfMix collection" : "ShareShuffle profile"
+    typeLabel: route.shelfSlug ? "ShareShuffle shelf" : "ShareShuffle profile"
   };
 }
 
@@ -1605,7 +1870,7 @@ function isHostedShareShuffleUrl(value = "") {
     return host === "shareshuffle.com" ||
       host === "shfl.me" ||
       host === "shflz.com" ||
-      host === "shelfmix.com" ||
+      host === "shareshuffle.com/shelf.html" ||
       host.endsWith(".web.app") ||
       host.endsWith(".firebaseapp.com");
   } catch {
@@ -1702,6 +1967,73 @@ function chooseStoreUrl(data = {}) {
 }
 
 
+export const addShareToShelf = onRequest(
+  {
+    invoker: "public",
+    timeoutSeconds: 10,
+    memory: "256Mi"
+  },
+  async (req, res) => {
+    if (req.method === "OPTIONS") {
+      setCors(res, "POST, OPTIONS");
+      res.status(204).send("");
+      return;
+    }
+    if (req.method !== "POST") {
+      sendCorsJson(res, 405, { ok: false, error: "Method not allowed" }, "POST, OPTIONS");
+      return;
+    }
+    try {
+      const id = String(req.body?.id || "").trim();
+      const shelfName = cleanOgText(req.body?.shelfName || "", 100);
+      const shelfSlug = normalizeShelfToken(req.body?.shelfSlug || shelfName);
+      const rawHandleInput = req.body?.handle || req.body?.handleSlug || "rich";
+      const handleSlug = normalizeHandleToken(rawHandleInput || "rich");
+      const handleDisplay = cleanOgText(req.body?.handleDisplay || handleSlug || "rich", 80);
+      if (!id || !/^[A-Za-z0-9_-]{3,80}$/.test(id)) {
+        sendCorsJson(res, 400, { ok: false, error: "Missing or invalid share id" }, "POST, OPTIONS");
+        return;
+      }
+      if (!shelfName || !shelfSlug || !isValidPublicToken(shelfSlug)) {
+        sendCorsJson(res, 400, { ok: false, error: "Missing or invalid shelf name" }, "POST, OPTIONS");
+        return;
+      }
+      if (!handleSlug || !isValidPublicToken(handleSlug) || isForbiddenHandleInput(rawHandleInput)) {
+        sendCorsJson(res, 400, { ok: false, error: "Use letters, numbers, and hyphens only for your handle. Try rich-williams instead of rich_williams or rich.williams." }, "POST, OPTIONS");
+        return;
+      }
+      const shareRef = db.collection("shares").doc(id);
+      const shareSnap = await shareRef.get();
+      if (!shareSnap.exists) {
+        sendCorsJson(res, 404, { ok: false, error: "Share not found" }, "POST, OPTIONS");
+        return;
+      }
+      const shelfDocId = handleSlug ? `${handleSlug}__${shelfSlug}` : shelfSlug;
+      const shelfUrl = handleSlug ? `https://shfl.me/${encodeURIComponent(handleSlug)}/${encodeURIComponent(shelfSlug)}` : `https://shareshuffle.com/shelf.html?s=${encodeURIComponent(shelfSlug)}`;
+      await db.collection("shelves").doc(shelfDocId).set({
+        name: shelfName,
+        slug: shelfSlug,
+        handleSlug,
+        handleDisplay,
+        routePath: handleSlug ? `/${handleSlug}/${shelfSlug}` : `/shelf.html?s=${shelfSlug}`,
+        created: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+      await shareRef.update({
+        shelfName,
+        shelfSlug,
+        handleSlug,
+        handleDisplay,
+        updatedAt: FieldValue.serverTimestamp()
+      });
+      sendCorsJson(res, 200, { ok: true, id, shelfName, shelfSlug, handleSlug, handleDisplay, shelfUrl }, "POST, OPTIONS");
+    } catch (error) {
+      console.error("addShareToShelf failed", error);
+      sendCorsJson(res, 500, { ok: false, error: error.message || String(error) }, "POST, OPTIONS");
+    }
+  }
+);
+
 export const shareData = onRequest(
   {
     invoker: "public",
@@ -1737,8 +2069,8 @@ export const shareData = onRequest(
       const url = storeUrl;
       const merchant = cleanOgText(data.merchant || "", 60);
       const image = shareDataImageField(data);
-      const shelfSlug = normalizeToken(data.shelfSlug || "");
-      const handleSlug = normalizeToken(data.handleSlug || "");
+      const shelfSlug = normalizeShelfToken(data.shelfSlug || "");
+      const handleSlug = normalizeHandleToken(data.handleSlug || "");
       const shelfName = cleanOgText(data.shelfName || "", 100);
       const handleDisplay = cleanOgText(data.handleDisplay || handleSlug || "", 80);
 
@@ -1817,8 +2149,8 @@ export const shelfData = onRequest(
 
     try {
       res.set("Cache-Control", "public, max-age=30, s-maxage=60");
-      const handle = normalizeToken(String(req.query.u || req.query.handle || ""));
-      const shelfSlug = normalizeToken(String(req.query.s || req.query.shelf || ""));
+      const handle = normalizeHandleToken(String(req.query.u || req.query.handle || ""));
+      const shelfSlug = normalizeShelfToken(String(req.query.s || req.query.shelf || ""));
       const limit = Math.min(Math.max(Number(req.query.limit || 50), 1), 100);
 
       if (!shelfSlug && !handle) {
@@ -1831,8 +2163,8 @@ export const shelfData = onRequest(
       const debug = [];
 
       const matches = (id, data = {}) => {
-        const itemShelf = normalizeToken(data.shelfSlug || "");
-        const itemHandle = normalizeToken(data.handleSlug || "");
+        const itemShelf = normalizeShelfToken(data.shelfSlug || "");
+        const itemHandle = normalizeHandleToken(data.handleSlug || "");
         if (shelfSlug && itemShelf !== shelfSlug) return false;
         // Chrome-review extension shares may not have handleSlug at all.
         // If handle is requested, keep no-user docs for the same shelf slug.
@@ -1872,7 +2204,7 @@ export const shelfData = onRequest(
         }
       }
 
-      if (handle && shelfSlug && !items.some(item => normalizeToken(item.handleSlug) === handle)) {
+      if (handle && shelfSlug && !items.some(item => normalizeHandleToken(item.handleSlug) === handle)) {
         try {
           debug.push(`query:handleSlug=${handle}`);
           const snap = await db.collection("shares").where("handleSlug", "==", handle).limit(limit).get();
@@ -1884,8 +2216,8 @@ export const shelfData = onRequest(
       }
 
       const first = items.find(item => item.shelfName || item.handleDisplay || item.handleSlug) || {};
-      const resolvedHandle = normalizeToken(first.handleSlug || handle || "");
-      const resolvedShelf = normalizeToken(first.shelfSlug || shelfSlug || "");
+      const resolvedHandle = normalizeHandleToken(first.handleSlug || handle || "");
+      const resolvedShelf = normalizeShelfToken(first.shelfSlug || shelfSlug || "");
       const shelfName = cleanOgText(first.shelfName || (resolvedShelf ? resolvedShelf.replace(/-/g, " ") : "Shelf"), 100);
       const handleDisplay = cleanOgText(first.handleDisplay || resolvedHandle || "", 80);
 
@@ -1962,7 +2294,7 @@ async function loadShelfShares({ handle = "", shelfSlug = "", limit = 16 } = {})
   const out = [];
   for (const doc of snaps.docs) {
     const data = doc.data() || {};
-    if (handle && data.handleSlug && normalizeToken(data.handleSlug) !== handle) continue;
+    if (handle && data.handleSlug && normalizeHandleToken(data.handleSlug) !== handle) continue;
     out.push({ id: doc.id, ...data });
     if (out.length >= limit) break;
   }
@@ -2135,8 +2467,8 @@ export const uploadShareImage = onRequest(
       "https://www.shareshuffle.com",
       "https://shfl.me",
       "https://www.shfl.me",
-      "https://shelfmix.com",
-      "https://www.shelfmix.com",
+      "https://shareshuffle.com/shelf.html",
+      "https://www.shareshuffle.com/shelf.html",
       "https://shareshuffle-c7f96.web.app",
       "http://localhost:5000",
       "http://localhost:5173"

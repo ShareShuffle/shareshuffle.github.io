@@ -2,50 +2,30 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
+  <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+  <link rel="shortcut icon" href="/icons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Shuffle" />
+  <link rel="manifest" href="/icons/site.webmanifest" />
+<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ShareShuffle.com | Share product recommendations, shelves, and short links</title>
-    <meta name="description" content="ShareShuffle helps people send the thing they meant to send: product recommendations with personal notes, clean short links, Share Rescue, image choices, and curated shelves.">
+    <title>ShareShuffle | Clean product recommendations, shelves, and short links</title>
+    <meta name="description" content="ShareShuffle helps people send the thing they meant to send: clean product recommendations with personal notes, reliable preview cards, short links, and shelves.">
     <meta name="robots" content="index,follow">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#EEF6FF">
+<meta name="theme-color" content="#EEF6FF">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="ShareShuffle">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon16-dark.png">
-    <link rel="icon" sizes="16x16" href="/icons/icon16.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="16x16" href="/icons/network-bw-16.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" sizes="24x24" href="/icons/icon24.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="24x24" href="/icons/network-bw-24.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" sizes="32x32" href="/icons/icon32.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="32x32" href="/icons/network-bw-32.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" sizes="64x64" href="/icons/icon64.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="64x64" href="/icons/network-bw-64.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" sizes="128x128" href="/icons/icon128.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="128x128" href="/icons/network-bw-128.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" sizes="256x256" href="/icons/icon256.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="256x256" href="/icons/network-bw-256.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" sizes="512x512" href="/icons/icon512.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" sizes="512x512" href="/icons/network-bw-512.png" media="(prefers-color-scheme: dark)">
-
-<link rel="manifest" href="/manifest.webmanifest">
-
 <meta name="theme-color" content="#EEF6FF">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ShareShuffle">
+<!--
 
-<link rel="apple-touch-icon" href="/icons/icon180-square.png">
 
-    <!--
-    <link rel="icon" type="image/png" sizes="24x24" href="/icons/icon24-dark.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32-dark.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon64.png">
-    <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon128.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon512.png">
+
+
 -->
-    <link rel="apple-touch-icon" href="/icons/icon180-square.png">
-    <meta name="theme-color" content="#EEF6FF">
+<meta name="theme-color" content="#EEF6FF">
     <meta name='impact-site-verification' value='2af84891-4ec2-499a-b0cc-be7713a7d027'>
     <link rel="stylesheet" href="/assets/brand.css">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
@@ -131,37 +111,34 @@ const app = initializeApp(firebaseConfig);
     form.addEventListener("submit", handleWaitlistSubmit);
   });
 </script>
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#EEF6FF">
+<meta name="theme-color" content="#EEF6FF">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="ShareShuffle">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/icons/icon180-square.png">
-    <link href="/assets/ss-skeleton.css" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="/assets/ss-skeleton.css" rel="stylesheet">
 </head>
 
 <body>
     <nav class="ss-nav">
         <div class="ss-nav-inner"><a class="ss-brand" href="/"><span class="ss-logo"><img src="/icons/icon32.png" alt=""></span><span>ShareShuffle</span></a>
-            <div class="ss-links"><a href="/">Home</a><a href="/demo.html">Demo</a><a href="/investor.html">Investor</a><a href="https://shelfmix.com">ShelfMix</a><a href="/support/">Support</a></div>
+            <div class="ss-links"><a href="/">Home</a><a href="/demo.html">Demo</a><a href="/investor.html">Investor</a><a href="/shelf.html">Shelves</a><a href="/support/">Support</a></div>
         </div>
     </nav>
     <section class="ss-hero">
         <div class="ss-container ss-grid">
             <div><span class="ss-eyebrow"><i class="fa-solid fa-shuffle"></i> Share what’s worth finding</span>
                 <h1 class="ss-title">A better way to share recommendations.</h1>
-                <p class="ss-subtitle">ShareShuffle turns messy product links into clean, personal recommendations. Build a shelf, add a note, and send a short link that feels like advice from a friend — not affiliate spam.</p>
+                <p class="ss-subtitle">Shuffle turns messy product links into clean, personal recommendations. Add a note, save it to a shelf, and send a short link that feels like advice from a friend — not affiliate spam.</p>
                 <p><a class="ss-btn" href="/demo.html"><i class="fa-solid fa-play"></i> Try the demo</a> <a class="ss-btn secondary" href="/investor.html"><i class="fa-solid fa-chart-line"></i> Brand story</a></p>
-                <p class="pill"><i class="fa-solid fa-layer-group"></i> ShareShuffle + SHFL.ME + ShelfMix</p>
+                <p class="pill"><i class="fa-solid fa-layer-group"></i> ShareShuffle + SHFL.ME + Shelves</p>
             </div>
             <div class="ss-demo-card">
                 <div class="phone">
                     <div class="pill"><i class="fa-solid fa-layer-group"></i> Rich’s Bass Gear</div>
                     <h3>Yamaha BB735A</h3>
-                    <div class="product"><img src="/icons/icon128.png" alt="">
+                    <div class="product"><span class="demo-bass-thumb" aria-hidden="true">♬</span>
                         <div><strong>Favorite bass gear for church, recording, and live performance.</strong><br><span style="color:#667085">shfl.me/bass</span></div>
                     </div>
-                    <p style="margin-top:14px">Shared via ShareShuffle:<br>💬 This is the bass I’d recommend first.<br>🎯 Yamaha BB735A 5-String Bass<br>🔗 shfl.me/bass</p>
+                    <p style="margin-top:14px">Shared via Shuffle:<br>💬 This is the bass I’d recommend first.<br>🎯 Yamaha BB735A 5-String Bass<br>🔗 shfl.me/bass</p>
                 </div>
             </div>
         </div>
@@ -173,10 +150,10 @@ const app = initializeApp(firebaseConfig);
             <div class="cards">
                 <div class="metric"><span class="pill"><i class="fa-solid fa-link"></i> SHFL.ME</span>
                     <h3>Short links</h3>
-                    <p>Readable share links for individual products and future shelf slugs.</p>
+                    <p>Readable share links for individual products and shelves.</p>
                 </div>
-                <div class="metric"><span class="pill"><i class="fa-solid fa-layer-group"></i> ShelfMix</span>
-                    <h3>Collections</h3>
+                <div class="metric"><span class="pill"><i class="fa-solid fa-layer-group"></i> Shelves</span>
+                    <h3>Share-a-shelf collections</h3>
                     <p>Recommendation pages like Worship Bass Essentials, Recording Gear Shelf, and Church Tech Shelf.</p>
                 </div>
                 <div class="metric"><span class="pill"><i class="fa-brands fa-chrome"></i> Extension</span>
@@ -253,7 +230,7 @@ const app = initializeApp(firebaseConfig);
         </div>
     </section>
     <footer class="ss-footer">
-        <div class="ss-container">ShareShuffle.com · SHFL.ME · ShelfMix.com · Product recommendations with context.</div>
+        <div class="ss-container">ShareShuffle · SHFL.ME · Shelves · Product recommendations with context.</div>
     </footer>
     <script src="/assets/ss-skeleton.js" defer></script>
 </body>

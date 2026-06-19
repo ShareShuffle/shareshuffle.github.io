@@ -10,7 +10,7 @@ export const FIREBASE_CONFIG = {
 };
 
 export const SHARE_BASE_URL = "https://shfl.me/";
-export const SHELF_BASE_URL = "https://shelfmix.com/";
+export const SHELF_BASE_URL = "https://shareshuffle.com/shelf.html/";
 
 export const AFFILIATE_CONFIG = {
   amazon: { tag: "shareshuffle-20" },
@@ -224,7 +224,7 @@ export function buildHandleShareUrl({ handleSlug = "", shelfSlug = "", id = "" }
   const shareId = canonicalShareId(id) || String(id || "").trim().toLowerCase();
 
   // Keep individual item links as short as possible for text/iMessage.
-  // Shelves/profiles get the richer ShelfMix routes; item shares are SHFL.ME/a2c4e.
+  // Shelves/profiles get the richer Shelves routes; item shares are SHFL.ME/a2c4e.
   return buildShareUrl(shareId);
 }
 

@@ -1,0 +1,2 @@
+2026.06.17-shareshuffle-icons-head-47
+Adds ShareShuffle favicon/PWA head tags across hosted HTML pages.

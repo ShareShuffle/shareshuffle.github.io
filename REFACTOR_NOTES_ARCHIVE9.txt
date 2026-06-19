@@ -6,7 +6,7 @@ Implemented:
 - Popup only repopulates editable fields when the stored share is from the same current page, preventing accidental overwrite.
 - Popup CSS compacted to reduce scrolling.
 - SMS/email/share message emoji format updated:
-  🔗 Shared via ShareShuffle
+  🔗 Shared via Shuffle
   📝 note
   🛍️ item
   🔗 short link

@@ -56,7 +56,7 @@ Patch 40 fixes the blank/white image problem by treating missing images as a car
 - Need verify Patch 40 live with a new Guitar Center share.
 - Need improve image picker timing: do not make creation feel frozen.
 - Need add “Improve image” after share creation when fallback was used.
-- Need clean up stale ShelfMix wording in shelf/profile copy.
+- Need clean up stale Shelves wording in shelf/profile copy.
 - Need update status page to distinguish static build vs function build clearly.
 - Need protect username namespace: random share IDs should not collide with future handles like `/rich`.
 - Extension 0.1.2 after approval: Search Result Rescue / “Pick what you meant” from visible Amazon/YouTube results.

@@ -14,10 +14,10 @@ Compatibility matrix supported after this patch
 
 2. New handled shelf:
    https://shareshuffle.com/shelf.html?u=rich&s=bass-gear
-   https://shelfmix.com/rich/bass-gear  (with optional shelfmix router patch)
+   https://shareshuffle.com/shelf.html/rich/bass-gear  (with optional shelfmix router patch)
 
-3. Legacy ShelfMix no-user shelf:
-   https://shelfmix.com/bass-gear        (with optional shelfmix router patch)
+3. Legacy Shelves no-user shelf:
+   https://shareshuffle.com/shelf.html/bass-gear        (with optional shelfmix router patch)
 
 4. Clean item share:
    https://shfl.me/abc12
@@ -31,7 +31,7 @@ What changed
 - shelf.html still accepts handle routes but does not require handleSlug on old share docs.
 - shelf.html has a fallback lookup and real error card instead of hanging.
 - Copy Shelf keeps the legacy shareshuffle.com/shelf.html?s=... URL when no real handle exists.
-- Copy Shelf upgrades to ShelfMix only when a real handleSlug is present.
+- Copy Shelf upgrades to Shelves only when a real handleSlug is present.
 - The future local extension source now creates clean shfl.me/{id} links, but the live public routers remain compatible with the already-submitted Chrome package.
 - Optional shelfmix/shfl GitHub Pages routers preserve handle + shelf slug instead of collapsing routes.
 

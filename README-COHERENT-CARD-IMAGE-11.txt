@@ -3,7 +3,7 @@ ShareShuffle patch: 2026.06.12-coherent-card-image-11
 What changed:
 - Bumped static and function build markers together.
 - Status page now expects this build and still checks both /assets/build-info.json and /_build.
-- /app/ preview endpoint recognizes shareshuffle.com, shfl.me, shelfmix.com, and Firebase hosts as first-party.
+- /app/ preview endpoint recognizes shareshuffle.com, shfl.me, shareshuffle.com/shelf.html, and Firebase hosts as first-party.
 - Create-share payload now records imageStatus/imageSource immediately so cards can explain pending/no-image states.
 - Native Share avoids duplicating the URL by sending the URL through navigator.share() and the body text without a second trailing URL.
 - Copy Text / Message / Email still use the full simple message with https://shfl.me/{id} as the final line.

@@ -1,0 +1,4 @@
+Patch 56 — Amazon title recovery
+Build: 2026.06.19-amazon-gp-title-guard-57
+
+Improves Amazon title extraction when a.co/full Amazon URLs return useful images but sparse or blocked metadata. Adds broader Amazon title candidate parsing and query fallback while preserving Patch 55 status/punctuation fixes.

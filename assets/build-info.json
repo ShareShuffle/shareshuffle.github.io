@@ -1,1 +1,6 @@
-{"build":"2026.06.17-preserve-cached-image-45","createdAt":"2026-06-17T18:25:00Z","patch":"preserve-cached-image-45","ok":true}
+{
+  "build": "2026.06.19-open-buttons-internal-routes-59",
+  "createdAt": "2026-06-19T14:50:00Z",
+  "patch": "open-buttons-internal-routes-59",
+  "notes": "Makes Open and Open Shelf use same-origin /share.html and /shelf.html routes, with delegated click handling for Safari, iOS PWA, and WKWebView app shells. Includes prior Amazon title and card polish fixes."
+}

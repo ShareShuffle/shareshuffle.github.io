@@ -9,7 +9,7 @@ What changed:
 - Adds /rimg-{id} route for cached rescue images.
 - App filters recursive ShareShuffle social-card images so a card is never used inside another card.
 - App calls imageRescue with count=50 and shows only usable backup choices plus the placeholder.
-- Shelf social card copy now uses ShareShuffle / shfl.me instead of ShelfMix.
+- Shelf social card copy now uses ShareShuffle / shfl.me instead of Shelves.
 
 Required secret:
 - BRAVE_SEARCH_API_KEY must already be set with:

@@ -262,10 +262,10 @@ Notes: Use escapeHtml and careful text rendering.
 
 SS-036 [P2] Brand — Simplify public brand around ShareShuffle + shfl.me
 Status: Decision pending | Surface: Brand/home/shelves | Target: Soon | Complexity: S | Cost/Risk: Low
-User story: As a visitor, I want one clear brand instead of ShelfMix confusion.
+User story: As a visitor, I want one clear brand instead of Shelves confusion.
 Why: Cleaner launch/reviewer experience.
-Acceptance: Public pages primarily say ShareShuffle; ShelfMix can remain internal/collection wording.
-Notes: ShelfMix.com owned but not replacing ShareShuffle.
+Acceptance: Public pages primarily say ShareShuffle; Shelves can remain internal/collection wording.
+Notes: Shelves owned but not replacing ShareShuffle.
 
 SS-037 [P2] Brand — S-node logo/icon system
 Status: Built/ongoing | Surface: Assets | Target: Live | Complexity: M | Cost/Risk: Low
@@ -367,7 +367,7 @@ RISKS / DECISIONS
 - LLM features: Hold — No LLM API fees until revenue/support exists. Revisit: Revenue, grants, or very clear ROI.
 - Server scraping Amazon/search pages: Avoid — Bot/dog-page/blocking/compliance risk; brittle. Revisit: Only if official API or user-authorized safe method exists.
 - Extension changes while in review: Avoid — Compliance-only resubmission is safest. Revisit: Chrome rejects and asks for changes, or approval completes.
-- ShelfMix public brand: De-emphasize for now — ShareShuffle + shfl.me is clearer during launch. Revisit: When shelf product identity needs separate brand.
+- Shelves public brand: De-emphasize for now — ShareShuffle + shfl.me is clearer during launch. Revisit: When shelf product identity needs separate brand.
 - Social unfurl consistency: Improve but don't obsess — iMessage/social previews are inconsistent by platform. Revisit: Repeated failures after OG hardening.
 - Blue hover selection mode: Later — High UX wow, but extension/content-script complexity and review sensitivity. Revisit: After chooser works and extension approval is stable.
 - Affiliate links: Compliant and transparent — Revenue engine, but must never feel deceptive. Revisit: Review feedback or user confusion.
@@ -463,3 +463,75 @@ Notes: The app now briefly checks the first-party /i-{id} route before saying Im
 SS-064 — Preserve cached image when resharing after note/title edits
 Status: Done in Patch 45
 Notes: Existing first-party /i-{id} images are cloned into the new share instead of being treated as invalid external image URLs.
+
+SS-065 | Done | Add post-share shelf suggestion panel after successful share.
+SS-066 | Done | Add server-side endpoint to attach an existing share to a shelf without changing Chrome extension.
+SS-067 | Future | Improve shelf suggestions using merchant/category/recent-shelf history.
+
+
+SS-068 — ShareShuffle favicon/PWA head tags — Done in Patch 47. Added requested favicon, apple-touch-icon, manifest, and app-title tags across hosted HTML pages.
+
+
+SS-068 — Done — Hosted user-facing rename to ShareShuffle
+Notes: App UI, page metadata, card labels, and PWA manifests now use ShareShuffle as the user-facing product name. Technical repo/Firebase/domain names remain unchanged.
+
+SS-069 — Done — Share/SMS/card text uses “shared via Shuffle”
+Notes: Approved prefix is “Rich shared via Shuffle:”. Generic fallback is “Shared via Shuffle:”.
+
+SS-070 — Future — Decide legal/domain transition language
+Notes: Decide whether privacy/support/legal pages should say ShareShuffle only or “ShareShuffle, formerly ShareShuffle,” once domain and Chrome approval path are settled.
+
+## Patch 51 — Mobile card polish
+- SS-068 — Done — Improve iMessage/social card spacing so title/note do not run off the card.
+- SS-069 — Done — Add safer responsive mobile layout spacing for the app builder.
+- SS-070 — Done — Fix iPhone safe-area top padding on /app.
+- SS-071 — Done — Make Clear fully reset stale title/image/status state.
+- SS-072 — Done — Prevent Blocked or junk fallback titles from sticking after failed paste/preview.
+
+
+SS-073 — Done — Brand reset from Shelzo back to ShareShuffle/Shuffle
+Notes: Hosted user-facing copy now uses ShareShuffle for normal/formal contexts and Shuffle for short share labels.
+
+SS-074 — Done — Restore RGBY network-node iconography
+Notes: Replaced Shelzo favicon/PWA assets with the pre-Shelzo network-node icon set.
+
+SS-075 — Done — De-emphasize ShelfMix public naming
+Notes: Homepage/support/shelf copy now favors Shelves / ShareShuffle shelves over ShelfMix as a separate public brand.
+
+SS-076 — Done — Homepage typography light pass
+Notes: Reduced homepage display/header font weight to feel less heavy.
+
+SS-078 — Done — Hyphen-only public handles and shelf slugs
+Notes: Public handle and shelf route tokens now use lowercase letters, numbers, and hyphens only. Dots, underscores, slashes, backslashes, and encoded slashes are not accepted for canonical public URLs.
+
+SS-079 — Done — Encoded slash guardrails for public routes
+Notes: Public route parsing rejects `%2F` and `%5C` path segments so ShareShuffle never intentionally generates or canonicalizes encoded slash URLs like /rich%2Fsilk-flowers.
+
+SS-080 — Done — Friendly handle validation copy
+Notes: App handle helper copy now tells users to use letters, numbers, and hyphens only, with no dots or underscores.
+
+
+## Patch 54 — Paste/Amazon/Image polish
+- SS-085: Fix mobile Paste Product Link focus/clipboard fallback behavior. DONE.
+- SS-086: Improve Amazon title extraction when image succeeds but metadata is weak. DONE.
+- SS-087: Do not replace a good store image with broad Brave/Image Rescue candidates. DONE.
+- SS-088: Preserve compact punctuation sequences like `?!` / `!?` in notes. DONE.
+
+SS-080 — Add animated progress/status feedback for link resolution and share creation — Done in Patch 55.
+SS-081 — Improve Amazon mobile/a.co title extraction from alternate metadata/attributes — Done in Patch 55.
+SS-082 — Preserve compound punctuation such as ?! and !? in notes/cards — Done in Patch 55.
+SS-083 — Future: add in-app Refresh/Check for update control for Home Screen PWA users.
+
+SS-080 — Amazon title recovery when image succeeds but title is empty — Done in Patch 56.
+
+
+## Patch 57 — Amazon GP title guard
+- SS-084: Reject Amazon route fragments such as `Gp`, `Aw`, `Dp`, and `D` as product titles. DONE.
+- SS-085: Filter Amazon mobile path plumbing from URL-derived title fallback. DONE.
+- SS-086: Use a conservative generic fallback only when image exists but title metadata remains unavailable. DONE.
+
+
+SS-080 — Open Shelf in app wrapper/PWA
+Problem: Open Shelf used target=_blank behavior, which can be ignored by iOS Home Screen apps and WKWebView shells.
+Fix: Route Open Share/Open Shelf through same-context navigation so clicks work in Safari, PWA, simulator, and the native app wrapper.
+Status: Patch 58.

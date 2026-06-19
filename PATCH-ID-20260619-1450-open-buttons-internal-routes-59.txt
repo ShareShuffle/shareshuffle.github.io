@@ -1,0 +1,2 @@
+Patch 59 — Open buttons internal routes.
+Build: 2026.06.19-open-buttons-internal-routes-59

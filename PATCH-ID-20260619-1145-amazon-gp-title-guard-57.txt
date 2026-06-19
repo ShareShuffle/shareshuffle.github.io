@@ -1,0 +1,5 @@
+Patch 57 — Amazon GP Title Guard
+Build: 2026.06.19-amazon-gp-title-guard-57
+
+Purpose:
+Prevent Amazon mobile path fragments such as /gp/aw/d from becoming product titles like "Gp" when Amazon exposes image data but sparse/blocked title metadata.

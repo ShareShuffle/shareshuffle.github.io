@@ -19,7 +19,7 @@
 - The bottom CTA now points to /app/ with “Create Your First Share.”
 - Removed accidental pasted assistant/code-fence content from demo.html.
 - Demo-generated messages use the preferred format:
-  Shared via ShareShuffle:
+  Shared via Shuffle:
   💬 note
   🎯 title
   🔗 link

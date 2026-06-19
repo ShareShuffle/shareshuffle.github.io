@@ -158,7 +158,7 @@ a {
     line-height: .92;
     letter-spacing: -.06em;
     margin: 22px 0 18px;
-    font-weight: 1000
+    font-weight: 760
 }
 
 .ss-subtitle {
@@ -232,7 +232,7 @@ a {
     font-size: clamp(2rem, 4vw, 3.2rem);
     line-height: 1;
     margin: 0 0 14px;
-    font-weight: 1000;
+    font-weight: 780;
     letter-spacing: -.04em
 }
 
@@ -254,7 +254,7 @@ a {
 
 .metric .num {
     font-size: 2rem;
-    font-weight: 1000
+    font-weight: 760
 }
 
 .ss-footer {
@@ -563,4 +563,28 @@ td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7
   height: 48px;
   border-radius: 16px;
   box-shadow: 0 12px 30px rgba(13,110,253,.22);
+}
+
+
+/* Patch 52 brand reset: lighten hero display type and use a stable demo product mark. */
+.ss-title {
+  font-weight: 760;
+  letter-spacing: -.045em;
+}
+.section h2 {
+  font-weight: 780;
+  letter-spacing: -.035em;
+}
+.demo-bass-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 64px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,193,69,.92), transparent 32%), linear-gradient(135deg, #071426, #184e77);
+  color: #fff;
+  font-size: 32px;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
 }

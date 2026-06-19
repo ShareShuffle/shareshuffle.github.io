@@ -6,7 +6,7 @@ Scope:
 - Adds /imageRescue Firebase Function using BRAVE_SEARCH_API_KEY secret.
 - Adds Firebase Hosting rewrite for /imageRescue.
 - When store preview image lookup fails, /app/ can fetch 5 backup image candidates and show them with one designed ShareShuffle placeholder.
-- Replaces ShelfMix route examples in the mobile app with shfl.me examples.
+- Replaces Shelves route examples in the mobile app with shfl.me examples.
 - Keeps Patch 32 lower-case action copy.
 
 Before deploy:

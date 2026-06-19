@@ -102,6 +102,13 @@
         }
       },
       {
+        "source": "/addShareToShelf",
+        "function": {
+          "functionId": "addShareToShelf",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "/shelfData",
         "function": {
           "functionId": "shelfData",

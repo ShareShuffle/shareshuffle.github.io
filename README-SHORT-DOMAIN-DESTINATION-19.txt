@@ -26,5 +26,5 @@ Optional, only if separate GitHub Pages repos are still live:
   ditto "/Users/richwilliams/Downloads/shareshuffle-short-domain-destination-19/shelfmix.github.io" "/Users/richwilliams/Documents/GitHub/shelfmix.github.io"
 
 How to tell whether the separate repos matter:
-- If shfl.me and shelfmix.com are attached to Firebase Hosting for shareshuffle, deploy the main Firebase repo only.
+- If shfl.me and shareshuffle.com/shelf.html are attached to Firebase Hosting for shareshuffle, deploy the main Firebase repo only.
 - If GitHub Pages still serves either domain, commit/push the matching repo folder changes too.

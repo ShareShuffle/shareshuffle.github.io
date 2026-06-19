@@ -22,7 +22,7 @@ Test after domains point to Firebase Hosting:
 Domains to attach to Firebase Hosting:
 - shareshuffle.com
 - shfl.me
-- shelfmix.com
+- shareshuffle.com/shelf.html
 
 Important:
 Do not deploy until shareshuffle-c7f96.web.app works. Then move DNS/custom domains.

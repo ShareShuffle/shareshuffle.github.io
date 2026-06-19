@@ -2,24 +2,27 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
+  <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+  <link rel="shortcut icon" href="/icons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Shuffle" />
+  <link rel="manifest" href="/icons/site.webmanifest" />
+<meta charset="utf-8">
     <title>ShareShuffle App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Create ShareShuffle product recommendation links on iPhone and mobile.">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#EEF6FF">
+<meta name="theme-color" content="#EEF6FF">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="ShareShuffle">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="/icons/icon180-square.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon32.png">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" rel="stylesheet">
     <link href="/assets/brand.css" rel="stylesheet">
     <script src="/assets/shareshuffle-config.js"></script>
     <style>
         body{background:var(--ss-grad-dark);}
-    .app-shell{min-height:100vh;padding:calc(env(safe-area-inset-top) + 18px) 16px 28px;color:white;}
+    .app-shell{min-height:100vh;padding:calc(env(safe-area-inset-top) + 38px) 16px calc(env(safe-area-inset-bottom) + 34px);color:white;}
     .app-wrap{max-width:680px;margin:0 auto;}
     .app-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;}
     .app-brand{display:flex;align-items:center;gap:10px;color:white;text-decoration:none;}
@@ -29,9 +32,9 @@
     .app-brand span{display:block;color:rgba(255,255,255,.68);font-size:.86rem;margin-top:3px;}
     .install-pill{border:1px solid rgba(255,255,255,.38);color:white;border-radius:999px;padding:8px 11px;text-decoration:none;font-weight:850;font-size:.84rem;white-space:nowrap;}
     .app-card{background:rgba(255,255,255,.97);color:var(--ss-ink);border:1px solid rgba(255,255,255,.72);border-radius:30px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.28);}
-    .app-title{font-size:clamp(2rem,9vw,3.55rem);line-height:.94;letter-spacing:-.045em;font-weight:760;margin:12px 0 10px;}
+    .app-title{font-size:clamp(1.86rem,8vw,3.25rem);line-height:.98;letter-spacing:-.042em;font-weight:760;margin:8px 0 10px;text-wrap:balance;}
     .app-lede{color:var(--ss-muted);font-size:1rem;line-height:1.4;margin:0 0 18px;}
-    .field{margin-top:12px;}
+    .field{margin-top:12px;scroll-margin-top:calc(env(safe-area-inset-top) + 86px);}    .input,.textarea{scroll-margin-top:calc(env(safe-area-inset-top) + 96px);} 
     .field label{display:block;font-weight:900;font-size:.88rem;margin-bottom:6px;}
     .optional{color:var(--ss-muted);font-weight:700;}
     .input, .textarea{width:100%;box-sizing:border-box;border:1px solid #d8e2f0;border-radius:16px;padding:12px 13px;font:inherit;background:white;outline:none;}
@@ -46,6 +49,10 @@
     .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
     .pill-row button{border:1px solid #d8e2f0;background:#fff;color:var(--ss-ink);border-radius:999px;padding:7px 10px;font-weight:850;}
     .status{min-height:22px;margin:10px 2px 0;color:#1c4ed8;font-weight:850;font-size:.92rem;}
+    .status.busy{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:#eef6ff;box-shadow:inset 0 0 0 1px rgba(13,110,253,.10);}
+    .status.busy::before{content:"";width:9px;height:9px;border-radius:999px;background:linear-gradient(135deg,#ff8a00,#0d6efd);box-shadow:0 0 0 0 rgba(13,110,253,.32);animation:ssPulse 1.15s ease-in-out infinite;}
+    .status .ticker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:900;color:#0f172a;letter-spacing:.08em;}
+    @keyframes ssPulse{0%{transform:scale(.72);opacity:.65;box-shadow:0 0 0 0 rgba(13,110,253,.28)}50%{transform:scale(1);opacity:1;box-shadow:0 0 0 8px rgba(13,110,253,0)}100%{transform:scale(.72);opacity:.65;box-shadow:0 0 0 0 rgba(13,110,253,0)}}
     .field-help{min-height:18px;margin:6px 2px 0;color:#4b647a;font-size:.82rem;line-height:1.25;}
     .rescue-panel{display:none;margin:10px 2px 0;padding:12px 13px;border:1px solid rgba(13,110,253,.18);border-radius:18px;background:#eef6ff;color:#16335a;line-height:1.35;}
     .rescue-panel strong{display:block;font-weight:950;margin-bottom:4px;color:#102033;}
@@ -69,13 +76,21 @@
     .build-chip{margin-top:12px;text-align:center;color:rgba(255,255,255,.66);font-size:.76rem;font-weight:750;}
     .last-card{display:none;margin-top:18px;border:1px solid #d8e2f0;border-radius:22px;padding:14px;background:#fff;}
     .last-label{font-size:.76rem;color:#0d6efd;text-transform:uppercase;letter-spacing:.05em;font-weight:950;text-align:center;}
-    .last-title{font-weight:900;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;}
+    .last-title{font-weight:900;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.15;margin-top:4px;}
     .actions{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px;}
     .action-btn{border:1px solid #d8e2f0;background:#fff;border-radius:18px;min-height:52px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;text-decoration:none;color:var(--ss-ink);font-weight:850;font-size:.78rem;}
     .action-btn i{color:#0d6efd;font-size:1.05rem;}
+    .shelf-suggest{display:none;margin-top:12px;border:1px solid rgba(13,110,253,.18);border-radius:18px;padding:12px;background:linear-gradient(135deg,#f8fbff,#fff7ed);}
+    .shelf-suggest-title{font-weight:950;color:#102033;display:flex;align-items:center;gap:7px;}
+    .shelf-suggest-copy{color:#4b647a;font-size:.86rem;line-height:1.3;margin:5px 0 10px;}
+    .shelf-suggest-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;}
+    .shelf-suggest-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
+    .shelf-suggest-pills button{border:1px solid #d8e2f0;background:white;color:#1d4ed8;border-radius:999px;padding:7px 10px;font-weight:900;font-size:.78rem;}
     .fine-print{font-size:.8rem;line-height:1.35;color:var(--ss-muted);margin-top:16px;}
     .install-help{margin-top:14px;padding:12px 14px;border-radius:18px;background:#f5f8ff;color:var(--ss-muted);font-size:.9rem;line-height:1.35;}
-    @media(max-width:520px){.app-card{padding:18px;border-radius:26px}.btn-row{grid-template-columns:1fr}.app-top{align-items:flex-start}.install-pill{display:none}.actions{grid-template-columns:repeat(2,1fr);gap:6px}.action-btn{font-size:.72rem}}
+    @supports(padding:max(0px)){.app-shell{padding-top:max(calc(env(safe-area-inset-top) + 28px),40px)}}
+    @media(max-width:520px){.app-shell{padding-left:10px;padding-right:10px}.app-wrap{max-width:100%}.app-card{padding:16px;border-radius:24px}.app-title{font-size:clamp(2rem,11vw,2.8rem);line-height:1.02;margin-top:4px}.app-lede{font-size:.96rem}.mini-row{grid-template-columns:minmax(0,1fr) auto}.input,.textarea{font-size:16px}.btn-row,.image-tools{grid-template-columns:1fr}.app-top{align-items:flex-start;margin-bottom:12px}.install-pill{display:none}.actions{grid-template-columns:repeat(2,1fr);gap:6px}.action-btn{font-size:.72rem}.image-choice-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:380px){.app-shell{padding-left:6px;padding-right:6px}.app-card{padding:14px}.app-title{font-size:2rem}.app-lede{font-size:.92rem}.app-btn{padding-left:10px;padding-right:10px}.tiny{padding-left:10px;padding-right:10px}}
   </style>
 </head>
 
@@ -124,6 +139,7 @@
                     <label for="handle">@user <span class="optional">(optional, saved locally for later)</span></label>
                     <input id="handle" class="input" type="text" maxlength="60" placeholder="Rich, rchwms, Rich (*the remix)...">
                     <div id="handleUrlExample" class="field-help">shfl.me/rich-the-remix</div>
+                    <div id="handleRuleHelp" class="field-help">Use letters, numbers, and hyphens only. No dots or underscores.</div>
                 </div>
                 <div class="field">
                     <label for="imageUrl">Image <span class="optional">(optional, but recommended)</span></label>
@@ -150,10 +166,19 @@
                         <button id="nativeShareBtn" class="action-btn" type="button"><i class="fa-solid fa-share-nodes"></i><span>Share</span></button>
                         <a id="smsLastBtn" class="action-btn" href="#"><i class="fa-solid fa-comment-sms"></i><span>Message</span></a>
                         <a id="emailLastBtn" class="action-btn" href="#"><i class="fa-solid fa-envelope"></i><span>Email</span></a>
-                        <a id="openLastBtn" class="action-btn" href="#" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i><span>Open</span></a>
+                        <a id="openLastBtn" class="action-btn" href="#" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i><span>Open</span></a>
+                    </div>
+                    <div id="shelfSuggestPanel" class="shelf-suggest">
+                        <div class="shelf-suggest-title"><i class="fa-solid fa-layer-group"></i> Save this to a shelf?</div>
+                        <div id="shelfSuggestCopy" class="shelf-suggest-copy">Turn this one-off share into a reusable recommendation list.</div>
+                        <div class="shelf-suggest-row">
+                            <input id="shelfSuggestInput" class="input" type="text" maxlength="100" placeholder="Bass Gear, Gift Ideas...">
+                            <button id="addLastToShelfBtn" class="app-btn secondary tiny" type="button"><i class="fa-solid fa-plus"></i> Add</button>
+                        </div>
+                        <div id="shelfSuggestPills" class="shelf-suggest-pills"></div>
                     </div>
                     <div class="btn-row">
-                        <a id="openShelfBtn" class="app-btn secondary" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"><i class="fa-solid fa-layer-group"></i> Open Shelf</a>
+                        <a id="openShelfBtn" class="app-btn secondary" href="#" rel="noopener noreferrer" style="display:none;"><i class="fa-solid fa-layer-group"></i> Open Shelf</a>
                         <button id="newShareBtn" class="app-btn secondary" type="button"><i class="fa-solid fa-plus"></i> New Share</button>
                     </div>
                 </div>
@@ -378,12 +403,30 @@ function normalizePublicToken(value = "") {
   return makeSlug(String(value || "").replace(/^@+/, ""));
 }
 
+function handleInputHasForbiddenChars(value = "") {
+  return /[._/\\]|%2f|%5c/i.test(String(value || ""));
+}
+
 function normalizeHandle(value = "") {
-  return normalizePublicToken(value);
+  return normalizePublicToken(value).substring(0, 40).replace(/-+$/g, "");
 }
 
 function normalizeShelfSlug(value = "") {
-  return makeSlug(value);
+  return makeSlug(value).substring(0, 64).replace(/-+$/g, "");
+}
+
+function isValidPublicToken(value = "") {
+  const token = String(value || "").trim().toLowerCase();
+  return /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/.test(token) && !token.includes("--") && !/[._/%\\]/.test(token);
+}
+
+function handleValidationMessage(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const normalized = normalizeHandle(raw);
+  if (handleInputHasForbiddenChars(raw)) return `Use letters, numbers, and hyphens only. Try ${normalized || "rich-williams"} instead.`;
+  if (!normalized || !isValidPublicToken(normalized)) return "Use letters, numbers, and hyphens only.";
+  return "";
 }
 
 function isShareId(value = "") {
@@ -399,9 +442,10 @@ function normalizeRoutePath(pathname = "") {
   const parts = String(pathname || "")
     .split("/")
     .filter(Boolean)
-    .map(part => decodeURIComponent(part).trim())
+    .map(part => /%2f|%5c/i.test(part) ? "" : decodeURIComponent(part).trim())
     .filter(Boolean)
-    .map(part => part.startsWith("@") ? `@${normalizeHandle(part)}` : normalizePublicToken(part));
+    .map(part => part.startsWith("@") ? `@${normalizeHandle(part)}` : normalizePublicToken(part))
+    .filter(Boolean);
   return parts.length ? `/${parts.join("/")}` : "/";
 }
 
@@ -488,6 +532,21 @@ function firstNameOrDisplay(value = "") {
   return cleaned.split(/\s+/)[0].slice(0, 40);
 }
 
+function normalizeFriendlyPunctuation(value = "") {
+  return String(value || "")
+    .replace(/[？]/g, "?")
+    .replace(/[！]/g, "!")
+    .replace(/\s+([?.!,;:!?])/g, "$1")
+    .replace(/\s+([？！，；：])/g, "$1")
+    .replace(/([!?])\s+([!?])/g, "$1$2")
+    .replace(/([！？])\s+([！？])/g, "$1$2")
+    .replace(/!\?/g, "!?")
+    .replace(/\?!/g, "?!")
+    .replace(/！\s*？/g, "!?")
+    .replace(/？\s*！/g, "?!")
+    .trim();
+}
+
 function stripWrappingQuotes(value = "") {
   let text = String(value || "").replace(/\s+/g, " ").trim();
   // People often type a quote at the end because they know the message will be quoted.
@@ -500,7 +559,7 @@ function stripWrappingQuotes(value = "") {
     if (next === text) break;
     text = next;
   }
-  return text.replace(/\s+([?.!,;:])/g, "$1").trim();
+  return normalizeFriendlyPunctuation(text);
 }
 
 function cleanShareNote(value = "", max = 180) {
@@ -524,12 +583,13 @@ function buildMessage({ title, note, shareUrl, handleDisplay = "" }) {
 function titleFromProductUrl(url = "") {
   try {
     const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
     const parts = decodeURIComponent(parsed.pathname)
       .split("/")
       .filter(Boolean)
       .map(part => part.replace(/\.(?:html?|aspx?|php|gc)$/i, ""))
       .filter(Boolean)
-      .filter(part => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear)$/i.test(part))
+      .filter(part => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear|gp|aw|dp|d|ref|sp|nav|node|hz|store|stores)$/i.test(part))
       .filter(part => !/^\d{4,}$/.test(part))
       .filter(part => !/^[A-Z0-9]{10}$/i.test(part));
 
@@ -567,6 +627,7 @@ function isWeakPreviewTitle(title = "", url = "") {
 function bestPreviewTitle(previewTitle = "", url = "") {
   const urlTitle = titleFromProductUrl(url);
   const cleanPreview = cleanTitle(previewTitle || "");
+  if (isJunkAutoTitle(cleanPreview)) return cleanTitle(urlTitle || "");
   if (urlTitle && isWeakPreviewTitle(cleanPreview, url)) return cleanTitle(urlTitle);
   return cleanPreview || cleanTitle(urlTitle || "");
 }
@@ -605,6 +666,42 @@ function titleFromUrl(url = "") {
     let previewImageChoices = [];
     let titleRescueTimer = null;
     let lastImageRescueQuery = "";
+    const statusActivityTimers = new Map();
+    const STATUS_FRAMES = ["/", "—", "\\", "|"];
+
+    function stopStatusActivity(statusElementId = "previewStatus") {
+      const existing = statusActivityTimers.get(statusElementId);
+      if (existing) clearInterval(existing);
+      statusActivityTimers.delete(statusElementId);
+      const el = $(statusElementId) || $("previewStatus");
+      if (el) el.classList.remove("busy");
+    }
+
+    function setStatusText(el, message, { busy = false, startedAt = Date.now(), frameIndex = 0 } = {}) {
+      if (!el) return;
+      const elapsed = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+      const dots = busy ? ".".repeat(Math.min(9, elapsed)) : "";
+      const frame = busy ? STATUS_FRAMES[frameIndex % STATUS_FRAMES.length] : "";
+      el.classList.toggle("busy", Boolean(busy));
+      el.innerHTML = `${escapeHtml(message)}${dots}${busy ? ` <span class="ticker">${escapeHtml(frame)}</span>` : ""}`;
+    }
+
+    function startStatusActivity(statusElementId = "previewStatus", message = "Working") {
+      const el = $(statusElementId) || $("previewStatus");
+      stopStatusActivity(statusElementId);
+      const startedAt = Date.now();
+      let frameIndex = 0;
+      setStatusText(el, message, { busy: true, startedAt, frameIndex });
+      const timer = setInterval(() => {
+        frameIndex += 1;
+        setStatusText(el, message, { busy: true, startedAt, frameIndex });
+        if (Date.now() - startedAt > 9000) {
+          stopStatusActivity(statusElementId);
+          if (el && el.textContent.trim().startsWith(message)) el.textContent = `${message}… still working.`;
+        }
+      }, 1000);
+      statusActivityTimers.set(statusElementId, timer);
+    }
 
     function previewEndpoint() {
       const config = window.SHARESHUFFLE_CONFIG || {};
@@ -619,8 +716,20 @@ function titleFromUrl(url = "") {
       return Object.fromEntries(fields.map(id => [id, $(id).value.trim()]));
     }
 
+    function isJunkAutoTitle(value = "") {
+      const text = String(value || "").replace(/\s+/g, " ").trim();
+      if (!text) return true;
+      if (/^(blocked|robot or human\??|access denied|verify you are human|captcha|page not found|not found|unavailable|gp|aw|dp|d|c|s|ref|sp|nav|node|product|products|amazon|www)$/i.test(text)) return true;
+      if (/^[a-z]{1,3}$/i.test(text)) return true;
+      if (/^[a-z0-9]{1,5}$/i.test(text) && !/\s/.test(text)) return true;
+      if (/robot or human|access denied|captcha|verify you are human|blocked|unusual traffic|automated access/i.test(text)) return true;
+      // Some blocked mobile pages leak an opaque token into the title field.
+      if (/^[a-z0-9]{6,12}$/i.test(text) && !/[aeiou]{2,}/i.test(text) && !/\s/.test(text)) return true;
+      return false;
+    }
+
     function isGenericAutoTitle(value = "") {
-      return /^(shared find|shared find from|amazon product|walmart product|target product|best buy product|product link)$/i.test(String(value || "").trim());
+      return isJunkAutoTitle(value) || /^(shared find|shared find from|amazon product|walmart product|target product|best buy product|product link)$/i.test(String(value || "").trim());
     }
 
     function isLikelyImageUrl(url = "") {
@@ -736,16 +845,20 @@ function titleFromUrl(url = "") {
     }
 
     function updateRouteExamples() {
-      const handleSlug = normalizeHandle($("handle").value) || "you";
-      const shelfSlug = makeSlug($("shelfName").value) || "shelf-name";
+      const rawHandle = $("handle").value;
+      const handleSlug = normalizeHandle(rawHandle) || "you";
+      const shelfSlug = normalizeShelfSlug($("shelfName").value) || "shelf-name";
       const handleText = handleSlug === "you"
         ? "shfl.me/you"
         : `shfl.me/${handleSlug}`;
       const shelfText = `shfl.me/${handleSlug}/${shelfSlug}`;
       const handleEl = $("handleUrlExample");
       const shelfEl = $("shelfUrlExample");
+      const ruleEl = $("handleRuleHelp");
+      const validation = handleValidationMessage(rawHandle);
       if (handleEl) handleEl.textContent = handleText;
       if (shelfEl) shelfEl.textContent = shelfText;
+      if (ruleEl) ruleEl.textContent = validation || "Use letters, numbers, and hyphens only. No dots or underscores.";
     }
 
     function focusProductUrl({ select = true } = {}) {
@@ -888,7 +1001,7 @@ function titleFromUrl(url = "") {
         const parsed = new URL(String(url || ""), location.origin);
         const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
         const path = parsed.pathname.toLowerCase();
-        const isShuffleHost = ["shareshuffle.com", "shfl.me", "shelfmix.com", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"].includes(host);
+        const isShuffleHost = ["shareshuffle.com", "shfl.me", "shareshuffle.com/shelf.html", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"].includes(host);
         if (!isShuffleHost) return false;
         // Rescue image routes are safe product-image candidates. Social card routes are not.
         if (/^\/rimg-[a-f0-9]{24}$/.test(path) || /^\/i-[a-z0-9]{5,}$/.test(path) || path === "/uploadshareimage") return false;
@@ -904,7 +1017,7 @@ function titleFromUrl(url = "") {
 
     function uploadEndpoint() {
       const config = window.SHARESHUFFLE_CONFIG || {};
-      const hostedHosts = config.previewHostedHosts || ["shareshuffle.com", "www.shareshuffle.com", "shfl.me", "www.shfl.me", "shelfmix.com", "www.shelfmix.com", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"];
+      const hostedHosts = config.previewHostedHosts || ["shareshuffle.com", "www.shareshuffle.com", "shfl.me", "www.shfl.me", "shareshuffle.com/shelf.html", "www.shareshuffle.com/shelf.html", "shareshuffle-c7f96.web.app", "shareshuffle-c7f96.firebaseapp.com"];
       if (hostedHosts.includes(location.hostname) || location.hostname.endsWith(".web.app") || location.hostname.endsWith(".firebaseapp.com")) return "/uploadShareImage";
       return "https://uploadshareimage-tai5vntoaq-uc.a.run.app";
     }
@@ -1122,6 +1235,37 @@ function titleFromUrl(url = "") {
       img.src = url;
     }
 
+    function resetComposer({ message = "Cleared.", keepHandle = true, clearLast = false } = {}) {
+      const keepHandleValue = keepHandle ? ($("handle")?.value || "") : "";
+      fields.forEach(id => { if (id !== "handle") $(id).value = ""; });
+      if (keepHandle) $("handle").value = keepHandleValue;
+      selectedImageDataUrl = "";
+      selectedImageName = "";
+      selectedImageSource = "";
+      previewImageChoices = [];
+      lastImageRescueQuery = "";
+      if ($("imageFile")) $("imageFile").value = "";
+      setImageChoices([]);
+      updateImagePreview();
+      renderShareRescue("");
+      updateRouteExamples();
+      if ($("previewStatus")) $("previewStatus").textContent = "";
+      if ($("createStatus")) $("createStatus").textContent = "";
+      if ($("clipboardStatus")) $("clipboardStatus").textContent = message;
+      if (clearLast) {
+        lastShare = null;
+        localStorage.removeItem(LAST_SHARE_KEY);
+        if ($("lastSharePanel")) $("lastSharePanel").style.display = "none";
+      }
+      saveDraft();
+    }
+
+    function keepFocusedFieldVisible(event) {
+      const target = event?.target;
+      if (!target || !(target.classList?.contains("input") || target.classList?.contains("textarea"))) return;
+      setTimeout(() => target.scrollIntoView({ block: "center", behavior: "smooth" }), 220);
+    }
+
     function saveDraft() {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...getFieldData(), updatedAt: Date.now() }));
     }
@@ -1172,10 +1316,27 @@ function titleFromUrl(url = "") {
       return id;
     }
 
+    async function createUniqueShelfSlug(shelfName, handleSlug = "", { allowExisting = true } = {}) {
+      const base = normalizeShelfSlug(shelfName);
+      if (!base) return "";
+      const cleanHandle = normalizeHandle(handleSlug);
+      for (let i = 1; i <= 50; i += 1) {
+        const candidate = i === 1 ? base : `${base}-${i}`;
+        const shelfDocId = cleanHandle ? `${cleanHandle}__${candidate}` : candidate;
+        try {
+          const existing = await getDoc(doc(db, "shelves", shelfDocId));
+          if (!existing.exists() || allowExisting) return candidate;
+        } catch {
+          return candidate;
+        }
+      }
+      return `${base}-${Date.now().toString(36).slice(-4)}`;
+    }
+
     async function createShelfIfNeeded(name, handleSlug = "", handleDisplay = "") {
       const shelfName = String(name || "").trim();
       if (!shelfName) return { shelfName: "", shelfSlug: "", shelfUrl: "" };
-      const shelfSlug = makeSlug(shelfName);
+      const shelfSlug = await createUniqueShelfSlug(shelfName, handleSlug, { allowExisting: true });
       const shelfUrl = buildShelfUrl({ handleSlug, shelfSlug });
       if (!shelfSlug) return { shelfName: "", shelfSlug: "", shelfUrl: "" };
       try {
@@ -1240,12 +1401,95 @@ ${url}`;
       }
     }
 
+    function shelfSuggestionNames(share = {}) {
+      const text = `${share.title || ""} ${share.note || ""} ${share.merchant || ""}`.toLowerCase();
+      const names = [];
+      const add = (name) => { if (name && !names.some(existing => existing.toLowerCase() === name.toLowerCase())) names.push(name); };
+      getShelves().forEach(add);
+      if (/bass|pedal|guitar|amp|aguilar|hartke|digitech|tom.?s line|ashdown|effect|direct box/.test(text)) add("Bass Gear");
+      if (/gift|birthday|christmas|present/.test(text)) add("Gift Ideas");
+      if (/deal|cheap|used|sale|clearance|coupon|discount|bargain/.test(text)) add("Deals");
+      if (/kitchen|cook|food|coffee|grill/.test(text)) add("Kitchen");
+      if (/book|movie|music|album|vinyl/.test(text)) add("Media");
+      add("Recommendations");
+      return names.slice(0, 5);
+    }
+
+    function renderShelfSuggestion(share = {}) {
+      const panel = $("shelfSuggestPanel");
+      if (!panel) return;
+      if (!share?.id || share.shelfUrl || share.shelfSlug || share.shelfName) {
+        panel.style.display = "none";
+        return;
+      }
+      const suggestions = shelfSuggestionNames(share);
+      const input = $("shelfSuggestInput");
+      const pills = $("shelfSuggestPills");
+      if (input && !input.value.trim()) input.value = suggestions[0] || "Recommendations";
+      if (pills) {
+        pills.innerHTML = "";
+        suggestions.forEach(name => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = name;
+          btn.addEventListener("click", () => {
+            if (input) input.value = name;
+            addLastShareToShelf(name);
+          });
+          pills.appendChild(btn);
+        });
+      }
+      const copy = $("shelfSuggestCopy");
+      if (copy) copy.textContent = "One tap turns this share into a shelf item you can reuse later.";
+      panel.style.display = "block";
+    }
+
+    async function addLastShareToShelf(nameOverride = "") {
+      if (!lastShare?.id) return;
+      const status = $("createStatus");
+      const shelfName = String(nameOverride || $("shelfSuggestInput")?.value || $("shelfName")?.value || "").trim();
+      if (!shelfName) {
+        if (status) status.textContent = "Name the shelf first.";
+        return;
+      }
+      const btn = $("addLastToShelfBtn");
+      if (btn) btn.disabled = true;
+      if (status) status.textContent = `Adding to ${shelfName}…`;
+      try {
+        const handleDisplay = displayNameFromHandle($("handle")?.value || lastShare.handleDisplay || "rich");
+        const handleSlug = normalizeHandle($("handle")?.value || lastShare.handleSlug || handleDisplay || "rich");
+        const response = await fetch("/addShareToShelf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: lastShare.id, shelfName, handleSlug, handleDisplay })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) throw new Error(result.error || `Shelf update failed (${response.status})`);
+        saveShelfName(result.shelfName || shelfName);
+        const updated = {
+          ...lastShare,
+          shelfName: result.shelfName || shelfName,
+          shelfSlug: result.shelfSlug || normalizeShelfSlug(shelfName),
+          shelfUrl: result.shelfUrl || buildShelfUrl({ handleSlug, shelfSlug: normalizeShelfSlug(shelfName) }),
+          handleSlug,
+          handleDisplay
+        };
+        showLastShare(updated);
+        if (status) status.textContent = `Added to ${updated.shelfName}.`;
+      } catch (error) {
+        console.error(error);
+        if (status) status.textContent = `Could not add to shelf: ${error?.message || String(error)}`;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     function showLastShare(share) {
       lastShare = share;
       localStorage.setItem(LAST_SHARE_KEY, JSON.stringify(share));
       $("lastSharePanel").style.display = "block";
       $("lastShareTitle").textContent = cleanTitle(share.title || "Shared find");
-      $("openLastBtn").href = shareUrlForOpening(share.shareUrl || share.shareDisplayUrl);
+      $("openLastBtn").href = internalShareHref(share);
       const encodedMessage = encodeURIComponent(share.message || share.shareUrl || share.shareDisplayUrl || displayShareUrl(share.shareUrl));
       $("smsLastBtn").href = `sms:?&body=${encodedMessage}`;
       $("emailLastBtn").href = `mailto:?subject=${encodeURIComponent("I saw this and thought of you")}&body=${encodedMessage}`;
@@ -1254,10 +1498,71 @@ ${url}`;
       $("lastSharePanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
       if (share.shelfUrl) {
         $("openShelfBtn").style.display = "inline-flex";
-        $("openShelfBtn").href = share.shelfUrl;
+        $("openShelfBtn").href = internalShelfHref(share);
       } else {
         $("openShelfBtn").style.display = "none";
       }
+      renderShelfSuggestion(share);
+    }
+
+    function internalShareHref(share = lastShare) {
+      const id = canonicalShareId(share?.id || "") || canonicalShareId(String(share?.shareUrl || share?.shareDisplayUrl || "").split("/").pop() || "");
+      if (id) return `/share.html?id=${encodeURIComponent(id)}`;
+      const raw = String(share?.shareUrl || share?.shareDisplayUrl || "").trim();
+      if (!raw) return "";
+      try {
+        const parsed = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+        if (/^(www\.)?shfl\.me$/i.test(parsed.hostname)) {
+          const pathId = canonicalShareId(parsed.pathname.split("/").filter(Boolean)[0] || "");
+          if (pathId) return `/share.html?id=${encodeURIComponent(pathId)}`;
+        }
+      } catch (_) {}
+      return shareUrlForOpening(raw);
+    }
+
+    function internalShelfHref(share = lastShare) {
+      const handle = normalizeHandle(share?.handleSlug || share?.ownerHandle || $("handle")?.value || "");
+      const shelf = normalizeShelfSlug(share?.shelfSlug || share?.shelfName || $("shelfName")?.value || "");
+      if (handle && shelf) return `/shelf.html?u=${encodeURIComponent(handle)}&s=${encodeURIComponent(shelf)}`;
+      if (shelf) return `/shelf.html?s=${encodeURIComponent(shelf)}`;
+      const raw = String(share?.shelfUrl || "").trim();
+      if (!raw) return "";
+      try {
+        const parsed = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+        const parts = parsed.pathname.split("/").filter(Boolean);
+        if (/^(www\.)?shfl\.me$/i.test(parsed.hostname) && parts.length >= 2) {
+          const parsedHandle = normalizeHandle(parts[0]);
+          const parsedShelf = normalizeShelfSlug(parts[1]);
+          if (parsedHandle && parsedShelf) return `/shelf.html?u=${encodeURIComponent(parsedHandle)}&s=${encodeURIComponent(parsedShelf)}`;
+        }
+      } catch (_) {}
+      return raw.startsWith("http") ? raw : `https://${raw}`;
+    }
+
+    function openShareShuffleLink(event, url, label = "Opening…") {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const href = String(url || "").trim();
+      if (!href || href === "#") {
+        try { setPreviewStatus("Nothing to open yet.", "createStatus"); } catch (_) {}
+        return false;
+      }
+      try {
+        setPreviewStatus(label, "createStatus");
+      } catch (_) {}
+      try {
+        const absolute = new URL(href, location.origin).href;
+        // Keep Open Share/Open Shelf inside the same origin when possible.
+        // WKWebView/PWA shells can swallow external shfl.me navigations or new windows;
+        // /share.html and /shelf.html are same-context and reliable.
+        window.location.href = absolute;
+      } catch (error) {
+        console.warn("Could not open link", error);
+        try { setPreviewStatus("Could not open that link.", "createStatus"); } catch (_) {}
+      }
+      return false;
     }
 
     function restoreLastShare() {
@@ -1287,10 +1592,20 @@ ${url}`;
       }
     }
 
-    function setPreviewStatus(message, statusElementId = "previewStatus") {
+    function setPreviewStatus(message, statusElementId = "previewStatus", { busy = false } = {}) {
       const primary = $(statusElementId) || $("previewStatus");
-      if (primary) primary.textContent = message;
-      if (statusElementId !== "previewStatus") $("previewStatus").textContent = message;
+      if (busy) startStatusActivity(statusElementId, message);
+      else {
+        stopStatusActivity(statusElementId);
+        if (primary) primary.textContent = message;
+      }
+      if (statusElementId !== "previewStatus") {
+        if (busy) startStatusActivity("previewStatus", message);
+        else {
+          stopStatusActivity("previewStatus");
+          $("previewStatus").textContent = message;
+        }
+      }
     }
 
     async function fetchPreviewForUrl(rawUrl, { onlyFillBlanks = true, statusElementId = "previewStatus" } = {}) {
@@ -1303,7 +1618,7 @@ ${url}`;
       const timeoutMs = 15000;
       const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-      setPreviewStatus("Looking for title and image…", statusElementId);
+      setPreviewStatus("Looking for title and image", statusElementId, { busy: true });
       console.log("[ShareShuffle preview debug] Requesting", requestUrl);
 
       try {
@@ -1336,7 +1651,8 @@ ${url}`;
 
         const currentTitle = $("title").value.trim();
         const canReplaceTitle = !onlyFillBlanks || !currentTitle || isGenericAutoTitle(currentTitle);
-        if (nextTitle && canReplaceTitle) $("title").value = nextTitle;
+        if (nextTitle && !isJunkAutoTitle(nextTitle) && canReplaceTitle) $("title").value = nextTitle;
+        if (currentTitle && isJunkAutoTitle(currentTitle) && !nextTitle) $("title").value = "";
         // Product descriptions are metadata, not a personal note. Keep the note field for the sender.
         // if (nextDescription && (!onlyFillBlanks || !$("note").value.trim())) $("note").value = smartTruncate(nextDescription, 180);
         const nextImages = cleanImageCandidateList(Array.isArray(preview.images) ? preview.images : []);
@@ -1403,7 +1719,10 @@ ${url}`;
 
         const currentImageSource = String(selectedImageSource || "");
         const currentImageUrl = $("imageUrl").value.trim();
-        const rescueContext = /image-rescue|placeholder/i.test(currentImageSource) || previewImageChoices.length || !currentImageUrl;
+        const currentImageHost = imageHost(currentImageUrl);
+        const hasLikelyGoodStoreImage = currentImageUrl && !/image-rescue|placeholder/i.test(currentImageSource) && !isBotHostileMerchantImage(currentImageUrl, merchant);
+        const rescueContext = /image-rescue|placeholder/i.test(currentImageSource) || !currentImageUrl;
+        if (hasLikelyGoodStoreImage) return;
         if (!rescueContext || query.toLowerCase() === lastImageRescueQuery) return;
         lastImageRescueQuery = query.toLowerCase();
 
@@ -1437,28 +1756,47 @@ ${url}`;
 
     async function pasteFromClipboard() {
       const status = $("clipboardStatus");
-      focusProductUrl({ select: true });
       try {
         if (!navigator.clipboard?.readText) {
-          status.textContent = "Clipboard paste is unavailable. Paste the link manually.";
+          const existing = normalizeMerchantUrlForInput($("productUrl").value);
+          if (existing) {
+            status.textContent = "Using the product link already in the field.";
+            await fetchPreviewForUrl(existing, { onlyFillBlanks: false, statusElementId: "clipboardStatus" });
+            return;
+          }
+          status.textContent = "Clipboard paste is unavailable. Tap the URL field and paste manually.";
+          focusProductUrl({ select: true });
           return;
         }
         const text = await navigator.clipboard.readText();
         const url = normalizeMerchantUrlForInput(text);
         if (!url) {
-          status.textContent = "Clipboard did not include a product link.";
+          const existing = normalizeMerchantUrlForInput($("productUrl").value);
+          if (existing) {
+            status.textContent = "Using the product link already in the field.";
+            await fetchPreviewForUrl(existing, { onlyFillBlanks: false, statusElementId: "clipboardStatus" });
+            return;
+          }
+          status.textContent = "Clipboard did not include a product link. Tap the URL field and paste manually.";
+          focusProductUrl({ select: true });
           return;
         }
         $("productUrl").value = url;
-        focusProductUrl({ select: true });
-        if (isGenericAutoTitle($("title").value)) $("title").value = "";
+        if (isGenericAutoTitle($("title").value) || isJunkAutoTitle($("title").value)) $("title").value = "";
         const rescue = renderShareRescue(url);
-        status.textContent = rescue ? "Link pasted. This may be search results, not one exact item." : "Product link pasted. Looking up title and image…";
+        setPreviewStatus(rescue ? "Link pasted. Checking this result" : "Product link pasted. Looking up title and image", "clipboardStatus", { busy: true });
         saveDraft();
         await fetchPreviewForUrl(url, { onlyFillBlanks: false, statusElementId: "clipboardStatus" });
       } catch (error) {
         console.error(error);
+        const existing = normalizeMerchantUrlForInput($("productUrl").value);
+        if (existing) {
+          status.textContent = "Clipboard access was blocked, so I used the product link already in the field.";
+          await fetchPreviewForUrl(existing, { onlyFillBlanks: false, statusElementId: "clipboardStatus" });
+          return;
+        }
         status.textContent = "Clipboard access was blocked. Tap the URL field and paste manually.";
+        focusProductUrl({ select: true });
       }
     }
 
@@ -1470,10 +1808,16 @@ ${url}`;
         status.textContent = "Add a product URL first.";
         return;
       }
+      const handleProblem = handleValidationMessage(data.handle);
+      if (handleProblem) {
+        status.textContent = handleProblem;
+        updateRouteExamples();
+        return;
+      }
       const rescue = renderShareRescue(sourceUrl);
       if (rescue) status.textContent = "Heads up: this looks like search results. Saving it anyway because you clicked Create.";
       $("createBtn").disabled = true;
-      status.textContent = "Creating share link...";
+      setPreviewStatus("Creating share link", "createStatus", { busy: true });
       try {
         const id = await createUniqueId();
         const handleDisplay = displayNameFromHandle(data.handle);
@@ -1502,7 +1846,7 @@ ${url}`;
         if (!selectedImageDataUrl && !image) {
           const rescueQuery = rescueQueryFromTitleAndUrl(title, sourceUrl);
           if (rescueQuery) {
-            status.textContent = "Looking for a backup image…";
+            setPreviewStatus("Looking for a backup image", "createStatus", { busy: true });
             const rescueImages = await fetchImageRescueCandidates(rescueQuery, { statusElementId: "createStatus", merchant });
             if (rescueImages.length) {
               image = rescueImages[0];
@@ -1518,7 +1862,7 @@ ${url}`;
             selectedImageDataUrl = "";
             selectedImageName = "ShareShuffle card";
             selectedImageSource = "placeholder-card-auto";
-            status.textContent = "Using a clean ShareShuffle card so the share can finish.";
+            setPreviewStatus("Using a clean ShareShuffle card so the share can finish", "createStatus", { busy: true });
             updateImagePreview();
           }
         }
@@ -1580,7 +1924,7 @@ ${url}`;
         }
 
         const canonicalShareUrl = buildShareUrl(id);
-        const shelfSlug = makeSlug(data.shelfName);
+        const shelfSlug = normalizeShelfSlug(data.shelfName);
         const futurePath = "";
 
         const shareUrl = canonicalShareUrl;
@@ -1592,17 +1936,18 @@ ${url}`;
         showLastShare(payload);
         try {
           await navigator.clipboard.writeText(message);
-          status.textContent = firstPartyImageReady ? `Copied: ${id}. Choose what to do next below. Image cached.` : (imageCacheResult ? `Copied: ${id}. Choose what to do next below. Preview image is being prepared.` : `Copied: ${id}. Choose what to do next below.`);
+          setPreviewStatus(firstPartyImageReady ? `Copied: ${id}. Choose what to do next below. Image cached.` : (imageCacheResult ? `Copied: ${id}. Choose what to do next below. Preview image is being prepared.` : `Copied: ${id}. Choose what to do next below.`), "createStatus");
         } catch (clipboardError) {
           console.warn("Clipboard write failed", clipboardError);
-          status.textContent = `Share created: ${id}. Tap Copy below if Safari blocked auto-copy.`;
+          setPreviewStatus(`Share created: ${id}. Tap Copy below if Safari blocked auto-copy.`, "createStatus");
         }
         saveDraft();
       } catch (error) {
         console.error(error);
         const message = error && error.message ? error.message : String(error);
-        status.textContent = `Could not create share: ${message}`;
+        setPreviewStatus(`Could not create share: ${message}`, "createStatus");
       } finally {
+        if (!$('createStatus').textContent.includes('Creating share')) stopStatusActivity("createStatus");
         $("createBtn").disabled = false;
       }
     }
@@ -1639,11 +1984,10 @@ ${url}`;
       schedulePreviewLookup();
     });
     $("productUrl").addEventListener("blur", () => { renderShareRescue(); fetchPreviewForUrl($("productUrl").value, { onlyFillBlanks: true }); });
-    $("pasteBtn").addEventListener("pointerdown", () => focusProductUrl({ select: true }));
     $("pasteBtn").addEventListener("click", pasteFromClipboard);
     $("selectUrlBtn").addEventListener("pointerdown", () => focusProductUrl({ select: true }));
     $("selectUrlBtn").addEventListener("click", () => focusProductUrl({ select: true }));
-    $("clearBtn").addEventListener("click", () => { fields.forEach(id => { if(id !== "handle") $(id).value = ""; }); selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; setImageChoices([]); updateImagePreview(); saveDraft(); $("clipboardStatus").textContent = "Cleared."; renderShareRescue(); });
+    $("clearBtn").addEventListener("click", () => resetComposer({ message: "Cleared." }));
     $("createBtn").addEventListener("click", createShare);
     $("copyUrlBtn").addEventListener("click", async () => {
       if (!lastShare) return;
@@ -1667,7 +2011,19 @@ ${url}`;
       }
     });
     $("nativeShareBtn").addEventListener("click", nativeShareLast);
-    $("newShareBtn").addEventListener("click", () => { ["productUrl","title","note","imageUrl"].forEach(id => $(id).value = ""); selectedImageDataUrl = ""; selectedImageName = ""; selectedImageSource = ""; previewImageChoices = []; $("imageFile").value = ""; setImageChoices([]); updateImagePreview(); localStorage.removeItem(LAST_SHARE_KEY); $("lastSharePanel").style.display = "none"; saveDraft(); $("createStatus").textContent = "Ready for a new share."; renderShareRescue(); });
+    document.addEventListener("click", (event) => {
+      const openShareBtn = event.target?.closest?.("#openLastBtn");
+      const openShelfBtn = event.target?.closest?.("#openShelfBtn");
+      if (openShareBtn) {
+        openShareShuffleLink(event, internalShareHref(lastShare) || openShareBtn.href, "Opening share…");
+      }
+      if (openShelfBtn) {
+        openShareShuffleLink(event, internalShelfHref(lastShare) || openShelfBtn.href, "Opening shelf…");
+      }
+    }, true);
+    $("addLastToShelfBtn")?.addEventListener("click", () => addLastShareToShelf());
+    $("newShareBtn").addEventListener("click", () => resetComposer({ message: "Ready for a new share.", clearLast: true }));
+    document.querySelectorAll(".input,.textarea").forEach(el => el.addEventListener("focus", keepFocusedFieldVisible));
 
     fetch("/assets/build-info.json", { cache: "no-store" })
       .then(r => r.ok ? r.json() : null)

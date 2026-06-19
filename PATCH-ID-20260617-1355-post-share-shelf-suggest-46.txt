@@ -1,0 +1,3 @@
+Patch 46: post-share shelf suggestion
+Build: 2026.06.17-post-share-shelf-suggest-46
+Chrome extension package untouched.
