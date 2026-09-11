@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Solution Workshop helps businesses understand, design, and build practical AI solutions without the hype or intimidation.">
+  <meta name="theme-color" content="#0b132b">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Solution Workshop — Practical AI for Real Business Problems">
+  <meta property="og:description" content="Understand, design, and build practical AI solutions without the hype or intimidation.">
+  <meta property="og:url" content="https://solutionworkshop.com/">
+  <meta property="og:site_name" content="Solution Workshop">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://solutionworkshop.com/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/site.webmanifest">
+  <title>Solution Workshop — Practical AI for Real Business Problems</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+
+  <!-- AOS: lightweight scroll animations -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://tempofoundry.com/tempo-studio.css?v=2" data-tempo-studio="2">
+
+  <script src="/site-config.js"></script>
+  <script>
+    (function () {
+      var host = window.location.hostname.toLowerCase();
+      if (host === "solwx.com" || host === "www.solwx.com") {
+        var destination = "https://solutionworkshop.com" + window.location.pathname + window.location.search + window.location.hash;
+        window.location.replace(destination);
+      }
+    }());
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Solution Workshop",
+      "url": "https://solutionworkshop.com/",
+      "description": "Practical AI strategy, agents, automations, and workflows built around real business problems.",
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "Tempo Foundry",
+        "url": "https://tempofoundry.com/"
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --ink: #0b132b;
+      --navy: #101b3d;
+      --blue: #2563eb;
+      --teal: #0ea5a8;
+      --mint: #dff8f0;
+      --sky: #eaf2ff;
+      --cream: #fbfaf6;
+      --muted: #65708a;
+      --line: rgba(11, 19, 43, .10);
+      --shadow: 0 20px 60px rgba(11, 19, 43, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+      overflow-x: hidden;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 1rem;
+      top: -5rem;
+      z-index: 2000;
+      padding: .75rem 1rem;
+      border-radius: .75rem;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+      box-shadow: var(--shadow);
+    }
+
+    .skip-link:focus { top: 1rem; }
+
+    :focus-visible {
+      outline: 3px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    h1, h2, h3, h4, .navbar-brand {
+      font-family: "Manrope", sans-serif;
+      letter-spacing: -.03em;
+    }
+
+    .navbar {
+      background: rgba(251, 250, 246, .88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(11, 19, 43, .06);
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 12px;
+      color: #fff;
+      background:
+        linear-gradient(135deg, var(--blue), var(--teal));
+      box-shadow: 0 10px 24px rgba(37, 99, 235, .25);
+    }
+
+    .brand-mark-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+    }
+
+    .section-intro { max-width: 760px; }
+
+    .section-white { background: #fff; }
+
+    .nav-link {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .btn-brand {
+      border: 0;
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), #5b56e8);
+      box-shadow: 0 12px 28px rgba(37, 99, 235, .26);
+    }
+
+    .btn-brand:hover {
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, .32);
+    }
+
+    .btn-soft {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .btn-soft:hover {
+      background: var(--sky);
+      color: var(--ink);
+      border-color: rgba(37, 99, 235, .20);
+    }
+
+    .hero {
+      position: relative;
+      padding: 9rem 0 6rem;
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(14, 165, 168, .16), transparent 28%),
+        radial-gradient(circle at 12% 18%, rgba(37, 99, 235, .14), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, var(--cream) 100%);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .35;
+      background-image:
+        linear-gradient(rgba(11, 19, 43, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(11, 19, 43, .035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .6rem;
+      align-items: center;
+      padding: .55rem .9rem;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 28px rgba(11, 19, 43, .07);
+      font-weight: 700;
+      color: var(--blue);
+      font-size: .92rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(3.2rem, 7vw, 6.5rem);
+      line-height: .97;
+      font-weight: 800;
+      max-width: 960px;
+      margin: 1.4rem auto 1.5rem;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-lead {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: clamp(1.08rem, 2vw, 1.35rem);
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .trust-line {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.4rem;
+      color: var(--muted);
+      margin-top: 2rem;
+      font-size: .95rem;
+    }
+
+    .trust-line span {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+    }
+
+    .section {
+      padding: 6rem 0;
+    }
+
+    .section-kicker {
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 800;
+      font-size: .8rem;
+    }
+
+    .section-title {
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-top: .7rem;
+    }
+
+    .section-copy {
+      color: var(--muted);
+      font-size: 1.12rem;
+      line-height: 1.75;
+    }
+
+    .card-soft {
+      height: 100%;
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 12px 40px rgba(11, 19, 43, .06);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .card-soft:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow);
+    }
+
+    .icon-box {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--sky);
+      color: var(--blue);
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .problem-panel {
+      background: var(--ink);
+      color: #fff;
+      border-radius: 32px;
+      padding: clamp(2rem, 5vw, 4rem);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .problem-panel::after {
+      content: "";
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      right: -120px;
+      top: -120px;
+      background: radial-gradient(circle, rgba(14, 165, 168, .36), transparent 68%);
+    }
+
+    .problem-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .problem-list li {
+      display: flex;
+      gap: .85rem;
+      align-items: flex-start;
+      padding: .8rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+
+    .problem-list i {
+      color: #73e5c2;
+      margin-top: .25rem;
+    }
+
+    .step {
+      position: relative;
+      padding-left: 4.2rem;
+      min-height: 110px;
+    }
+
+    .step-number {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: #fff;
+      font-family: "Manrope", sans-serif;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, .20);
+    }
+
+    .quote {
+      background: linear-gradient(135deg, var(--sky), var(--mint));
+      border: 1px solid rgba(37, 99, 235, .12);
+      border-radius: 28px;
+      padding: 2.4rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      line-height: 1.55;
+    }
+
+    .cta {
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      padding: clamp(2.4rem, 6vw, 5rem);
+      background:
+        radial-gradient(circle at 90% 10%, rgba(255,255,255,.18), transparent 24%),
+        linear-gradient(135deg, var(--blue), #4739c6 58%, var(--teal));
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .cta::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+    }
+
+    .cta > * { position: relative; }
+
+    .form-control {
+      min-height: 52px;
+      border-radius: 14px;
+      border-color: rgba(11, 19, 43, .12);
+    }
+
+    footer {
+      padding: 2.4rem 0;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
+    .small-label {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    @media (max-width: 767.98px) {
+      .hero { padding-top: 7rem; }
+      .hero h1 { font-size: 3.3rem; }
+      .section { padding: 4.5rem 0; }
+      .problem-panel { border-radius: 24px; }
+      .card-soft { padding: 1.5rem; }
+    }
+  </style>
+</head>
+
+<body id="top">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg fixed-top" aria-label="Primary">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#top">
+        <span class="brand-mark"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+        <span>Solution Workshop</span>
+      </a>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link" href="#what-we-do">What we do</a></li>
+          <li class="nav-item"><a class="nav-link" href="#how-it-works">How it works</a></li>
+          <li class="nav-item"><a class="nav-link" href="#who-its-for">Who it’s for</a></li>
+          <li class="nav-item ms-lg-2"><a class="btn btn-brand rounded-pill px-4" href="#contact">Start a conversation</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <section class="hero text-center">
+      <div class="container position-relative">
+        <div class="eyebrow" data-aos="fade-down">
+          <i class="fa-solid fa-sparkles"></i>
+          Practical AI for real business problems
+        </div>
+
+        <h1 data-aos="fade-up" data-aos-delay="50">
+          AI should feel like a <span class="gradient-text">useful tool</span>, not a foreign language.
+        </h1>
+
+        <p class="hero-lead" data-aos="fade-up" data-aos-delay="100">
+          Solution Workshop helps organizations understand where AI can create value, then turns those opportunities into clear, practical solutions people can actually use.
+        </p>
+
+        <div class="hero-actions" data-aos="fade-up" data-aos-delay="150">
+          <a class="btn btn-brand btn-lg rounded-pill px-5 py-3" href="#contact">
+            Bring us a problem
+            <i class="fa-solid fa-arrow-right ms-2"></i>
+          </a>
+          <a class="btn btn-soft btn-lg rounded-pill px-5 py-3" href="#how-it-works">
+            See how it works
+          </a>
+        </div>
+
+        <div class="trust-line" data-aos="fade-up" data-aos-delay="200">
+          <span><i class="fa-solid fa-circle-check text-success"></i> No hype</span>
+          <span><i class="fa-solid fa-circle-check text-success"></i> No jargon overload</span>
+          <span><i class="fa-solid fa-circle-check text-success"></i> No one-size-fits-all software</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="what-we-do">
+      <div class="container">
+        <div class="row align-items-end g-4 mb-5">
+          <div class="col-lg-7">
+            <div class="section-kicker">What we do</div>
+            <h2 class="section-title">We start with the problem—not the technology.</h2>
+          </div>
+          <div class="col-lg-5">
+            <p class="section-copy mb-0">
+              You do not need an AI strategy full of buzzwords. You need a clear understanding of what can be improved, what should be automated, and what is actually worth building.
+            </p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6 col-xl-3" data-aos="fade-up">
+            <div class="card-soft">
+              <div class="icon-box"><i class="fa-solid fa-magnifying-glass"></i></div>
+              <h3 class="h4">Find the opportunity</h3>
+              <p class="text-secondary mb-0">We identify repetitive work, slow handoffs, scattered information, and decisions that could be supported by better tools.</p>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3" data-aos="fade-up" data-aos-delay="70">
+            <div class="card-soft">
+              <div class="icon-box"><i class="fa-solid fa-comments"></i></div>
+              <h3 class="h4">Make it understandable</h3>
+              <p class="text-secondary mb-0">We explain AI in plain language so leaders and teams can make confident decisions without needing a technical background.</p>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3" data-aos="fade-up" data-aos-delay="140">
+            <div class="card-soft">
+              <div class="icon-box"><i class="fa-solid fa-robot"></i></div>
+              <h3 class="h4">Build useful agents</h3>
+              <p class="text-secondary mb-0">We design AI agents and workflows that help complete real tasks—not demos that look impressive but never become part of the business.</p>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3" data-aos="fade-up" data-aos-delay="210">
+            <div class="card-soft">
+              <div class="icon-box"><i class="fa-solid fa-people-group"></i></div>
+              <h3 class="h4">Help people adopt it</h3>
+              <p class="text-secondary mb-0">We make sure the solution fits the team, the process, and the way work actually happens.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pt-0">
+      <div class="container">
+        <div class="problem-panel" data-aos="zoom-in">
+          <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+              <div class="section-kicker text-info">A better starting point</div>
+              <h2 class="display-5 fw-bold mt-2">You do not need to know what to ask AI.</h2>
+              <p class="fs-5 text-white-50 mt-3">
+                Bring us the bottleneck, the backlog, the manual process, or the idea that never quite got off the ground.
+              </p>
+            </div>
+            <div class="col-lg-6">
+              <ul class="problem-list">
+                <li><i class="fa-solid fa-check"></i><span>“Our team spends hours copying information between systems.”</span></li>
+                <li><i class="fa-solid fa-check"></i><span>“Customers keep asking the same questions.”</span></li>
+                <li><i class="fa-solid fa-check"></i><span>“We have valuable data, but no easy way to use it.”</span></li>
+                <li><i class="fa-solid fa-check"></i><span>“We know AI matters, but we do not know where to begin.”</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section-intro text-center mx-auto mb-5">
+          <div class="section-kicker">How it works</div>
+          <h2 class="section-title">A workshop, not a black box.</h2>
+          <p class="section-copy mt-3">
+            We work alongside your team so the solution is understandable, useful, and built around the way your business already operates.
+          </p>
+        </div>
+
+        <div class="row g-5">
+          <div class="col-lg-6" data-aos="fade-right">
+            <div class="step">
+              <div class="step-number">1</div>
+              <h3>Understand</h3>
+              <p class="text-secondary">We learn the problem, the people involved, the systems already in place, and what success should look like.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <h3>Design</h3>
+              <p class="text-secondary">We map a practical solution and explain the role AI should—and should not—play.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-left">
+            <div class="step">
+              <div class="step-number">3</div>
+              <h3>Build</h3>
+              <p class="text-secondary">We create a focused prototype, agent, automation, or workflow that solves a real business need.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <h3>Improve</h3>
+              <p class="text-secondary">We test it with real users, measure the outcome, and refine it until it earns a place in the business.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote mt-5" data-aos="fade-up">
+          <i class="fa-solid fa-quote-left me-2 text-primary"></i>
+          The goal is not to make your business “more AI.” The goal is to make your business work better.
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-white" id="who-its-for">
+      <div class="container">
+        <div class="row g-5 align-items-center">
+          <div class="col-lg-5">
+            <div class="section-kicker">Who it’s for</div>
+            <h2 class="section-title">Built for people who have work to improve—not AI to impress.</h2>
+            <p class="section-copy mt-3">
+              Solution Workshop is for practical leaders who want to use AI thoughtfully, responsibly, and in ways their teams can understand.
+            </p>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="row g-4">
+              <div class="col-md-6" data-aos="fade-up">
+                <div class="card-soft">
+                  <div class="icon-box"><i class="fa-solid fa-building"></i></div>
+                  <h3 class="h5">Growing businesses</h3>
+                  <p class="text-secondary mb-0">Teams that have outgrown manual work but do not need an expensive transformation program.</p>
+                </div>
+              </div>
+              <div class="col-md-6" data-aos="fade-up" data-aos-delay="70">
+                <div class="card-soft">
+                  <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
+                  <h3 class="h5">Operational leaders</h3>
+                  <p class="text-secondary mb-0">People responsible for service, process, customer experience, or getting work through the organization.</p>
+                </div>
+              </div>
+              <div class="col-md-6" data-aos="fade-up" data-aos-delay="140">
+                <div class="card-soft">
+                  <div class="icon-box"><i class="fa-solid fa-lightbulb"></i></div>
+                  <h3 class="h5">Curious decision-makers</h3>
+                  <p class="text-secondary mb-0">Leaders who see the potential of AI but want a trusted, practical path forward.</p>
+                </div>
+              </div>
+              <div class="col-md-6" data-aos="fade-up" data-aos-delay="210">
+                <div class="card-soft">
+                  <div class="icon-box"><i class="fa-solid fa-handshake-angle"></i></div>
+                  <h3 class="h5">Teams that need a partner</h3>
+                  <p class="text-secondary mb-0">Organizations that want someone to listen first, explain clearly, and build alongside them.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="cta">
+          <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+              <div class="small-label text-white-50">Bring us the problem</div>
+              <h2 class="display-4 fw-bold mt-2">Let’s turn “we should probably use AI” into something useful.</h2>
+              <p class="fs-5 text-white-50 mt-3 mb-0">
+                Tell us what is slow, repetitive, confusing, or harder than it should be. We’ll help you find the practical next step.
+              </p>
+            </div>
+
+            <div class="col-lg-6">
+              <form id="contactForm" class="bg-white p-4 p-md-5 rounded-4 text-dark shadow">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="name">Name</label>
+                  <input class="form-control" id="name" type="text" placeholder="Your name" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="email">Email</label>
+                  <input class="form-control" id="email" type="email" placeholder="you@company.com" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="problem">What problem are you trying to solve?</label>
+                  <textarea class="form-control" id="problem" rows="4" placeholder="A few sentences is plenty." required></textarea>
+                </div>
+                <button class="btn btn-brand w-100 py-3 rounded-pill fw-bold" type="submit">
+                  Start the conversation
+                  <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+                <div id="formMessage" class="small mt-3 d-none" role="status" aria-live="polite">
+                  <span id="formMessageText"></span>
+                  <a id="contactNext" class="fw-bold ms-1 d-none" href="https://tempofoundry.com/contact/">Continue to contact →</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <span class="brand-mark brand-mark-small"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+        <strong>Solution Workshop</strong>
+      </div>
+      <div>Practical AI for real business problems.</div>
+      <nav class="d-flex flex-wrap justify-content-center gap-3" aria-label="Solution Workshop legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="mailto:support@solwx.com">Contact</a>
+      </nav>
+      <div>&copy; <span id="year"></span> Solution Workshop</div>
+    </div>
+  </footer>
+
+  <!-- TEMPO_STUDIO_2_FOOTER_START -->
+  <aside class="tf-studio-footer" aria-label="Tempo Foundry studio footer">
+    <div class="tf-studio-footer-row">
+      <div>
+        <div class="tf-studio-footer-title">
+          <img src="https://tempofoundry.com/brand/joey/mark-64.png" alt="">
+          <span>Solution Workshop is part of Tempo Foundry.</span>
+        </div>
+        <div class="tf-studio-footer-copy">An independent studio founded by Rich Williams in Texas—building practical products, media, archives, and experiences.</div>
+      </div>
+      <nav class="tf-studio-footer-nav" aria-label="Tempo Foundry">
+        <a href="https://tempofoundry.com/">Studio</a>
+        <a href="https://tempofoundry.com/projects/">All projects</a>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms</a>
+        <a href="mailto:support@solwx.com">Contact</a>
+      </nav>
+    </div>
+    <div class="tf-studio-legal">© 2026 Tempo Foundry. Product names and creative materials may have separate owners and usage terms.</div>
+  </aside>
+  <!-- TEMPO_STUDIO_2_FOOTER_END -->
+
+  <!-- Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- AOS -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+  <script>
+    if (window.AOS) {
+      AOS.init({
+        duration: 700,
+        once: true,
+        offset: 80
+      });
+    } else {
+      document.querySelectorAll("[data-aos]").forEach(function (element) {
+        element.removeAttribute("data-aos");
+        element.removeAttribute("data-aos-delay");
+      });
+    }
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    document.getElementById('contactForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      var config = window.SOLUTION_WORKSHOP_CONFIG || {};
+      var name = document.getElementById('name').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var problem = document.getElementById('problem').value.trim();
+      var subject = "Solution Workshop inquiry from " + name;
+      var draft = [
+        subject,
+        "",
+        "Name: " + name,
+        "Email: " + email,
+        "",
+        "Problem to solve:",
+        problem
+      ].join("\n");
+      var message = document.getElementById('formMessage');
+      var messageText = document.getElementById('formMessageText');
+      var next = document.getElementById('contactNext');
+
+      message.classList.remove('d-none', 'text-danger');
+      next.classList.add('d-none');
+
+      if (config.contactEmail) {
+        window.location.href = "mailto:" + encodeURIComponent(config.contactEmail) +
+          "?subject=" + encodeURIComponent(subject) +
+          "&body=" + encodeURIComponent(draft);
+        messageText.textContent = "Your email app should open with the inquiry prepared.";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(draft);
+        messageText.textContent = "Your inquiry has been copied. Continue to Tempo Foundry contact and mention Solution Workshop.";
+      } catch (error) {
+        messageText.textContent = "Your inquiry is ready. Copy the details above, then continue to Tempo Foundry contact and mention Solution Workshop.";
+      }
+
+      next.href = config.contactUrl || "https://tempofoundry.com/contact/";
+      next.classList.remove('d-none');
+    });
+  </script>
+</body>
+</html>

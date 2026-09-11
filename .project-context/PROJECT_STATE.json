@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "last_updated": "2026-07-16",
+  "source_repo_archive": "shareshuffle.github.io 2.zip",
+  "firebase_project": "shareshuffle-c7f96",
+  "affected_targets": ["shuffle", "breger", "eternalroute66"],
+  "latest_patch": "13 massive Link Check, merch embeds, museum shop, ER66 ad, artist community, media split tools",
+  "amazon_merch_status": "pending review",
+  "amazon_brand": "The Ernest Lee \"Butch The Barn Man\" Breger Museum",
+  "associate_tag": "shareshuffle-20",
+  "affiliate_rules": {
+    "preserve_existing_tag": true,
+    "add_share_shuffle_tag_only_on_owned_allowlisted_domains": true,
+    "unknown_external_embeds_are_untagged_without_publisher_tag": true,
+    "direct_amazon_links_only": true,
+    "no_prices_ratings_reviews_or_availability_without_authorized_source": true
+  },
+  "artist_community": [
+    "Bob Waldmire",
+    "Bob Crocodile Lile",
+    "Chuck Williams / Eternal Route 66"
+  ],
+  "media_strategy": "copy large assets to tempo-foundry-media; do not prune deploy repo until URLs are migrated and verified",
+  "next_action": "Apply patch and run deploy script. After Amazon approval, replace pending brand-search destinations with ASIN-specific live URLs in merch/butch-shirts.json and embed.js."
+}

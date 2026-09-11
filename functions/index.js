@@ -10,12 +10,14 @@ initializeApp();
 const db = getFirestore();
 const storage = getStorage();
 const BRAVE_SEARCH_API_KEY = defineSecret("BRAVE_SEARCH_API_KEY");
+const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY");
+const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET");
 
 const BUILD_INFO = {
-  build: "2026.06.19-open-buttons-internal-routes-59",
-  createdAt: "2026-06-18T18:05:00Z",
-  patch: "hyphen-only-public-urls-53",
-  functions: ["getPreview", "imageRescue", "rescueImage", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "addShareToShelf", "getBuildInfo"]
+  build: "2026.07.06-short-link-resolve-canary-s-favicons-64f",
+  createdAt: "2026-07-06T18:05:00Z",
+  patch: "short-link-resolve-64",
+  functions: ["getPreview", "imageRescue", "rescueImage", "renderRoute", "ogImage", "shareImage", "cardImage", "shelfCardImage", "uploadShareImage", "shelfData", "shareData", "trackShareClick", "addShareToShelf", "getBuildInfo", "linkCheck", "lnkdxResolve", "lnkdxParkAvailability", "lnkdxCreateCheckout", "lnkdxFinalizeCheckout", "lnkdxStripeWebhook"]
 };
 
 const MAX_HTML_BYTES = 900000;
@@ -599,6 +601,7 @@ function isBadAutoTitle(title = "") {
   const text = String(title || "").replace(/\s+/g, " ").trim();
   if (!text) return true;
   if (/^(gp|aw|dp|d|c|s|ref|sp|nav|search|node|product|products|amazon|www)$/i.test(text)) return true;
+  if (/^ref(?:\s|=|[-_:])/i.test(text)) return true;
   if (/^[a-z]{1,3}$/i.test(text)) return true;
   if (/^[a-z0-9]{1,5}$/i.test(text) && !/\s/.test(text)) return true;
   if (/^(robot or human\??|blocked|access denied|are you a human\??|verify you are human|captcha|page not found|not found|unavailable)$/i.test(text)) return true;
@@ -618,6 +621,7 @@ function titleFromAmazonUrl(url = "") {
       .filter(Boolean)
       .map((part) => part.replace(/\.(?:html?|aspx?|php)$/i, ""))
       .filter(Boolean)
+      .filter((part) => !/^ref(?:=|%3d|[-_])/i.test(part))
       .filter((part) => !/^(gp|aw|dp|d|c|s|ref|sp|nav|search|node|product|products|hz|stores?)$/i.test(part))
       .filter((part) => !/^[A-Z0-9]{10}$/i.test(part))
       .filter((part) => !/^\d{4,}$/.test(part));
@@ -627,7 +631,7 @@ function titleFromAmazonUrl(url = "") {
     if (!best) return "";
     return cleanAutoTitle(best
       .replace(/[-_+]+/g, " ")
-      .replace(/\w/g, (letter) => letter.toUpperCase())
+      .replace(/\b\w/g, (letter) => letter.toUpperCase())
       .replace(/\s+/g, " ")
       .trim());
   } catch {
@@ -694,6 +698,7 @@ function titleFromRetailUrl(url = "") {
       .filter(Boolean)
       .map((part) => part.replace(/\.(?:html?|aspx?|php|gc)$/i, ""))
       .filter(Boolean)
+      .filter((part) => !/^ref(?:=|%3d|[-_])/i.test(part))
       .filter((part) => !/^(ip|cp|c|browse|shop|product|products|search|used|new|open-box|used-gear|gp|aw|dp|d|ref|sp|nav|node|hz|store|stores)$/i.test(part))
       .filter((part) => !/^\d{4,}$/.test(part))
       .filter((part) => !/^[A-Z0-9]{10}$/i.test(part));
@@ -756,6 +761,233 @@ async function fetchHtml(rawUrl, signal, headers = BROWSER_HEADERS) {
   const contentType = response.headers.get("content-type") || "";
   const html = contentType.includes("text/html") || contentType === "" ? await readLimitedHtml(response) : "";
   return { response, html, finalUrl: response.url || rawUrl, contentType };
+}
+
+function isLikelyShortOrRedirectUrl(rawUrl = "") {
+  try {
+    const parsed = new URL(rawUrl);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    const path = parsed.pathname.toLowerCase();
+    if (["a.co", "amzn.to", "walmrt.us", "bit.ly", "t.co", "tinyurl.com", "lnk.to", "shopltk.com"].includes(host)) return true;
+    if (host === "goto.walmart.com" || host.endsWith(".impactradius.com")) return true;
+    if (host === "walmart.com" && /^\/ip\//i.test(path)) return false;
+    if (host.endsWith(".walmart.com") && /(\/affil\/?|\/share\/?|\/click\/?|\/redirect\/?)/i.test(path)) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+async function fetchManualRedirect(rawUrl, signal, headers = BROWSER_HEADERS, method = "HEAD") {
+  const response = await fetch(rawUrl, {
+    method,
+    signal,
+    redirect: "manual",
+    headers
+  });
+  const location = response.headers.get("location") || "";
+  const contentType = response.headers.get("content-type") || "";
+  const html = method === "GET" && (contentType.includes("text/html") || contentType === "") ? await readLimitedHtml(response) : "";
+  return { response, location, contentType, html, finalUrl: response.url || rawUrl };
+}
+
+async function resolveRedirectChain(rawUrl, signal, { maxHops = 8 } = {}) {
+  let currentUrl = rawUrl;
+  const chain = [];
+  const seen = new Set([currentUrl]);
+
+  for (let hop = 0; hop < maxHops; hop += 1) {
+    let result = null;
+    try {
+      result = await fetchManualRedirect(currentUrl, signal, BROWSER_HEADERS, "HEAD");
+    } catch (headError) {
+      result = null;
+    }
+
+    if (!result || !result.location) {
+      try {
+        result = await fetchManualRedirect(currentUrl, signal, BROWSER_HEADERS, "GET");
+      } catch (getError) {
+        break;
+      }
+    }
+
+    const status = Number(result?.response?.status || 0);
+    const locationHeader = String(result?.location || "").trim();
+    let nextUrl = locationHeader ? absolutize(locationHeader, currentUrl) : "";
+
+    // Some share links resolve through a tiny HTML landing page instead of a pure
+    // HTTP Location header. Catch those before we give up on the short URL.
+    if (!nextUrl && result?.html) {
+      nextUrl = extractRefreshUrl(result.html, result.finalUrl || currentUrl)
+        || extractCanonicalUrl(result.html, result.finalUrl || currentUrl);
+    }
+
+    if (!nextUrl || !isAllowedUrl(nextUrl) || seen.has(nextUrl)) break;
+    chain.push({ from: currentUrl, to: nextUrl, status });
+    seen.add(nextUrl);
+    currentUrl = nextUrl;
+
+    // Cash-cow short links are now resolved to their canonical product page.
+    // Stop once we land on a normal product URL; fetchBestPreviewHtml will do the
+    // deeper title/image extraction from that page.
+    if (isRetailProductPageUrl(currentUrl) || isWalmartBlockedUrl(currentUrl)) break;
+  }
+
+  return { url: currentUrl, chain };
+}
+
+async function resolvePreviewInputUrl(rawUrl, signal) {
+  const decodedWalmart = decodeWalmartBlockedUrl(rawUrl) || rawUrl;
+  if (!isAllowedUrl(decodedWalmart)) return { url: decodedWalmart, chain: [] };
+
+  // Always resolve obvious short/redirect links first. For normal product pages,
+  // keep the original URL so we do not add a slow extra network round trip.
+  if (!isLikelyShortOrRedirectUrl(decodedWalmart)) return { url: decodedWalmart, chain: [] };
+
+  try {
+    return await resolveRedirectChain(decodedWalmart, signal);
+  } catch (error) {
+    console.warn("Short-link resolve failed", decodedWalmart, error?.message || error);
+    return { url: decodedWalmart, chain: [] };
+  }
+}
+
+function extractCanonicalUrl(html = "", baseUrl = "") {
+  const source = String(html || "");
+  const patterns = [
+    /<link[^>]+rel=["'][^"']*canonical[^"']*["'][^>]+href=["']([^"']+)["'][^>]*>/i,
+    /<link[^>]+href=["']([^"']+)["'][^>]+rel=["'][^"']*canonical[^"']*["'][^>]*>/i,
+    /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:url["'][^>]*>/i
+  ];
+  for (const re of patterns) {
+    const match = source.match(re);
+    const url = match ? absolutize(decodeEntities(match[1] || ""), baseUrl) : "";
+    if (url && isAllowedUrl(url)) return url;
+  }
+  return "";
+}
+
+function extractAmazonAsinFromHtml(html = "") {
+  const source = String(html || "");
+  const patterns = [
+    /\/(?:dp|gp\/product|gp\/aw\/d|product)\/([A-Z0-9]{10})(?:[/?#"'&<]|$)/gi,
+    /(?:data-asin|name=["']ASIN["']\s+value|id=["']ASIN["']\s+value)=["']([A-Z0-9]{10})["']/gi,
+    /["'](?:asin|ASIN|parentAsin|currentAsin)["']\s*:\s*["']([A-Z0-9]{10})["']/gi,
+    /(?:%2Fdp%2F|%2Fgp%2Fproduct%2F|%2Fgp%2Faw%2Fd%2F)([A-Z0-9]{10})(?:%2F|%3F|%23|$)/gi
+  ];
+  for (const re of patterns) {
+    let match;
+    while ((match = re.exec(source))) {
+      const asin = String(match[1] || "").toUpperCase();
+      if (/^[A-Z0-9]{10}$/.test(asin)) return asin;
+    }
+  }
+  return "";
+}
+
+function sameUrlLoose(a = "", b = "") {
+  try {
+    const aa = new URL(a);
+    const bb = new URL(b);
+    aa.hash = ""; bb.hash = "";
+    return aa.toString() === bb.toString();
+  } catch {
+    return String(a || "") === String(b || "");
+  }
+}
+
+function amazonCandidateUrls(result = {}, requestedUrl = "") {
+  const urls = [];
+  const push = (value) => {
+    const url = String(value || "").trim();
+    if (url && isAllowedUrl(url) && !urls.some((existing) => sameUrlLoose(existing, url))) urls.push(url);
+  };
+  push(requestedUrl);
+  push(result.finalUrl);
+  push(extractRefreshUrl(result.html || "", result.finalUrl || requestedUrl));
+  push(extractCanonicalUrl(result.html || "", result.finalUrl || requestedUrl));
+
+  const asin = extractAsin(result.finalUrl) || extractAsin(requestedUrl) || extractAmazonAsinFromHtml(result.html || "");
+  if (asin) {
+    push(`https://www.amazon.com/dp/${asin}`);
+    push(`https://www.amazon.com/gp/product/${asin}`);
+    push(`https://www.amazon.com/gp/aw/d/${asin}`);
+  }
+  return urls.filter((url) => isAmazonHost(url));
+}
+
+function previewQualityScore(preview = {}, url = "") {
+  let score = 0;
+  const title = cleanAutoTitle(preview.title || "");
+  const images = Array.isArray(preview.images) ? preview.images : [];
+  const image = String(preview.image || "").trim();
+  if (title) score += 500 + Math.min(160, title.length);
+  if (title && !isWeakPreviewTitleForUrl(title, url)) score += 250;
+  if (image && !isBadRetailImage(image) && !isLikelyBadProductImage(image)) score += 450;
+  score += Math.min(images.length, 6) * 90;
+  if (isAmazonHost(preview.finalUrl || url) && !/^(?:https?:\/\/)?(?:www\.)?(?:a\.co|amzn\.to)\//i.test(preview.finalUrl || url)) score += 120;
+  if (preview.blocked) score -= 1000;
+  return score;
+}
+
+async function fetchHtmlFollowingRefreshes(rawUrl, signal, headers = BROWSER_HEADERS, maxHops = 3) {
+  let currentUrl = rawUrl;
+  let result = await fetchHtml(currentUrl, signal, headers);
+  const seen = new Set([currentUrl]);
+  for (let hop = 0; hop < maxHops; hop += 1) {
+    const nextUrl = extractRefreshUrl(result.html || "", result.finalUrl || currentUrl);
+    if (!nextUrl || !isAllowedUrl(nextUrl) || seen.has(nextUrl)) break;
+    seen.add(nextUrl);
+    currentUrl = nextUrl;
+    result = await fetchHtml(currentUrl, signal, headers);
+  }
+  return result;
+}
+
+async function fetchBestPreviewHtml(rawUrl, signal) {
+  let first = await fetchHtmlFollowingRefreshes(rawUrl, signal, BROWSER_HEADERS);
+  if (!(isAmazonHost(rawUrl) || isAmazonHost(first.finalUrl))) return first;
+
+  const tried = new Set();
+  const candidates = [];
+  const addCandidate = (url, headers) => {
+    const key = `${headers === MOBILE_HEADERS ? "m" : "d"}:${url}`;
+    if (url && isAllowedUrl(url) && !tried.has(key)) {
+      tried.add(key);
+      candidates.push({ url, headers });
+    }
+  };
+
+  for (const url of amazonCandidateUrls(first, rawUrl)) addCandidate(url, BROWSER_HEADERS);
+  for (const url of amazonCandidateUrls(first, rawUrl)) addCandidate(url, MOBILE_HEADERS);
+
+  let best = first;
+  let bestPreview = extractPreview(first.html || "", first.finalUrl || rawUrl, rawUrl);
+  let bestScore = previewQualityScore(bestPreview, first.finalUrl || rawUrl);
+
+  for (let i = 0; i < candidates.length && i < 8; i += 1) {
+    const candidate = candidates[i];
+    try {
+      const result = await fetchHtmlFollowingRefreshes(candidate.url, signal, candidate.headers, 2);
+      const expanded = amazonCandidateUrls(result, rawUrl);
+      for (const url of expanded) addCandidate(url, candidate.headers === MOBILE_HEADERS ? MOBILE_HEADERS : BROWSER_HEADERS);
+      if (!result.html && !String(result.contentType || "").includes("text/html")) continue;
+      const preview = extractPreview(result.html || "", result.finalUrl || candidate.url, rawUrl);
+      const score = previewQualityScore(preview, result.finalUrl || candidate.url);
+      if (score > bestScore) {
+        best = result;
+        bestPreview = preview;
+        bestScore = score;
+      }
+      if (bestPreview.title && bestPreview.image && (bestPreview.images || []).length >= 2) break;
+    } catch (error) {
+      console.warn("Amazon preview candidate failed", candidate.url, error?.message || error);
+    }
+  }
+
+  return best;
 }
 
 function extractPreview(html, finalUrl, requestedUrl) {
@@ -1056,38 +1288,16 @@ export const getPreview = onRequest(
   if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
 
   const rawInputUrl = String(req.query.url || "").trim();
-  const rawUrl = decodeWalmartBlockedUrl(rawInputUrl) || rawInputUrl;
-  if (!isAllowedUrl(rawUrl)) return sendJson(res, 400, { error: "Unsupported URL" });
+  const decodedRawUrl = decodeWalmartBlockedUrl(rawInputUrl) || rawInputUrl;
+  if (!isAllowedUrl(decodedRawUrl)) return sendJson(res, 400, { error: "Unsupported URL" });
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    let { response, html, finalUrl, contentType } = await fetchHtml(rawUrl, controller.signal, BROWSER_HEADERS);
-
-    // Some shorteners use meta refresh instead of a plain HTTP redirect.
-    const refreshUrl = extractRefreshUrl(html, finalUrl);
-    if (refreshUrl && isAllowedUrl(refreshUrl)) {
-      ({ response, html, finalUrl, contentType } = await fetchHtml(refreshUrl, controller.signal, BROWSER_HEADERS));
-    }
-
-    // Amazon sometimes gives a desktop bot/interstitial page to server fetches.
-    // Try the mobile product page before falling back to the final URL/ASIN.
-    const preliminaryTitle = pickTitle(html);
-    if ((isAmazonHost(finalUrl) || isAmazonHost(rawUrl)) && isBadAmazonPage(html, preliminaryTitle)) {
-      const asin = extractAsin(finalUrl) || extractAsin(rawUrl);
-      if (asin) {
-        const mobileUrl = `https://www.amazon.com/gp/aw/d/${asin}`;
-        const mobileResult = await fetchHtml(mobileUrl, controller.signal, MOBILE_HEADERS);
-        const mobileTitle = pickTitle(mobileResult.html);
-        if (mobileResult.html && !isBadAmazonPage(mobileResult.html, mobileTitle)) {
-          html = mobileResult.html;
-          finalUrl = mobileResult.finalUrl || mobileUrl;
-          response = mobileResult.response;
-          contentType = mobileResult.contentType;
-        }
-      }
-    }
+    const resolvedInput = await resolvePreviewInputUrl(decodedRawUrl, controller.signal);
+    const rawUrl = resolvedInput.url || decodedRawUrl;
+    let { response, html, finalUrl, contentType } = await fetchBestPreviewHtml(rawUrl, controller.signal);
 
     if (!html && !contentType.includes("text/html")) {
       return sendJson(res, 415, { error: "URL did not return HTML", finalUrl, contentType });
@@ -1098,6 +1308,9 @@ export const getPreview = onRequest(
       ...preview,
       requestedUrl: rawUrl,
       rawInputUrl,
+      resolvedInputUrl: rawUrl,
+      originalRequestedUrl: decodedRawUrl,
+      redirectChain: resolvedInput.chain || [],
       contentType,
       status: response.status,
       ok: response.ok
@@ -1191,27 +1404,7 @@ async function fetchBestImageRescue(originalUrl = "") {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    let { response, html, finalUrl, contentType } = await fetchHtml(originalUrl, controller.signal, BROWSER_HEADERS);
-    const refreshUrl = extractRefreshUrl(html, finalUrl);
-    if (refreshUrl && refreshUrl !== finalUrl && isAllowedUrl(refreshUrl)) {
-      ({ response, html, finalUrl, contentType } = await fetchHtml(refreshUrl, controller.signal, BROWSER_HEADERS));
-    }
-
-    const preliminaryTitle = pickTitle(html);
-    if ((isAmazonHost(finalUrl) || isAmazonHost(originalUrl)) && isBadAmazonPage(html, preliminaryTitle)) {
-      const asin = extractAsin(finalUrl) || extractAsin(originalUrl);
-      if (asin) {
-        const mobileUrl = `https://www.amazon.com/gp/aw/d/${asin}`;
-        const mobileResult = await fetchHtml(mobileUrl, controller.signal, MOBILE_HEADERS);
-        const mobileTitle = pickTitle(mobileResult.html);
-        if (mobileResult.html && !isBadAmazonPage(mobileResult.html, mobileTitle)) {
-          html = mobileResult.html;
-          finalUrl = mobileResult.finalUrl || mobileUrl;
-          response = mobileResult.response;
-          contentType = mobileResult.contentType;
-        }
-      }
-    }
+    let { response, html, finalUrl, contentType } = await fetchBestPreviewHtml(originalUrl, controller.signal);
 
     if (!html && !String(contentType || "").includes("text/html")) return null;
     const preview = extractPreview(html, finalUrl, originalUrl);
@@ -1838,9 +2031,9 @@ function renderHtml({ req, route, preview }) {
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${escapeHtml(image)}">
   <meta name="twitter:image:alt" content="${escapeHtml(typeLabel)}">
-  <meta name="theme-color" content="#EEF6FF">
-  <link rel="icon" type="image/png" href="/icons/icon32.png">
-  <link rel="apple-touch-icon" href="/icons/icon180-square.png">
+  <meta name="theme-color" content="#FFF78A">
+  <link rel="icon" type="image/png" href="/icons/favicon-s-32px.png?v=64f" sizes="32x32">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=64f">
   <style>
     body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef6ff;color:#172033;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center}
     .card{background:white;border:1px solid rgba(15,23,42,.1);border-radius:24px;box-shadow:0 20px 50px rgba(15,23,42,.12);padding:28px;max-width:560px}
@@ -2448,6 +2641,53 @@ export const cardImage = onRequest(
 );
 
 
+
+const LINK_CHECK_OWNED_HOSTS = new Set([
+  "shareshuffle.com", "www.shareshuffle.com", "shfl.me", "www.shfl.me",
+  "tempofoundry.com", "www.tempofoundry.com", "butchbreger.com", "www.butchbreger.com",
+  "eternalroute66.com", "www.eternalroute66.com", "duetloop.com", "www.duetloop.com",
+  "metromance.com", "www.metromance.com", "localhost", "127.0.0.1"
+]);
+const LINK_CHECK_AMAZON_TAG = "shareshuffle-20";
+function inspectSharedLink(rawUrl = "", pageHost = "") {
+  const result = { input: rawUrl, health: "healthy", merchant: "unknown", issues: [], notices: [], existingTag: "", suggestedUrl: "", productId: "", monetization: "none", canAutoFix: false };
+  let url;
+  try { url = new URL(String(rawUrl || "").trim()); } catch (_) { result.health = "unsafe"; result.issues.push("This is not a valid public URL."); return result; }
+  if (!/^https?:$/.test(url.protocol)) { result.health = "unsafe"; result.issues.push("Only http and https links are supported."); return result; }
+  result.suggestedUrl = url.href;
+  const host = url.hostname.toLowerCase();
+  if (/^(?:www\.)?(?:a\.co|amzn\.to)$/.test(host)) { result.merchant = "amazon"; result.health = "needs-help"; result.issues.push("Short Amazon links must be resolved before Shuffle can verify the product and attribution."); return result; }
+  if (!(host === "amazon.com" || host.endsWith(".amazon.com"))) { result.health = "healthy"; result.notices.push("No Amazon-specific compliance changes are needed."); return result; }
+  result.merchant = "amazon";
+  result.productId = extractAsin(url.href);
+  result.existingTag = url.searchParams.get("tag") || "";
+  if (/\/(?:gp\/cart|gp\/buy|hz\/wishlist|ap\/signin|your-account|checkout)/i.test(url.pathname)) { result.health = "unsafe"; result.issues.push("This appears to be a private account, cart, checkout or sign-in link."); return result; }
+  if (url.pathname === "/s" || url.searchParams.has("k") || url.searchParams.has("rh")) { result.health = "cleanable"; result.issues.push("This is an Amazon search or brand page, not a single product."); }
+  if (!result.productId && url.pathname !== "/s") { result.health = "needs-help"; result.issues.push("No Amazon product ID was found."); }
+  const before = url.href;
+  ["ref","ref_","qid","sr","keywords","crid","sprefix","dib","dib_tag","pf_rd_p","pf_rd_r","pd_rd_w","pd_rd_wg","pd_rd_r"].forEach((key) => url.searchParams.delete(key));
+  if (result.existingTag) { url.searchParams.set("tag", result.existingTag); result.monetization = "preserve-publisher"; result.notices.push("Existing Amazon Associate attribution detected and preserved."); }
+  else if (LINK_CHECK_OWNED_HOSTS.has(String(pageHost || "").toLowerCase())) { url.searchParams.set("tag", LINK_CHECK_AMAZON_TAG); result.monetization = "shareshuffle-owned-site"; result.notices.push("This is a normal Amazon product link. When the share is created, Shuffle will use the clean product URL and add its disclosed Associate tag."); }
+  else { url.searchParams.delete("tag"); result.monetization = "untagged-external-site"; result.notices.push("Shuffle will not silently add its tag on an unknown third-party site."); }
+  result.suggestedUrl = url.href;
+  result.canAutoFix = before !== url.href;
+  if (result.health !== "unsafe" && result.health !== "needs-help") result.health = result.canAutoFix ? "cleanable" : (result.health || "healthy");
+  return result;
+}
+
+export const linkCheck = onRequest({ invoker: "public", timeoutSeconds: 15, memory: "256MiB" }, async (req, res) => {
+  if (req.method === "OPTIONS") return sendCorsJson(res, 204, {}, "GET, POST, OPTIONS");
+  if (req.method !== "GET" && req.method !== "POST") return sendCorsJson(res, 405, { error: "Method not allowed" }, "GET, POST, OPTIONS");
+  try {
+    const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+    const rawUrl = String(req.query.url || body.url || "").trim();
+    const pageHost = String(req.query.pageHost || body.pageHost || "").trim();
+    return sendCorsJson(res, 200, { ok: true, result: inspectSharedLink(rawUrl, pageHost), complianceNote: "Rule-based assistance only. Publishers remain responsible for current Amazon Associates terms, disclosures, rights and site registration." }, "GET, POST, OPTIONS");
+  } catch (error) {
+    return sendCorsJson(res, 400, { ok: false, error: String(error?.message || error) }, "GET, POST, OPTIONS");
+  }
+});
+
 function parseImageDataUrl(value = "") {
   const match = String(value || "").match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i);
   if (!match) return null;
@@ -2584,3 +2824,730 @@ export const ogImage = onRequest(
     }
   }
 );
+
+
+// LNKDX Park: two-character aliases backed by Firestore.
+const LNKDX_SEED_HASH = "1d32add8e5ea4d17a8332bd1923339d284d6a68489caa1ad3ef84e3603d92c95";
+const LNKDX_PARK_COLLECTION = "lnkdxParks";
+const LNKDX_REVENUE_DOC = "park-revenue-v1";
+const LNKDX_FOUNDING_LIMIT = 100;
+const LNKDX_FOUNDING_PRICE_CENTS = 4900;
+const LNKDX_STANDARD_PRICE_CENTS = 7900;
+const LNKDX_MIXED_FOUNDING_PRICE_CENTS = 2450;
+const LNKDX_MIXED_STANDARD_PRICE_CENTS = 3950;
+// Stripe requires Checkout expiration to be at least 30 minutes in the future.
+// Give the customer a 31-minute checkout window and keep the backend hold a few
+// minutes longer so a valid late webhook can still complete the reservation.
+const LNKDX_STRIPE_SESSION_MS = 31 * 60 * 1000;
+const LNKDX_HOLD_MS = 35 * 60 * 1000;
+const LNKDX_GRACE_MS = 14 * 24 * 60 * 60 * 1000;
+const LNKDX_ORIGIN = "https://lnkdx.com";
+const LNKDX_CHECKOUTS_PER_HOUR = 10;
+
+function normalizeLnkdxParkSlug(value = "") {
+  const slug = String(value || "").trim().toUpperCase();
+  return /^[A-Z0-9]{2}$/.test(slug) ? slug : "";
+}
+
+function normalizeLnkdxLinkedInUrl(value = "") {
+  try {
+    const url = new URL(String(value || "").trim());
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    if (url.protocol !== "https:" || host !== "linkedin.com") return "";
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (parts.length !== 2 || parts[0].toLowerCase() !== "in") return "";
+    const slug = decodeURIComponent(parts[1]);
+    if (!/^[A-Za-z0-9-]{3,100}$/.test(slug)) return "";
+    return `https://www.linkedin.com/in/${encodeURIComponent(slug)}/`;
+  } catch {
+    return "";
+  }
+}
+
+function cleanLnkdxDisplayName(value = "") {
+  return String(value || "").replace(/[<>\r\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+}
+
+function lnkdxParkClass(slug = "") {
+  const normalized = normalizeLnkdxParkSlug(slug);
+  return /[A-Z]/.test(normalized) && /[0-9]/.test(normalized) ? "mixed" : "premium";
+}
+
+function lnkdxPriceFromCounts(data = {}, slug = "") {
+  const paid = Math.max(0, Number(data.foundingPaidCount || 0));
+  const held = Math.max(0, Number(data.foundingHeldCount || 0));
+  const founding = paid + held < LNKDX_FOUNDING_LIMIT;
+  const parkClass = lnkdxParkClass(slug);
+  const amountCents = parkClass === "mixed"
+    ? (founding ? LNKDX_MIXED_FOUNDING_PRICE_CENTS : LNKDX_MIXED_STANDARD_PRICE_CENTS)
+    : (founding ? LNKDX_FOUNDING_PRICE_CENTS : LNKDX_STANDARD_PRICE_CENTS);
+  return {
+    tier: founding ? "founding" : "standard",
+    parkClass,
+    amountCents,
+    foundingRemaining: Math.max(0, LNKDX_FOUNDING_LIMIT - paid - held)
+  };
+}
+
+function lnkdxHoldIsLive(data = {}, now = Date.now()) {
+  return data.status === "checkout_pending" && Number(data.holdExpiresAt?.toMillis?.() || data.holdExpiresAt || 0) > now;
+}
+
+function lnkdxGraceIsLive(data = {}, now = Date.now()) {
+  return Number(data.graceUntil?.toMillis?.() || data.graceUntil || 0) > now;
+}
+
+function setLnkdxCors(req, res, methods = "GET, OPTIONS") {
+  const origin = String(req.headers.origin || "");
+  res.set("Access-Control-Allow-Origin", origin === LNKDX_ORIGIN || origin === "https://www.lnkdx.com" ? origin : LNKDX_ORIGIN);
+  res.set("Vary", "Origin");
+  res.set("Access-Control-Allow-Methods", methods);
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Cache-Control", "no-store, max-age=0");
+}
+
+function sendLnkdxJson(req, res, status, payload, methods = "GET, OPTIONS") {
+  setLnkdxCors(req, res, methods);
+  res.status(status).json(payload);
+}
+
+function lnkdxRequestKey(req) {
+  const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  const raw = forwarded || req.ip || req.socket?.remoteAddress || "unknown";
+  return crypto.createHash("sha256").update(`lnkdx-park:${raw}`).digest("hex").slice(0, 32);
+}
+
+async function enforceLnkdxCheckoutRateLimit(req) {
+  const now = Date.now();
+  const hourBucket = Math.floor(now / (60 * 60 * 1000));
+  const ref = db.collection("lnkdxRateLimits").doc(`${lnkdxRequestKey(req)}-${hourBucket}`);
+  await db.runTransaction(async tx => {
+    const snap = await tx.get(ref);
+    const current = snap.exists ? Number((snap.data() || {}).count || 0) : 0;
+    if (current >= LNKDX_CHECKOUTS_PER_HOUR) throw new Error("LNKDX_RATE_LIMITED");
+    tx.set(ref, {
+      count: current + 1,
+      bucket: hourBucket,
+      updatedAt: FieldValue.serverTimestamp(),
+      expiresAt: new Date(now + 2 * 60 * 60 * 1000)
+    }, { merge: true });
+  });
+}
+
+async function lnkdxStripeRequest(path, { method = "GET", form = null } = {}) {
+  const response = await fetch(`https://api.stripe.com/v1${path}`, {
+    method,
+    headers: {
+      authorization: `Bearer ${STRIPE_SECRET_KEY.value()}`,
+      ...(form ? { "content-type": "application/x-www-form-urlencoded" } : {})
+    },
+    body: form ? new URLSearchParams(form).toString() : undefined
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error?.message || `Stripe request failed (${response.status})`);
+  return body;
+}
+
+async function releaseLnkdxHold(slug, reservationId, reason = "released") {
+  const parkRef = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+  const revenueRef = db.collection("lnkdxSystem").doc(LNKDX_REVENUE_DOC);
+  await db.runTransaction(async tx => {
+    const [parkSnap, revenueSnap] = await Promise.all([tx.get(parkRef), tx.get(revenueRef)]);
+    if (!parkSnap.exists) return;
+    const park = parkSnap.data() || {};
+    if (park.status !== "checkout_pending" || park.reservationId !== reservationId) return;
+    const revenue = revenueSnap.data() || {};
+    if (park.priceTier === "founding") {
+      tx.set(revenueRef, { foundingHeldCount: Math.max(0, Number(revenue.foundingHeldCount || 0) - 1), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    }
+    tx.set(parkRef, {
+      status: "expired",
+      releaseReason: reason,
+      holdExpiresAt: FieldValue.delete(),
+      checkoutUrl: FieldValue.delete(),
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+  });
+}
+
+export const lnkdxParkAvailability = onRequest(
+  { invoker: "public", timeoutSeconds: 10, memory: "256MiB" },
+  async (req, res) => {
+    if (req.method === "OPTIONS") { setLnkdxCors(req, res, "GET, OPTIONS"); res.status(204).send(""); return; }
+    if (req.method !== "GET") { sendLnkdxJson(req, res, 405, { error: "Method not allowed" }); return; }
+    const slug = normalizeLnkdxParkSlug(req.query.slug);
+    if (!slug) { sendLnkdxJson(req, res, 400, { error: "Use exactly two letters or numbers." }); return; }
+    const parkRef = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+    const revenueRef = db.collection("lnkdxSystem").doc(LNKDX_REVENUE_DOC);
+    try {
+      const result = await db.runTransaction(async tx => {
+        const [parkSnap, revenueSnap] = await Promise.all([tx.get(parkRef), tx.get(revenueRef)]);
+        const park = parkSnap.exists ? (parkSnap.data() || {}) : {};
+        const revenue = revenueSnap.exists ? (revenueSnap.data() || {}) : {};
+        const now = Date.now();
+        let nextRevenue = { ...revenue };
+        let available = true;
+        let reason = "available";
+
+        if (park.status === "active" || park.status === "reserved") { available = false; reason = "claimed"; }
+        else if (lnkdxHoldIsLive(park, now)) { available = false; reason = "held"; }
+        else if (park.status === "grace" && lnkdxGraceIsLive(park, now)) { available = false; reason = "grace"; }
+        else if (park.status === "checkout_pending") {
+          if (park.priceTier === "founding") {
+            nextRevenue.foundingHeldCount = Math.max(0, Number(revenue.foundingHeldCount || 0) - 1);
+            tx.set(revenueRef, { foundingHeldCount: nextRevenue.foundingHeldCount, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+          }
+          tx.set(parkRef, { status: "expired", releaseReason: "hold-expired", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+        } else if (park.status === "grace" && !lnkdxGraceIsLive(park, now)) {
+          tx.set(parkRef, { status: "expired", releaseReason: "grace-expired", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+        }
+
+        return { available, reason, ...lnkdxPriceFromCounts(nextRevenue, slug) };
+      });
+      sendLnkdxJson(req, res, 200, { slug, ...result, currency: "usd", interval: "year" });
+    } catch (error) {
+      console.error("lnkdxParkAvailability failed", error);
+      sendLnkdxJson(req, res, 500, { error: "Availability check failed." });
+    }
+  }
+);
+
+export const lnkdxCreateCheckout = onRequest(
+  { invoker: "public", timeoutSeconds: 20, memory: "256MiB", secrets: [STRIPE_SECRET_KEY] },
+  async (req, res) => {
+    if (req.method === "OPTIONS") { setLnkdxCors(req, res, "POST, OPTIONS"); res.status(204).send(""); return; }
+    if (req.method !== "POST") { sendLnkdxJson(req, res, 405, { error: "Method not allowed" }, "POST, OPTIONS"); return; }
+    let body = {};
+    try { body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {}); }
+    catch { sendLnkdxJson(req, res, 400, { error: "Checkout request must be valid JSON." }, "POST, OPTIONS"); return; }
+    const slug = normalizeLnkdxParkSlug(body.slug);
+    const linkedInUrl = normalizeLnkdxLinkedInUrl(body.linkedInUrl);
+    const displayName = cleanLnkdxDisplayName(body.displayName);
+    if (!slug) { sendLnkdxJson(req, res, 400, { error: "Choose exactly two letters or numbers." }, "POST, OPTIONS"); return; }
+    if (!linkedInUrl) { sendLnkdxJson(req, res, 400, { error: "Use a public https://www.linkedin.com/in/... profile URL." }, "POST, OPTIONS"); return; }
+    if (!displayName) { sendLnkdxJson(req, res, 400, { error: "Add the name that should appear with this Park." }, "POST, OPTIONS"); return; }
+
+    try {
+      await enforceLnkdxCheckoutRateLimit(req);
+    } catch (error) {
+      if (String(error?.message || error).includes("LNKDX_RATE_LIMITED")) {
+        sendLnkdxJson(req, res, 429, { error: "Too many checkout attempts from this network. Please try again in a little while." }, "POST, OPTIONS");
+        return;
+      }
+      console.error("LNKDX rate limit check failed", error);
+      sendLnkdxJson(req, res, 500, { error: "Could not start checkout yet." }, "POST, OPTIONS");
+      return;
+    }
+
+    const reservationId = crypto.randomUUID();
+    const parkRef = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+    const revenueRef = db.collection("lnkdxSystem").doc(LNKDX_REVENUE_DOC);
+    let price;
+    try {
+      price = await db.runTransaction(async tx => {
+        const [parkSnap, revenueSnap] = await Promise.all([tx.get(parkRef), tx.get(revenueRef)]);
+        const park = parkSnap.exists ? (parkSnap.data() || {}) : {};
+        const revenue = revenueSnap.exists ? (revenueSnap.data() || {}) : {};
+        const now = Date.now();
+        if (park.status === "active" || park.status === "reserved" || lnkdxHoldIsLive(park, now) || (park.status === "grace" && lnkdxGraceIsLive(park, now))) {
+          throw new Error("PARK_UNAVAILABLE");
+        }
+        let foundingHeldCount = Math.max(0, Number(revenue.foundingHeldCount || 0));
+        if (park.status === "checkout_pending" && park.priceTier === "founding") foundingHeldCount = Math.max(0, foundingHeldCount - 1);
+        const nextRevenue = { ...revenue, foundingHeldCount };
+        const selected = lnkdxPriceFromCounts(nextRevenue, slug);
+        if (selected.tier === "founding") foundingHeldCount += 1;
+        tx.set(revenueRef, {
+          foundingPaidCount: Math.max(0, Number(revenue.foundingPaidCount || 0)),
+          foundingHeldCount,
+          updatedAt: FieldValue.serverTimestamp()
+        }, { merge: true });
+        tx.set(parkRef, {
+          slug,
+          type: "redirect",
+          status: "checkout_pending",
+          commercial: true,
+          displayName,
+          linkedInUrl,
+          reservationId,
+          priceTier: selected.tier,
+          parkClass: selected.parkClass,
+          amountCents: selected.amountCents,
+          currency: "usd",
+          holdExpiresAt: new Date(now + LNKDX_HOLD_MS),
+          billingStatus: FieldValue.delete(),
+          stripeCustomerId: FieldValue.delete(),
+          stripeSubscriptionId: FieldValue.delete(),
+          stripeCheckoutSessionId: FieldValue.delete(),
+          customerEmail: FieldValue.delete(),
+          currentPeriodEnd: FieldValue.delete(),
+          graceUntil: FieldValue.delete(),
+          createdAt: park.createdAt || FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp()
+        }, { merge: true });
+        return selected;
+      });
+    } catch (error) {
+      if (String(error?.message || error).includes("PARK_UNAVAILABLE")) {
+        sendLnkdxJson(req, res, 409, { error: `LNKDX.COM/${slug} is already claimed or temporarily held.` }, "POST, OPTIONS");
+        return;
+      }
+      console.error("LNKDX reservation failed", error);
+      sendLnkdxJson(req, res, 500, { error: "Could not reserve that Park name." }, "POST, OPTIONS");
+      return;
+    }
+
+    try {
+      const form = {
+        mode: "subscription",
+        success_url: `${LNKDX_ORIGIN}/?park=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${LNKDX_ORIGIN}/?park=cancel&slug=${encodeURIComponent(slug)}`,
+        client_reference_id: reservationId,
+        billing_address_collection: "required",
+        allow_promotion_codes: "true",
+        expires_at: String(Math.floor((Date.now() + LNKDX_STRIPE_SESSION_MS) / 1000)),
+        "line_items[0][quantity]": "1",
+        "line_items[0][price_data][currency]": "usd",
+        "line_items[0][price_data][unit_amount]": String(price.amountCents),
+        "line_items[0][price_data][recurring][interval]": "year",
+        "line_items[0][price_data][product_data][name]": `LNKDX.COM/${slug} Park shortcut`,
+        "line_items[0][price_data][product_data][description]": `Renewable one-year license for the LNKDX.COM/${slug} shortcut. Destination: ${linkedInUrl}`,
+        "metadata[slug]": slug,
+        "metadata[reservation_id]": reservationId,
+        "metadata[price_tier]": price.tier,
+        "metadata[park_class]": price.parkClass,
+        "subscription_data[metadata][slug]": slug,
+        "subscription_data[metadata][reservation_id]": reservationId,
+        "subscription_data[metadata][price_tier]": price.tier,
+        "subscription_data[metadata][park_class]": price.parkClass
+      };
+      const session = await lnkdxStripeRequest("/checkout/sessions", { method: "POST", form });
+      await parkRef.set({ checkoutSessionId: session.id, checkoutUrl: session.url, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      sendLnkdxJson(req, res, 200, {
+        ok: true,
+        slug,
+        checkoutUrl: session.url,
+        amountCents: price.amountCents,
+        currency: "usd",
+        interval: "year",
+        priceTier: price.tier,
+        parkClass: price.parkClass,
+        holdMinutes: LNKDX_STRIPE_SESSION_MS / 60000
+      }, "POST, OPTIONS");
+    } catch (error) {
+      await releaseLnkdxHold(slug, reservationId, "stripe-checkout-failed").catch(() => {});
+      console.error("lnkdxCreateCheckout failed", error);
+      sendLnkdxJson(req, res, 502, { error: "Stripe checkout could not be started. Your temporary hold was released." }, "POST, OPTIONS");
+    }
+  }
+);
+
+function verifyLnkdxStripeSignature(rawBody, signatureHeader, secret, nowSeconds = Math.floor(Date.now() / 1000)) {
+  const values = String(signatureHeader || "").split(",").map(value => value.trim());
+  const timestamp = Number(values.find(value => value.startsWith("t="))?.slice(2) || 0);
+  const signatures = values.filter(value => value.startsWith("v1=")).map(value => value.slice(3));
+  if (!timestamp || !signatures.length || Math.abs(nowSeconds - timestamp) > 300) return false;
+  const payload = Buffer.isBuffer(rawBody) ? rawBody.toString("utf8") : String(rawBody || "");
+  const expected = crypto.createHmac("sha256", secret).update(`${timestamp}.${payload}`).digest("hex");
+  const expectedBuffer = Buffer.from(expected, "hex");
+  return signatures.some(signature => {
+    if (!/^[a-f0-9]{64}$/i.test(signature)) return false;
+    const supplied = Buffer.from(signature, "hex");
+    return supplied.length === expectedBuffer.length && crypto.timingSafeEqual(supplied, expectedBuffer);
+  });
+}
+
+function stripeSubscriptionIdFromInvoice(invoice = {}) {
+  const value = invoice.subscription
+    || invoice.parent?.subscription_details?.subscription
+    || invoice.lines?.data?.find(line => line.subscription)?.subscription
+    || "";
+  return typeof value === "string" ? value : String(value?.id || "");
+}
+
+function stripeInvoicePeriodEnd(invoice = {}) {
+  return Math.max(0, ...((invoice.lines?.data || []).map(line => Number(line.period?.end || 0))));
+}
+
+async function activateLnkdxParkFromCheckout(session = {}) {
+  const slug = normalizeLnkdxParkSlug(session.metadata?.slug);
+  const reservationId = String(session.metadata?.reservation_id || session.client_reference_id || "");
+  const subscriptionId = typeof session.subscription === "string" ? session.subscription : String(session.subscription?.id || "");
+  if (!slug || !reservationId || !subscriptionId) throw new Error("Checkout metadata is incomplete");
+  const subscription = await lnkdxStripeRequest(`/subscriptions/${encodeURIComponent(subscriptionId)}`);
+  const parkRef = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+  const revenueRef = db.collection("lnkdxSystem").doc(LNKDX_REVENUE_DOC);
+  const subscriptionRef = db.collection("lnkdxSubscriptions").doc(subscriptionId);
+  await db.runTransaction(async tx => {
+    const [parkSnap, revenueSnap] = await Promise.all([tx.get(parkRef), tx.get(revenueRef)]);
+    if (!parkSnap.exists) throw new Error("Reserved Park record not found");
+    const park = parkSnap.data() || {};
+    if (park.status === "active" && park.stripeSubscriptionId === subscriptionId) return;
+    if (park.status !== "checkout_pending" || park.reservationId !== reservationId) throw new Error("Park reservation no longer matches checkout");
+    const revenue = revenueSnap.data() || {};
+    const founding = park.priceTier === "founding";
+    tx.set(revenueRef, {
+      foundingHeldCount: founding ? Math.max(0, Number(revenue.foundingHeldCount || 0) - 1) : Math.max(0, Number(revenue.foundingHeldCount || 0)),
+      foundingPaidCount: Math.max(0, Number(revenue.foundingPaidCount || 0)) + (founding ? 1 : 0),
+      totalPaidParks: Math.max(0, Number(revenue.totalPaidParks || 0)) + 1,
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+    tx.set(parkRef, {
+      status: "active",
+      billingStatus: subscription.status || "active",
+      stripeCustomerId: typeof session.customer === "string" ? session.customer : String(session.customer?.id || ""),
+      stripeSubscriptionId: subscriptionId,
+      stripeCheckoutSessionId: session.id || "",
+      customerEmail: session.customer_details?.email || session.customer_email || "",
+      currentPeriodEnd: subscription.current_period_end ? new Date(Number(subscription.current_period_end) * 1000) : null,
+      activatedAt: FieldValue.serverTimestamp(),
+      renewedAt: FieldValue.serverTimestamp(),
+      holdExpiresAt: FieldValue.delete(),
+      checkoutUrl: FieldValue.delete(),
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+    tx.set(subscriptionRef, { slug, subscriptionId, status: subscription.status || "active", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  });
+}
+
+export const lnkdxFinalizeCheckout = onRequest(
+  { invoker: "public", timeoutSeconds: 20, memory: "256MiB", secrets: [STRIPE_SECRET_KEY] },
+  async (req, res) => {
+    if (req.method === "OPTIONS") { setLnkdxCors(req, res, "POST, OPTIONS"); res.status(204).send(""); return; }
+    if (req.method !== "POST") { sendLnkdxJson(req, res, 405, { error: "Method not allowed" }, "POST, OPTIONS"); return; }
+    let body = {};
+    try { body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {}); }
+    catch { sendLnkdxJson(req, res, 400, { error: "Finalize request must be valid JSON." }, "POST, OPTIONS"); return; }
+    const sessionId = String(body.sessionId || "").trim();
+    if (!/^cs_(test|live)_[A-Za-z0-9_]+$/.test(sessionId)) {
+      sendLnkdxJson(req, res, 400, { error: "Missing or invalid Stripe Checkout Session." }, "POST, OPTIONS");
+      return;
+    }
+    try {
+      const session = await lnkdxStripeRequest(`/checkout/sessions/${encodeURIComponent(sessionId)}`);
+      const slug = normalizeLnkdxParkSlug(session.metadata?.slug);
+      if (!slug) {
+        sendLnkdxJson(req, res, 400, { error: "Stripe Checkout Session is missing the Park name." }, "POST, OPTIONS");
+        return;
+      }
+      if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
+        sendLnkdxJson(req, res, 409, { status: "pending", slug, error: "Stripe has not confirmed payment for this Park yet." }, "POST, OPTIONS");
+        return;
+      }
+      await activateLnkdxParkFromCheckout(session);
+      const snap = await db.collection(LNKDX_PARK_COLLECTION).doc(slug).get();
+      const park = snap.data() || {};
+      sendLnkdxJson(req, res, 200, {
+        ok: true,
+        slug,
+        status: park.status || "active",
+        displayName: park.displayName || "",
+        linkedInUrl: park.linkedInUrl || park.linkedinUrl || ""
+      }, "POST, OPTIONS");
+    } catch (error) {
+      console.error("lnkdxFinalizeCheckout failed", error);
+      sendLnkdxJson(req, res, 502, { error: "Stripe confirmed checkout, but the Park activation still needs a retry." }, "POST, OPTIONS");
+    }
+  }
+);
+
+async function updateLnkdxParkFromInvoice(invoice = {}, state = "paid") {
+  const subscriptionId = stripeSubscriptionIdFromInvoice(invoice);
+  if (!subscriptionId) return;
+  const mapping = await db.collection("lnkdxSubscriptions").doc(subscriptionId).get();
+  const slug = normalizeLnkdxParkSlug(mapping.data()?.slug);
+  if (!slug) return;
+  const parkRef = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+  const parkSnap = await parkRef.get();
+  const park = parkSnap.data() || {};
+  if (park.stripeSubscriptionId !== subscriptionId || !["active", "grace"].includes(park.status)) return;
+  const updates = {
+    billingStatus: state === "paid" ? "active" : "past_due",
+    updatedAt: FieldValue.serverTimestamp()
+  };
+  if (state === "paid") {
+    const periodEnd = stripeInvoicePeriodEnd(invoice);
+    updates.renewedAt = FieldValue.serverTimestamp();
+    updates.graceUntil = FieldValue.delete();
+    if (periodEnd) updates.currentPeriodEnd = new Date(periodEnd * 1000);
+  } else {
+    updates.graceUntil = new Date(Date.now() + LNKDX_GRACE_MS);
+  }
+  await parkRef.set(updates, { merge: true });
+  await mapping.ref.set({ status: updates.billingStatus, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+}
+
+async function updateLnkdxParkFromSubscription(subscription = {}) {
+  const subscriptionId = String(subscription.id || "");
+  if (!subscriptionId) return;
+  const mapping = await db.collection("lnkdxSubscriptions").doc(subscriptionId).get();
+  const slug = normalizeLnkdxParkSlug(subscription.metadata?.slug || mapping.data()?.slug);
+  if (!slug) return;
+  const parkRef = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+  const parkSnap = await parkRef.get();
+  const park = parkSnap.data() || {};
+  if (park.stripeSubscriptionId !== subscriptionId) return;
+  if (park.status === "expired") return;
+  const active = ["active", "trialing"].includes(subscription.status);
+  const pastDue = ["past_due", "unpaid"].includes(subscription.status);
+  const canceled = ["canceled", "incomplete_expired"].includes(subscription.status);
+  const updates = {
+    billingStatus: subscription.status || "unknown",
+    currentPeriodEnd: subscription.current_period_end ? new Date(Number(subscription.current_period_end) * 1000) : null,
+    updatedAt: FieldValue.serverTimestamp()
+  };
+  if (active) { updates.status = "active"; updates.graceUntil = FieldValue.delete(); }
+  if (pastDue) { updates.status = "active"; updates.graceUntil = new Date(Date.now() + LNKDX_GRACE_MS); }
+  if (canceled) { updates.status = "grace"; updates.graceUntil = new Date(Date.now() + LNKDX_GRACE_MS); }
+  await parkRef.set(updates, { merge: true });
+  await db.collection("lnkdxSubscriptions").doc(subscriptionId).set({ slug, status: subscription.status || "unknown", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+}
+
+export const lnkdxStripeWebhook = onRequest(
+  { invoker: "public", timeoutSeconds: 30, memory: "256MiB", secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET] },
+  async (req, res) => {
+    if (req.method !== "POST") { res.status(405).send("Method not allowed"); return; }
+    const rawBody = req.rawBody || Buffer.from(typeof req.body === "string" ? req.body : JSON.stringify(req.body || {}));
+    if (!verifyLnkdxStripeSignature(rawBody, req.headers["stripe-signature"], STRIPE_WEBHOOK_SECRET.value())) {
+      res.status(400).send("Invalid Stripe signature");
+      return;
+    }
+    let event;
+    try { event = JSON.parse(rawBody.toString("utf8")); }
+    catch { res.status(400).send("Invalid JSON"); return; }
+    const eventRef = db.collection("lnkdxStripeEvents").doc(String(event.id || crypto.randomUUID()));
+    try {
+      const previous = await eventRef.get();
+      if (previous.exists && previous.data()?.status === "handled") { res.status(200).json({ received: true, duplicate: true }); return; }
+      const object = event.data?.object || {};
+      if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
+        if (event.type === "checkout.session.async_payment_succeeded" || object.payment_status === "paid" || object.payment_status === "no_payment_required") {
+          await activateLnkdxParkFromCheckout(object);
+        }
+      } else if (event.type === "checkout.session.expired" || event.type === "checkout.session.async_payment_failed") {
+        const slug = normalizeLnkdxParkSlug(object.metadata?.slug);
+        const reservationId = String(object.metadata?.reservation_id || object.client_reference_id || "");
+        if (slug && reservationId) await releaseLnkdxHold(slug, reservationId, event.type === "checkout.session.expired" ? "stripe-session-expired" : "stripe-payment-failed");
+      } else if (event.type === "invoice.paid") {
+        await updateLnkdxParkFromInvoice(object, "paid");
+      } else if (event.type === "invoice.payment_failed") {
+        await updateLnkdxParkFromInvoice(object, "past_due");
+      } else if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+        await updateLnkdxParkFromSubscription(object);
+      }
+      await eventRef.set({ type: event.type || "unknown", status: "handled", handledAt: FieldValue.serverTimestamp() }, { merge: true });
+      res.status(200).json({ received: true });
+    } catch (error) {
+      console.error("lnkdxStripeWebhook failed", event?.type, error);
+      await eventRef.set({ type: event?.type || "unknown", status: "failed", error: String(error?.message || error).slice(0, 500), updatedAt: FieldValue.serverTimestamp() }, { merge: true }).catch(() => {});
+      res.status(500).send("Webhook processing failed");
+    }
+  }
+);
+
+export const lnkdxResolve = onRequest(
+  { invoker: "public", timeoutSeconds: 10, memory: "256MiB" },
+  async (req, res) => {
+    if (req.method === "OPTIONS") {
+      res.set("Access-Control-Allow-Origin", "*");
+      res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.status(204).send("");
+      return;
+    }
+    if (req.method !== "GET") { res.status(405).json({ error: "Method not allowed" }); return; }
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Cache-Control", "no-store, max-age=0");
+    const slug = normalizeLnkdxParkSlug(req.query.slug);
+    if (!slug) { res.status(400).json({ error: "Use exactly two letters or numbers." }); return; }
+    try {
+      const ref = db.collection(LNKDX_PARK_COLLECTION).doc(slug);
+      const snap = await ref.get();
+      if (!snap.exists) { res.status(404).json({ status: "available", slug }); return; }
+      const data = snap.data() || {};
+      const graceIsLive = data.status === "grace" && lnkdxGraceIsLive(data);
+      const billingGraceExpired = data.status === "active" && data.billingStatus === "past_due" && !lnkdxGraceIsLive(data);
+      if ((data.status !== "active" && data.status !== "reserved" && !graceIsLive) || billingGraceExpired) {
+        res.status(404).json({ status: "available", slug });
+        return;
+      }
+
+      const linkedInUrl = String(
+        data.linkedInUrl ??
+        data.linkedinUrl ??
+        data.linkedInURL ??
+        data.linkedinURL ??
+        data.destinationUrl ??
+        ""
+      ).trim();
+
+      ref.set(
+        {
+          clicks: FieldValue.increment(1),
+          lastVisitedAt: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      ).catch(() => {});
+
+      res.set("Cache-Control", "no-store, max-age=0");
+      res.status(200).json({
+        slug,
+        status: data.status,
+        billingStatus: data.billingStatus || null,
+        type: data.type || "redirect",
+        linkedInUrl: linkedInUrl || null,
+        destinationPath: data.destinationPath || null,
+        displayName: data.displayName || null,
+        commercial: data.commercial !== false
+      });
+    } catch (error) {
+      console.error("lnkdxResolve failed", error);
+      res.status(500).json({ error: "Park lookup failed." });
+    }
+  }
+);
+
+export const seedLnkdxParks = onRequest(
+  { invoker: "public", timeoutSeconds: 15, memory: "256MiB" },
+  async (req, res) => {
+    if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+    const supplied = String(req.query.token || req.headers["x-seed-token"] || "");
+    const suppliedHash = crypto.createHash("sha256").update(supplied).digest("hex");
+    if (!supplied || suppliedHash !== LNKDX_SEED_HASH) { res.status(403).json({ error: "Forbidden" }); return; }
+    const marker = db.collection("lnkdxSystem").doc("initial-seed-v1");
+    try {
+      await db.runTransaction(async tx => {
+        const existing = await tx.get(marker);
+        if (existing.exists) throw new Error("ALREADY_SEEDED");
+        const records = {
+          RW: { type: "redirect", status: "active", displayName: "Rich Williams", linkedInUrl: "https://www.linkedin.com/in/rcwx/", ownerLabel: "Rich Williams", commercial: false },
+          R3: { type: "redirect", status: "active", displayName: "Rich Williams", linkedInUrl: "https://www.linkedin.com/in/rcwx/", ownerLabel: "Rich Williams", commercial: false },
+          JO: { type: "redirect", status: "active", displayName: "Johanna Williams", linkedInUrl: "https://www.linkedin.com/in/johanna-williams-41b9a25/", ownerLabel: "Johanna Williams", commercial: false },
+          JW: { type: "redirect", status: "active", displayName: "Johanna Williams", linkedInUrl: "https://www.linkedin.com/in/johanna-williams-41b9a25/", ownerLabel: "Johanna Williams", commercial: false },
+          CB: { type: "memorial", status: "reserved", displayName: "Chester Bennington", destinationPath: "/memorial/chester-bennington", ownerLabel: "LNKDX memorial reservation", commercial: false }
+        };
+        for (const [slug, record] of Object.entries(records)) {
+          tx.set(db.collection(LNKDX_PARK_COLLECTION).doc(slug), { ...record, slug, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(), clicks: 0 });
+        }
+        tx.set(marker, { seededAt: FieldValue.serverTimestamp(), slugs: Object.keys(records) });
+      });
+      res.status(200).json({ ok: true, seeded: ["RW", "R3", "JO", "JW", "CB"] });
+    } catch (error) {
+      if (String(error?.message || error).includes("ALREADY_SEEDED")) { res.status(200).json({ ok: true, alreadySeeded: true }); return; }
+      console.error("seedLnkdxParks failed", error);
+      res.status(500).json({ error: "Seed failed" });
+    }
+  }
+);
+
+
+// LinkWombat 1.1 — friendly short links with conservative affiliate preservation.
+const WOMBAT_COLLECTION = "wombatLinks";
+const WOMBAT_ALPHABET = "23456789abcdefghjkmnpqrstuvwxyz";
+const WOMBAT_AMAZON_TAG = "linkwombat-20";
+const WOMBAT_RESERVED = new Set(["api","about","admin","app","help","login","logout","privacy","robots.txt","signup","support","terms"]);
+
+function wombatNormalizePart(value = "") {
+  return String(value).trim().toLowerCase().replace(/[\s_.]+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
+}
+function wombatExtractUrl(value = "") {
+  const raw = String(value || "").trim();
+  const match = raw.match(/https?:\/\/[^\s<>"'`]+/i);
+  if (!match) return "";
+  return match[0].replace(/[),.;!?]+$/g, "");
+}
+function wombatValidDestination(value = "") { return isAllowedUrl(value); }
+function wombatRandomCode(length = 3) { let out = ""; for (let i=0;i<length;i++) out += WOMBAT_ALPHABET[crypto.randomInt(0,WOMBAT_ALPHABET.length)]; return out; }
+function wombatDocId(path = "") { return encodeURIComponent(String(path || "")); }
+function wombatIsDirectAmazonHost(host = "") {
+  const h = String(host || "").toLowerCase().replace(/^www\./, "");
+  return h === "amazon.com" || h.endsWith(".amazon.com");
+}
+function wombatHasAttributionSignal(url) {
+  const keys = [...url.searchParams.keys()].map(key => key.toLowerCase());
+  if (keys.some(key => ["tag","ascsubtag","linkcode","creativeasin","ref","ref_"].includes(key))) return true;
+  if (keys.some(key => /affiliate|associate|partner|referral|creator|campaign|tracking/.test(key))) return true;
+  return false;
+}
+function wombatCleanDisposableTracking(url) {
+  for (const key of [...url.searchParams.keys()]) {
+    if (/^utm_/i.test(key) || /^(gclid|fbclid|mc_cid|mc_eid)$/i.test(key)) url.searchParams.delete(key);
+  }
+  return url;
+}
+function wombatPrepareDestination(rawInput = "") {
+  const extracted = wombatExtractUrl(rawInput);
+  if (!wombatValidDestination(extracted)) return { ok:false, error:"Paste text containing a valid public http or https URL." };
+  const parsed = new URL(extracted);
+  const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+  const isAmazonShort = host === "a.co" || host === "amzn.to";
+  const isAmazon = wombatIsDirectAmazonHost(host) || isAmazonShort;
+  if (isAmazonShort) return { ok:true, url:extracted, extractedUrl:extracted, affiliateStatus:"uncertain-preserved", affiliateOwner:"unknown", affiliateTag:null };
+  wombatCleanDisposableTracking(parsed);
+  if (!isAmazon) return { ok:true, url:parsed.toString(), extractedUrl:extracted, affiliateStatus:"not-applicable", affiliateOwner:null, affiliateTag:null };
+  const existingTag = parsed.searchParams.get("tag");
+  if (existingTag || wombatHasAttributionSignal(parsed)) {
+    return { ok:true, url:parsed.toString(), extractedUrl:extracted, affiliateStatus:existingTag ? "third-party-preserved" : "uncertain-preserved", affiliateOwner:existingTag ? "third-party" : "unknown", affiliateTag:existingTag || null };
+  }
+  parsed.searchParams.set("tag", WOMBAT_AMAZON_TAG);
+  return { ok:true, url:parsed.toString(), extractedUrl:extracted, affiliateStatus:"tempo-added", affiliateOwner:"tempo-foundry", affiliateTag:WOMBAT_AMAZON_TAG };
+}
+async function wombatClaimRandom() {
+  for (let length=3; length<=5; length++) for (let attempt=0; attempt<24; attempt++) {
+    const code=wombatRandomCode(length), ref=db.collection(WOMBAT_COLLECTION).doc(wombatDocId(code)), snap=await ref.get();
+    if (!snap.exists) return {path:code,ref};
+  }
+  throw new Error("NO_CODES");
+}
+export const wombatCreateLink = onRequest({invoker:"public",timeoutSeconds:20,memory:"256MiB"}, async (req,res)=>{
+  setCors(res,"POST, OPTIONS");
+  if(req.method==="OPTIONS"){res.status(204).send("");return;}
+  if(req.method!=="POST"){res.status(405).json({error:"Method not allowed"});return;}
+  const body=typeof req.body==="object"&&req.body?req.body:{};
+  const rawInput=String(body.rawInput || body.url || "").trim();
+  const prepared=wombatPrepareDestination(rawInput);
+  if(!prepared.ok){res.status(400).json({error:prepared.error});return;}
+  const handle=wombatNormalizePart(body.handle||"");
+  const alias=wombatNormalizePart(body.alias||"");
+  if(handle && (handle.length<2||handle.length>32||WOMBAT_RESERVED.has(handle))){res.status(400).json({error:"That teacher handle is unavailable."});return;}
+  if(alias && (alias.length<2||alias.length>64||WOMBAT_RESERVED.has(alias))){res.status(400).json({error:"That custom name is unavailable."});return;}
+  try{
+    let path,ref;
+    if(alias){path=handle?`${handle}/${alias}`:alias;ref=db.collection(WOMBAT_COLLECTION).doc(wombatDocId(path));}
+    else ({path,ref}=await wombatClaimRandom());
+    await db.runTransaction(async tx=>{
+      const snap=await tx.get(ref);
+      if(snap.exists)throw new Error("TAKEN");
+      tx.set(ref,{path,url:prepared.url,originalInput:rawInput.slice(0,4000),extractedUrl:prepared.extractedUrl,handle:handle||null,alias:alias||null,affiliateStatus:prepared.affiliateStatus,affiliateOwner:prepared.affiliateOwner,affiliateTag:prepared.affiliateTag,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp(),clicks:0,active:true});
+    });
+    res.set("Cache-Control","no-store");
+    res.status(201).json({ok:true,path,shortUrl:`https://wombat.to/${path}`,destinationUrl:prepared.url,affiliateStatus:prepared.affiliateStatus});
+  }catch(error){
+    if(String(error?.message||error).includes("TAKEN")){res.status(409).json({error:"That Wombat address is already taken."});return;}
+    console.error("wombatCreateLink failed",error);
+    res.status(500).json({error:"The wombat could not make that link."});
+  }
+});
+export const wombatResolve = onRequest({invoker:"public",timeoutSeconds:15,memory:"256MiB"},async(req,res)=>{
+  let raw="";
+  try { raw=decodeURIComponent(String(req.path||"/")).replace(/^\/+|\/+$/g,""); } catch { raw=""; }
+  if(!raw){res.set("Cache-Control","public,max-age=300");res.redirect(302,"https://linkwombat.com/");return;}
+  const path=raw.split("/").map(wombatNormalizePart).filter(Boolean).join("/");
+  if(!path||path.split("/").some(part=>WOMBAT_RESERVED.has(part))){res.status(404).send("Link not found");return;}
+  try{
+    const ref=db.collection(WOMBAT_COLLECTION).doc(wombatDocId(path)),snap=await ref.get();
+    if(!snap.exists||snap.data()?.active===false){res.status(404).redirect(302,"https://linkwombat.com/404");return;}
+    const data=snap.data()||{};
+    if(!wombatValidDestination(data.url)){res.status(410).send("Link unavailable");return;}
+    ref.set({clicks:FieldValue.increment(1),lastVisitedAt:FieldValue.serverTimestamp()},{merge:true}).catch(()=>{});
+    res.set("Cache-Control","no-store");
+    res.redirect(302,data.url);
+  }catch(error){console.error("wombatResolve failed",error);res.status(500).send("Link unavailable");}
+});
+
+/* TEMPO_ACCOUNTS_1_EXPORTS_START */
+export { tempoAccountApi } from "./tempo-account-api.js";
+export {
+  wombatMemberApi,
+  wombatMemberResolve,
+} from "./wombat-member-api.js";
+/* TEMPO_ACCOUNTS_1_EXPORTS_END */

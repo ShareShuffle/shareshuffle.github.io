@@ -1,0 +1,54 @@
+{
+  "projects": {
+    "default": "shareshuffle-c7f96"
+  },
+  "targets": {
+    "shareshuffle-c7f96": {
+      "hosting": {
+        "shuffle": [
+          "shareshuffle-c7f96"
+        ],
+        "tempo": [
+          "tempo-foundry-c7f96"
+        ],
+        "duetloop": [
+          "duet-loop-c7f96"
+        ],
+        "metromance": [
+          "metromance-c7f96"
+        ],
+        "eternalroute66": [
+          "eternal-route66-c7f96"
+        ],
+        "breger": [
+          "breger"
+        ],
+        "charlie": [
+          "charlierw"
+        ],
+        "wombat": [
+          "linkwombat"
+        ],
+        "lnkdx": [
+          "lnkdx-com"
+        ],
+        "solutionworkshop": [
+          "sol-wx"
+        ],
+        "shopsformiles": [
+          "shopsformiles"
+        ],
+        "dnwilkinson": [
+          "dnwilkinson"
+        ],
+        "bellavista": [
+          "bellavista"
+        ],
+        "quitstop": [
+          "gracefeed-quitstop"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

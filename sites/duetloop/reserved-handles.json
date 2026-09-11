@@ -1,0 +1,487 @@
+[
+  {
+    "handle": "s",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "sh",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "sha",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "shan",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "shannon",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "shanny",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "shannonw",
+    "type": "personal",
+    "heldFor": "Shannon"
+  },
+  {
+    "handle": "j",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "jo",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "joh",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "jojo",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "johanna",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "jow",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "jo-williams",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "johanna-williams",
+    "type": "personal",
+    "heldFor": "Johanna / Jo"
+  },
+  {
+    "handle": "c",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "ch",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "cha",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "char",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "charlie",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "charles",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "charlie-w",
+    "type": "personal",
+    "heldFor": "Charlie"
+  },
+  {
+    "handle": "r",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "ri",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "ric",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "rich",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "richard",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "rcw",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "rich-williams",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "richard-williams",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "filthy",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "filthy-rich",
+    "type": "personal",
+    "heldFor": "Rich"
+  },
+  {
+    "handle": "ju",
+    "type": "personal",
+    "heldFor": "Justin"
+  },
+  {
+    "handle": "jus",
+    "type": "personal",
+    "heldFor": "Justin"
+  },
+  {
+    "handle": "just",
+    "type": "personal",
+    "heldFor": "Justin"
+  },
+  {
+    "handle": "justin",
+    "type": "personal",
+    "heldFor": "Justin"
+  },
+  {
+    "handle": "justinw",
+    "type": "personal",
+    "heldFor": "Justin"
+  },
+  {
+    "handle": "john",
+    "type": "personal",
+    "heldFor": "John \u2014 Duet Loop co-founder"
+  },
+  {
+    "handle": "johnny",
+    "type": "personal",
+    "heldFor": "John \u2014 Duet Loop co-founder"
+  },
+  {
+    "handle": "john-dl",
+    "type": "personal",
+    "heldFor": "John \u2014 Duet Loop co-founder"
+  },
+  {
+    "handle": "john-duet",
+    "type": "personal",
+    "heldFor": "John \u2014 Duet Loop co-founder"
+  },
+  {
+    "handle": "d",
+    "type": "personal",
+    "heldFor": "Doug \u2014 PollCart founder"
+  },
+  {
+    "handle": "do",
+    "type": "personal",
+    "heldFor": "Doug \u2014 PollCart founder"
+  },
+  {
+    "handle": "dou",
+    "type": "personal",
+    "heldFor": "Doug \u2014 PollCart founder"
+  },
+  {
+    "handle": "doug",
+    "type": "personal",
+    "heldFor": "Doug \u2014 PollCart founder"
+  },
+  {
+    "handle": "douglas",
+    "type": "personal",
+    "heldFor": "Doug \u2014 PollCart founder"
+  },
+  {
+    "handle": "doug-pollcart",
+    "type": "personal",
+    "heldFor": "Doug \u2014 PollCart founder"
+  },
+  {
+    "handle": "admin",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "administrator",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "api",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "app",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "auth",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "billing",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "blog",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "careers",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "claim",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "company",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "contact",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "dating",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "duet",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "duetloop",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "email",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "founder",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "help",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "home",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "investor",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "investors",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "legal",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "login",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "logout",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "loop",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "loops",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "mail",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "metromance",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "moderator",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "music",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "news",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "official",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "partner",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "partners",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "press",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "privacy",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "profile",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "root",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "safety",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "security",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "settings",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "signup",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "staff",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "support",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "tempo",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "tempofoundry",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "terms",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "user",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "users",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "verify",
+    "type": "system",
+    "heldFor": "Platform"
+  },
+  {
+    "handle": "www",
+    "type": "system",
+    "heldFor": "Platform"
+  }
+]

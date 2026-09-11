@@ -1,0 +1,205 @@
+{
+  "hosting": [
+    {
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "functions/**",
+        ".git/**",
+        ".firebase/**",
+        "__MACOSX/**",
+        "*.zip",
+        "*.psd",
+        "sites/**",
+        "firebase.before-tempo-foundry.json",
+        "DEPLOY-TEMPO-FOUNDRY.command",
+        "TEMPO-FOUNDRY-LIVE-README.txt"
+      ],
+      "rewrites": [
+        {
+          "source": "/getPreview",
+          "function": {
+            "functionId": "getPreview",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/imageRescue",
+          "function": {
+            "functionId": "imageRescue",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/rimg-**",
+          "function": {
+            "functionId": "rescueImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/_build",
+          "function": {
+            "functionId": "getBuildInfo",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/_status",
+          "destination": "/status.html"
+        },
+        {
+          "source": "/uploadShareImage",
+          "function": {
+            "functionId": "uploadShareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/img/**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/i-**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/c-**",
+          "function": {
+            "functionId": "cardImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/~**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/-**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/shareData",
+          "function": {
+            "functionId": "shareData",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/trackShareClick",
+          "function": {
+            "functionId": "trackShareClick",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/addShareToShelf",
+          "function": {
+            "functionId": "addShareToShelf",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/shelfData",
+          "function": {
+            "functionId": "shelfData",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/shelfCard",
+          "function": {
+            "functionId": "shelfCardImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/ogImage",
+          "function": {
+            "functionId": "ogImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "**",
+          "function": {
+            "functionId": "renderRoute",
+            "region": "us-central1"
+          }
+        }
+      ],
+      "target": "shuffle"
+    },
+    {
+      "target": "tempo",
+      "public": "sites/tempo-foundry",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false
+    },
+    {
+      "target": "duetloop",
+      "public": "sites/duetloop",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false
+    },
+    {
+      "target": "metromance",
+      "public": "sites/metromance",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false
+    },
+    {
+      "target": "eternalroute66",
+      "public": "sites/eternal-route66",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false
+    }
+  ],
+  "functions": {
+    "source": "functions",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

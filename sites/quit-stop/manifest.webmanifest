@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "THE QUIT STOP",
+  "short_name": "The Quit Stop",
+  "description": "Calls wearing you out? Ask unwanted callers to stop.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#15191b",
+  "lang": "en",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

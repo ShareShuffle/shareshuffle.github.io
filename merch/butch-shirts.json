@@ -1,0 +1,73 @@
+{
+  "updated": "20260717T220000Z",
+  "brand": "The Ernest Lee \"Butch The Barn Man\" Breger Museum",
+  "amazonBrandSearchUrl": "https://www.amazon.com/s/ref=bl_sl_s_ap_web_7141123011?ie=UTF8&node=7141123011&field-brandtextbin=The+Ernest+Lee+%22Butch+The+Barn+Man%22+Breger+Museum",
+  "associateTag": "shareshuffle-20",
+  "products": [
+    {
+      "id": "butch-birthday-donkey",
+      "title": "Birthday Donkey \u2014 Where Is My Cake?",
+      "artist": "Ernest Lee \u201cButch\u201d Breger",
+      "brand": "The Ernest Lee \"Butch The Barn Man\" Breger Museum",
+      "image": "https://shareshuffle.com/merch/butch/birthday-donkey-gray.png",
+      "localImage": "/merch/butch/birthday-donkey-gray.png",
+      "status": "live",
+      "merchant": "Amazon Merch on Demand",
+      "asin": "B0H968Y4DP",
+      "destinationUrl": "https://www.amazon.com/dp/B0H968Y4DP",
+      "rightsStatus": "approved",
+      "mockupNote": "Illustrative mockup. Actual garment color, scale and print may vary.",
+      "description": "Butch's hand-drawn birthday donkey, preserved with the original lettering and refrigerator-art character."
+    },
+    {
+      "id": "butch-movie-star-dog",
+      "title": "Movie Star Dog \u2014 I Do Not Fetch a Stick",
+      "artist": "Ernest Lee \u201cButch\u201d Breger",
+      "brand": "The Ernest Lee \"Butch The Barn Man\" Breger Museum",
+      "image": "https://shareshuffle.com/merch/butch/movie-star-dog-yellow.png",
+      "localImage": "/merch/butch/movie-star-dog-yellow.png",
+      "status": "live",
+      "merchant": "Amazon Merch on Demand",
+      "asin": "B0H98Q41TW",
+      "destinationUrl": "https://www.amazon.com/dp/B0H98Q41TW",
+      "rightsStatus": "approved",
+      "mockupNote": "Illustrative mockup. Actual garment color, scale and print may vary.",
+      "description": "A cowboy movie-star dog who knows fetching is somebody else's job, including the original $5 sticker."
+    },
+    {
+      "id": "butch-mirror-pig",
+      "title": "Mirror Pig \u2014 Go Look in the Mirror",
+      "artist": "Ernest Lee \u201cButch\u201d Breger",
+      "brand": "The Ernest Lee \"Butch The Barn Man\" Breger Museum",
+      "image": "https://shareshuffle.com/merch/butch/mirror-pig-red.png",
+      "localImage": "/merch/butch/mirror-pig-red.png",
+      "status": "live",
+      "merchant": "Amazon Merch on Demand",
+      "asin": "B0H96JQMF9",
+      "destinationUrl": "https://www.amazon.com/dp/B0H96JQMF9",
+      "rightsStatus": "approved",
+      "mockupNote": "Illustrative mockup. Actual garment color, scale and print may vary.",
+      "description": "Butch's wonderfully blunt mirror-gazing pig, reproduced from the Rich Williams Collection."
+    },
+    {
+      "id": "butch-museum-shop",
+      "type": "collection",
+      "title": "The Butch Breger Museum Shop",
+      "artist": "Ernest Lee \u201cButch\u201d Breger",
+      "brand": "The Ernest Lee \"Butch The Barn Man\" Breger Museum",
+      "image": "https://shareshuffle.com/merch/butch/movie-star-dog-yellow.png",
+      "localImage": "/merch/butch/movie-star-dog-yellow.png",
+      "images": [
+        "https://shareshuffle.com/merch/butch/birthday-donkey-gray.png",
+        "https://shareshuffle.com/merch/butch/movie-star-dog-yellow.png",
+        "https://shareshuffle.com/merch/butch/mirror-pig-red.png"
+      ],
+      "status": "live",
+      "merchant": "Amazon Merch on Demand",
+      "destinationUrl": "https://www.amazon.com/s/ref=bl_sl_s_ap_web_7141123011?ie=UTF8&node=7141123011&field-brandtextbin=The+Ernest+Lee+%22Butch+The+Barn+Man%22+Breger+Museum",
+      "rightsStatus": "approved",
+      "mockupNote": "Three approved Amazon Merch on Demand designs from the Rich Williams Collection.",
+      "description": "Shop all approved Butch Breger Museum shirts on Amazon in one place."
+    }
+  ]
+}

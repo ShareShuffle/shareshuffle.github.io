@@ -1,0 +1,12 @@
+/* WCAG AA contrast overrides — Metromance */
+body { color:#171717; }
+.muted { color:#514c47 !important; }
+.interest-card { color:#171717 !important; background:#fffaf2 !important; }
+.interest-card .card-question,
+.interest-card h1,.interest-card h2,.interest-card h3,.interest-card h4 { color:#171717 !important; }
+.interest-card .card-help { color:#514c47 !important; }
+.interest-card .answer-line { color:#4b4641 !important; border-color:#77706a !important; }
+.interest-card .check { border-color:#77706a !important; background:#fffaf2 !important; }
+input::placeholder, textarea::placeholder { color:#625b55 !important; opacity:1 !important; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible,
+.interest-card:focus-visible { outline:3px solid #b3261e !important; outline-offset:3px !important; }

@@ -2,10 +2,11 @@
 <html lang="en">
 
 <head>
-  <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-  <link rel="shortcut icon" href="/icons/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="/icons/favicon-shuffle-s-32.png?v=64f" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/icons/favicon-shuffle-s-24.png?v=64f" sizes="24x24" />
+  <link rel="icon" type="image/png" href="/icons/favicon-shuffle-s-16.png?v=64f" sizes="16x16" />
+  <link rel="shortcut icon" href="/icons/favicon-shuffle-s.ico?v=64f" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=64f" />
   <meta name="apple-mobile-web-app-title" content="Shuffle" />
   <link rel="manifest" href="/icons/site.webmanifest" />
 <meta charset="utf-8">
@@ -38,7 +39,7 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <!-- Favicons -->
-<meta name="theme-color" content="#EEF6FF">
+<meta name="theme-color" content="#FFF78A">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -87,8 +88,8 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: 7px;
-  background: #EEF6FF;
+  padding: 0;
+  background:#FFF78A;
   border: 1px solid rgba(255,255,255,.44);
   box-shadow: 0 12px 30px rgba(13, 110, 253, 0.26);
 }
@@ -324,20 +325,32 @@ h1 {
     .share-card.share-card-clickable #title,
     .share-card.share-card-clickable .note-card { cursor: pointer; }
 </style>
-<meta name="theme-color" content="#EEF6FF">
+<meta name="theme-color" content="#FFF78A">
     <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- TEMPO_STUDIO_2_CSS_START -->
+<link rel="stylesheet" href="https://tempofoundry.com/tempo-studio.css?v=2" data-tempo-studio="2">
+<!-- TEMPO_STUDIO_2_CSS_END -->
+<!-- TEMPO_JOEY_1_CSS_START -->
+<link rel="stylesheet" href="/tempo-joey.css?v=1" data-tempo-joey="1">
+<!-- TEMPO_JOEY_1_CSS_END -->
+<!-- TEMPO_JOEY_1_ICONS_START -->
+<link rel="icon" href="/brand/joey/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/joey/mark-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/joey/mark-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/joey/mark-180.png">
+<!-- TEMPO_JOEY_1_ICONS_END -->
 </head>
 
 <body>
-    <main class="page-wrap">
+<main class="page-wrap">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xl-6 col-lg-7 col-md-9">
                     <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                         <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-white">
                 <div class="brand-logo">
-                    <img src="/icons/icon32.png" alt="ShareShuffle"  />
+                    <img src="/icons/logo-canary-42.png?v=64f" alt="ShareShuffle"  />
                 </div>
                 <div>
                     <div class="fw-bold fs-5 lh-1">ShareShuffle</div>
@@ -456,7 +469,8 @@ h1 {
                     </article>
                     <div class="text-center mt-4 footer-small">
                         Create your own product recommendation links at
-                        <a href="/" class="tiny-link">ShareShuffle.com</a>
+                        <a href="/" class="tiny-link">ShareShuffle.com</a><br>
+                        <span class="ss-attribution"><a href="https://www.flaticon.com/free-icons/letter-s" title="Letter s icons">Letter S icon designed by Vaidika from Flaticon</a>.</span>
                     </div>
                 </div>
             </div>
@@ -754,6 +768,7 @@ h1 {
       setLoadingError("Error loading share", error.message || String(error));
     });
   </script>
+<!-- TEMPO_STUDIO_2_FOOTER_START --><aside class="tf-studio-footer" aria-label="Tempo Foundry studio footer"><div class="tf-studio-footer-row"><div><div class="tf-studio-footer-title"><img src="/brand/joey/mark-64.png" alt=""><span>ShareShuffle is part of Tempo Foundry.</span></div><div class="tf-studio-footer-copy">An independent studio founded by Rich Williams in Texas—building software, stories, music and city experiences, art archives, publishing projects, and original media.</div></div><nav class="tf-studio-footer-nav"><a href="https://tempofoundry.com/">Studio</a><a href="https://tempofoundry.com/projects/">All projects</a><a href="https://tempofoundry.com/privacy-policy/">Privacy Policy</a><a href="https://tempofoundry.com/terms-of-service/">Terms</a><a href="https://tempofoundry.com/contact/">Contact</a></nav></div><div class="tf-studio-legal">© 2026 Tempo Foundry. Product names, archives and creative materials may have separate owners and usage terms.</div></aside><!-- TEMPO_STUDIO_2_FOOTER_END -->
 </body>
 
 </html>

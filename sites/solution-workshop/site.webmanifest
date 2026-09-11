@@ -1,0 +1,17 @@
+{
+  "name": "Solution Workshop",
+  "short_name": "SOLWX",
+  "description": "Practical AI for real business problems.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfaf6",
+  "theme_color": "#0b132b",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

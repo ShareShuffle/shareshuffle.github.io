@@ -1,0 +1,8 @@
+/* WCAG AA contrast overrides — Duet Loop */
+body { color:#f7f9ff; }
+.muted, .interest-card .card-help { color:#c8d5ee !important; }
+.interest-card .card-kicker { color:#b9c9e8 !important; }
+.interest-card .answer-line { color:#ffffff !important; border-color:rgba(255,255,255,.62) !important; }
+input::placeholder, textarea::placeholder { color:#c9d5eb !important; opacity:1 !important; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible,
+.interest-card:focus-visible { outline:3px solid #19c8ff !important; outline-offset:3px !important; }

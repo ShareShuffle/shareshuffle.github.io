@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invitation</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#fff78a">
+  <link rel="icon" href="/invite/joey-mark.png">
+  <link rel="stylesheet" href="/invite/invite.css?v=tempo-invites-2">
+</head>
+<body>
+  <main class="shell">
+    <header class="product-header">
+      <a id="productName" class="product-name" href="/">Tempo Foundry product</a>
+      <a class="home-link" href="/">Product home</a>
+    </header>
+
+    <section class="card">
+      <div>
+        <p class="eyebrow">Private invitation</p>
+        <h1 id="headline">You’re invited.</h1>
+        <p id="description" class="lede">
+          Loading the invitation details…
+        </p>
+
+        <div id="details" class="details" hidden></div>
+        <div id="features" class="features" hidden></div>
+
+        <button id="claimButton" type="button" disabled>
+          Continue with Google
+        </button>
+
+        <a id="continueButton" class="button" href="/" hidden>
+          Continue
+        </a>
+
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+
+        <div class="privacy">
+          Google Sign-In verifies who is accepting the invitation. Tempo
+          Foundry does not receive or store your Google password. Membership
+          is granted only in the product named on this page unless the
+          invitation explicitly says otherwise.
+        </div>
+      </div>
+
+      <div class="joey" aria-hidden="true">
+        <img src="/invite/joey.png" alt="">
+      </div>
+    </section>
+
+    <footer class="tempo-footer">
+      <div>
+        <strong>This product is part of Tempo Foundry.</strong><br>
+        An independent studio founded by Rich Williams in Texas.
+      </div>
+      <nav class="tempo-links" aria-label="Tempo Foundry links">
+        <a href="https://tempofoundry.com/">Studio</a>
+        <a href="https://tempofoundry.com/privacy-policy/">Privacy</a>
+        <a href="https://tempofoundry.com/terms-of-service/">Terms</a>
+        <a href="https://tempofoundry.com/contact/">Contact</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="/invite/property.js?v=tempo-invites-2"></script>
+  <script type="module">
+    import "/invite/tempo-account-client.js?v=tempo-invites-2";
+
+    const property = window.TEMPO_INVITE_PROPERTY;
+    const productName = document.querySelector("#productName");
+    const headline = document.querySelector("#headline");
+    const description = document.querySelector("#description");
+    const details = document.querySelector("#details");
+    const features = document.querySelector("#features");
+    const claimButton = document.querySelector("#claimButton");
+    const continueButton = document.querySelector("#continueButton");
+    const status = document.querySelector("#status");
+
+    const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const token = params.get("code") || "";
+
+    document.title = `${property.name} invitation`;
+    productName.textContent = property.name;
+    productName.href = property.baseUrl;
+    document.documentElement.style.setProperty(
+      "--invite-accent",
+      property.accent,
+    );
+    document.documentElement.style.setProperty(
+      "--invite-accent-text",
+      property.accentText,
+    );
+
+    function humanize(value = "") {
+      return String(value)
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (character) => character.toUpperCase());
+    }
+
+    function setStatus(message, type = "") {
+      status.textContent = message;
+      status.className = `status ${type}`.trim();
+    }
+
+    function addDetail(label, value) {
+      if (!value) return;
+      const row = document.createElement("div");
+      row.className = "detail";
+
+      const strong = document.createElement("strong");
+      strong.textContent = label;
+
+      const content = document.createElement("span");
+      content.textContent = value;
+
+      row.append(strong, content);
+      details.append(row);
+      details.hidden = false;
+    }
+
+    function invitationStatusMessage(value) {
+      return {
+        expired: "This invitation has expired.",
+        revoked: "This invitation has been revoked.",
+        exhausted: "This invitation has already been fully claimed.",
+      }[value] || "This invitation is not currently available.";
+    }
+
+    async function preview() {
+      if (token.length < 20) {
+        headline.textContent = "Invitation code missing.";
+        description.textContent =
+          "Open the complete invitation link sent to you.";
+        setStatus("The link must include a code after the # symbol.", "error");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/account/preview", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Tempo-Property": property.id,
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        const payload = await response.json();
+
+        if (!response.ok || payload.ok === false) {
+          throw Object.assign(
+            new Error(payload.error || "Invitation unavailable."),
+            { code: payload.error },
+          );
+        }
+
+        const invitation = payload.invitation;
+
+        if (!payload.available) {
+          headline.textContent = "This invitation is unavailable.";
+          description.textContent = invitationStatusMessage(payload.status);
+          setStatus(description.textContent, "error");
+          return;
+        }
+
+        headline.textContent = invitation.reservedFor
+          ? `${invitation.reservedFor}, you’re invited.`
+          : `You’re invited to ${property.name}.`;
+
+        description.textContent = invitation.purpose ||
+          `Accept this invitation to join ${property.name} as ${humanize(invitation.role)}.`;
+
+        addDetail("Product", property.name);
+        addDetail("Access", humanize(invitation.role));
+        addDetail("Reserved name", invitation.handle);
+        addDetail("Cohort", invitation.cohort);
+        addDetail("Badge", invitation.badge);
+
+        if (invitation.priceWaived) {
+          addDetail("Founding benefit", "Associated invitation pricing is waived.");
+        }
+
+        if (invitation.emailRestricted) {
+          addDetail(
+            "Google account",
+            "Use the email address or organization intended by the inviter.",
+          );
+        }
+
+        if (invitation.expiresAt) {
+          const expiration = new Date(invitation.expiresAt);
+          if (!Number.isNaN(expiration.getTime())) {
+            addDetail(
+              "Expires",
+              expiration.toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+            );
+          }
+        }
+
+        if (invitation.features.length) {
+          invitation.features.forEach((value) => {
+            const chip = document.createElement("span");
+            chip.className = "feature";
+            chip.textContent = humanize(value);
+            features.append(chip);
+          });
+          features.hidden = false;
+        }
+
+        claimButton.disabled = false;
+        setStatus("Sign in with Google to accept this invitation.");
+      } catch (error) {
+        headline.textContent = "Invitation unavailable.";
+        description.textContent =
+          window.TempoAccount?.authErrorMessage(error) ||
+          error.message ||
+          "This invitation could not be loaded.";
+        setStatus(description.textContent, "error");
+      }
+    }
+
+    claimButton.addEventListener("click", async () => {
+      claimButton.disabled = true;
+      setStatus("Opening Google Sign-In…");
+
+      try {
+        await window.TempoAccount.initialize();
+
+        if (!window.TempoAccount.user()) {
+          await window.TempoAccount.googleSignIn();
+        }
+
+        setStatus("Accepting your invitation…");
+
+        const result = await window.TempoAccount.api(
+          "/api/account/claim",
+          {
+            method: "POST",
+            body: JSON.stringify({ token }),
+          },
+        );
+
+        const redirectPath =
+          result.claimed?.redirectPath ||
+          property.defaultRedirect ||
+          "/";
+
+        headline.textContent = "Welcome.";
+        description.textContent =
+          `Your ${property.name} invitation has been accepted.`;
+        claimButton.hidden = true;
+        continueButton.href = redirectPath;
+        continueButton.textContent = `Continue to ${property.name}`;
+        continueButton.hidden = false;
+        setStatus("Your access is ready.", "success");
+
+        history.replaceState(
+          null,
+          "",
+          `${location.pathname}#claimed`,
+        );
+      } catch (error) {
+        setStatus(
+          window.TempoAccount.authErrorMessage(error),
+          "error",
+        );
+        claimButton.disabled = false;
+      }
+    });
+
+    await preview();
+  </script>
+</body>
+</html>

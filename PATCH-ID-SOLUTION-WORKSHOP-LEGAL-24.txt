@@ -1,0 +1,6 @@
+TEMPO FOUNDRY / SOLUTION WORKSHOP
+Patch: 24 — Public Privacy Policy and Terms
+Date: 2026-07-31
+Firebase project: shareshuffle-c7f96
+Hosting target: solutionworkshop
+Hosting site: sol-wx

@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-09-04",
+  "items": [
+    {
+      "slug": "sailor-jerry-texas-kitchen-sink",
+      "title": "Sailor Jerry Texas Kitchen Sink",
+      "credit": "Hari Silk Tattooer",
+      "studio": "Sailor Jerry's original shop",
+      "location": "Honolulu, Hawaii",
+      "streetAddress": null,
+      "asset": "01-texas-flash-transparent.png",
+      "sourceGroup": "Photos.zip / Photos (10).zip (exact duplicate Live Photo pair)",
+      "status": "matched"
+    },
+    {
+      "slug": "texas-66",
+      "title": "Texas 66",
+      "credit": "Route 66 Tattoos",
+      "location": "Amarillo, Texas",
+      "asset": "11-texas-66-sticker-transparent.png",
+      "sourceGroup": "140.JPG + abf7f05aad948fc39f8db51a867c2bb8ac7f4b87.jpg",
+      "status": "matched"
+    },
+    {
+      "slug": "lubbock-craftsman-house",
+      "title": "Lubbock Craftsman House",
+      "credit": "Cobra Kai Tattoos",
+      "location": "Napa, California",
+      "asset": "10-craftsman-house-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "cotton-kitty",
+      "title": "Cotton Kitty",
+      "credit": "Anomaly",
+      "location": null,
+      "asset": "08-cotton-cat-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "stars",
+      "title": "Stars",
+      "credit": "Tyson Arndt",
+      "location": null,
+      "asset": null,
+      "status": "source-needed"
+    },
+    {
+      "slug": "this-mess",
+      "title": "This Mess",
+      "credit": "Sneker One",
+      "location": null,
+      "asset": "12-this-mess-sticker-transparent.png",
+      "sourceGroup": "523D3D98-E0E0-4228-9EED-5F53FFE23C47_3.mov + Photos (1).zip",
+      "designNote": "Sneker One matched the lyric's letter counts into an intentional monospaced layout using the font from the album.",
+      "status": "needs-visual-review"
+    },
+    {
+      "slug": "watercolor-on-this-mess",
+      "title": "Watercolor on “This Mess”",
+      "credit": "Chubbs at Sinners Dallas",
+      "location": "Dallas, Texas",
+      "asset": "13-watercolor-this-mess-sticker-transparent.png",
+      "sourceGroup": "Photos (7).zip",
+      "designNote": "Watercolor addition over Sneker One's original monospaced lyric layout; preserve the underlying letter alignment.",
+      "status": "matched"
+    },
+    {
+      "slug": "josh-t-pearson-lift-to-experience-texas-leslie",
+      "title": "Josh T. Pearson / Lift to Experience / Texas Leslie",
+      "credit": "Tyson Arndt",
+      "location": null,
+      "asset": "07-josh-t-pearson-lift-to-experience-guitar-rig-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "jos-yellow-rose",
+      "title": "Jo's Yellow Rose",
+      "credit": "Hari Silk Tattooer",
+      "studio": "Sailor Jerry's original shop",
+      "location": "Honolulu, Hawaii",
+      "streetAddress": null,
+      "asset": "03-johanna-yellow-rose-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "eve-is-the-apple",
+      "title": "Eve Is the Apple",
+      "credit": null,
+      "location": "New York City",
+      "asset": "14-eve-is-the-apple-sticker-transparent.png",
+      "sourceGroup": "Photos (3).zip",
+      "status": "matched"
+    },
+    {
+      "slug": "charlie-gobstopper",
+      "title": "Charlie Gobstopper",
+      "credit": "Sneker One",
+      "location": null,
+      "asset": "06-charlie-gobstopper-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "texas-brand",
+      "title": "Texas Brand",
+      "credit": "Sneker One",
+      "location": null,
+      "asset": "09-texas-outline-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "jos-dragonfly",
+      "title": "Jo's Dragonfly",
+      "credit": "True Self Ink",
+      "location": null,
+      "asset": "04-shanna-damselfly-sticker-transparent.png",
+      "sourceGroup": "Photos (4).zip",
+      "status": "matched"
+    },
+    {
+      "slug": "richs-laser",
+      "title": "Rich's Laser",
+      "credit": "True Self Ink",
+      "location": null,
+      "asset": "02-laser-dog-sticker-transparent.png",
+      "status": "matched"
+    },
+    {
+      "slug": "sell-the-house",
+      "title": "SELL THE HOUSE",
+      "credit": "Sneker One",
+      "location": null,
+      "asset": "15-sell-the-house-sticker-transparent.png",
+      "sourceGroup": "Photos (2).zip",
+      "status": "needs-visual-review"
+    },
+    {
+      "slug": "heart-23",
+      "title": "23",
+      "credit": null,
+      "location": null,
+      "asset": "16-heart-23-sticker-transparent.png",
+      "sourceGroup": "Photos (6).zip",
+      "status": "needs-metadata"
+    }
+  ]
+}

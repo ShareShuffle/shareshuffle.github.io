@@ -9,7 +9,9 @@
     --ss-ink: #102033;
     --ss-muted: #667085;
     --ss-cloud: #f5f8ff;
-    --ss-icon-bg: #EEF6FF;
+    --ss-canary: #FFF78A;
+    --ss-canary-soft: #FFFDE0;
+    --ss-icon-bg: #FFF78A;
     --ss-grad: linear-gradient(135deg, #ff7a18 0%, #ffc145 28%, #13c8ff 64%, #0d6efd 100%);
     --ss-grad-dark: radial-gradient(circle at 10% 10%, rgba(255, 122, 24, .35), transparent 32%), radial-gradient(circle at 90% 20%, rgba(19, 200, 255, .32), transparent 28%), linear-gradient(135deg, #071426 0%, #102033 100%);
     --ss-shadow: 0 24px 70px rgba(7, 20, 38, .16);
@@ -63,11 +65,11 @@ a {
     width: 42px;
     height: 42px;
     border-radius: 14px;
-    background: var(--ss-icon-cream);
+    background: var(--ss-icon-bg);
     border: 1px solid rgba(7,20,38,.10);
     display: grid;
     place-items: center;
-    padding: 7px;
+    padding: 0;
     color: white;
     box-shadow: 0 10px 30px rgba(13, 110, 253, .18);
     overflow: hidden
@@ -97,7 +99,7 @@ a {
 }
 
 .ss-links a:hover {
-    background: #eef6ff
+    background: var(--ss-canary-soft)
 }
 
 .ss-btn {
@@ -124,7 +126,7 @@ a {
 
 .ss-hero {
     padding: 86px 20px 60px;
-    background: radial-gradient(circle at 15% 20%, rgba(255, 193, 69, .36), transparent 24%), radial-gradient(circle at 80% 15%, rgba(19, 200, 255, .28), transparent 26%), linear-gradient(180deg, #fff 0%, #f5f8ff 100%)
+    background: radial-gradient(circle at 12% 18%, rgba(255, 247, 138, .88), transparent 26%), radial-gradient(circle at 74% 18%, rgba(19, 200, 255, .25), transparent 26%), linear-gradient(180deg, #fff 0%, #FFFDE0 48%, #f5f8ff 100%)
 }
 
 .ss-container {
@@ -170,7 +172,7 @@ a {
 
 .ss-card {
     background: rgba(255, 255, 255, .92);
-    border: 1px solid rgba(13, 110, 253, .10);
+    border: 1px solid rgba(255, 247, 138, .72);
     border-radius: var(--ss-radius);
     box-shadow: var(--ss-shadow);
     padding: 24px
@@ -218,7 +220,7 @@ a {
     gap: .4rem;
     padding: .42rem .7rem;
     border-radius: 999px;
-    background: #eef6ff;
+    background: var(--ss-canary-soft);
     color: #1c4ed8;
     font-weight: 600;
     font-size: .82rem
@@ -244,7 +246,7 @@ a {
 
 .metric {
     background: white;
-    border: 1px solid rgba(13, 110, 253, .10);
+    border: 1px solid rgba(255, 247, 138, .72);
     border-radius: 22px;
     padding: 18px;
     box-shadow: 0 10px 30px rgba(7, 20, 38, .06);
@@ -547,9 +549,9 @@ td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7
 
 /* Unified logo breathing room */
 .brand-logo, .ss-brand-mark, .logo {
-  background: var(--ss-icon-bg, #EEF6FF) !important;
+  background: var(--ss-icon-bg, #FFF78A) !important;
   border: 1px solid rgba(7,20,38,.10);
-  padding: 7px;
+  padding: 0;
   overflow: hidden;
 }
 .brand-logo img, .ss-brand-mark img, .logo img {
@@ -587,4 +589,70 @@ td img.thumb { object-fit: contain; background:#f5f8ff; border:1px solid #e5edf7
   font-size: 32px;
   font-weight: 900;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+}
+
+/* Patch 64c: Vaidika S mark + Canary Shuffle backgrounds */
+.ss-logo, .brand-logo, .ss-brand-mark, .logo, .app-logo {
+  background: #FFF78A !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.ss-logo img, .brand-logo img, .ss-brand-mark img, .logo img, .app-logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+.ss-attribution, .ss-attribution a {
+  color: inherit;
+  opacity: .72;
+  font-size: .82em;
+}
+.ss-attribution a:hover { opacity: 1; }
+
+
+/* Patch 64f: Canary logo padding + favicon cache fix */
+.ss-logo,
+.brand-logo,
+.ss-brand-mark,
+.logo,
+.app-logo {
+  background: #FFF78A !important;
+  box-sizing: border-box !important;
+  padding: 5px !important;
+  overflow: hidden !important;
+}
+.ss-logo img,
+.brand-logo img,
+.ss-brand-mark img,
+.logo img,
+.app-logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+
+/* Patch 64f: fixed favicon files and logo fit. Logo image has canary bg/padding baked in. */
+.ss-logo,
+.brand-logo,
+.ss-brand-mark,
+.logo,
+.app-logo {
+  background: transparent !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.ss-logo { width: 42px !important; height: 42px !important; border-radius: 14px !important; }
+.app-logo { width: 46px !important; height: 46px !important; border-radius: 16px !important; }
+.ss-logo img,
+.brand-logo img,
+.ss-brand-mark img,
+.logo img,
+.app-logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
 }

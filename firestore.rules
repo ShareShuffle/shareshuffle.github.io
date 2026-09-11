@@ -196,5 +196,69 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
+    match /duetLoopLeads/{leadId} {
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "email",
+          "zip",
+          "requestedHandle",
+          "quizScore",
+          "archetype",
+          "answersDigest",
+          "source",
+          "pageUrl",
+          "createdAt"
+        ])
+        && isString(request.resource.data.email, 254)
+        && request.resource.data.email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+        && isString(request.resource.data.zip, 20)
+        && isString(request.resource.data.requestedHandle, 20)
+        && request.resource.data.requestedHandle.matches("^[a-z0-9]+(-[a-z0-9]+)*$")
+        && request.resource.data.quizScore is number
+        && request.resource.data.quizScore >= 0
+        && request.resource.data.quizScore <= 100
+        && isString(request.resource.data.archetype, 100)
+        && isString(request.resource.data.answersDigest, 1000)
+        && request.resource.data.source == "duetloop-quiz"
+        && isString(request.resource.data.pageUrl, 500)
+        && request.resource.data.createdAt == request.time;
+
+      allow read, update, delete: if false;
+    }
+
+    match /reservedHandles/{handleId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+
+    match /er66Submissions/{submissionId} {
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          "type",
+          "placeId",
+          "placeName",
+          "name",
+          "email",
+          "message",
+          "source",
+          "pageUrl",
+          "createdAt"
+        ])
+        && request.resource.data.type in ["place-update", "itinerary", "memory", "correction"]
+        && isString(request.resource.data.placeId, 300)
+        && isString(request.resource.data.placeName, 300)
+        && isString(request.resource.data.name, 100)
+        && isString(request.resource.data.email, 254)
+        && request.resource.data.email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+        && isString(request.resource.data.message, 3000)
+        && request.resource.data.message.size() >= 2
+        && request.resource.data.source == "eternalroute66-living-atlas"
+        && isString(request.resource.data.pageUrl, 500)
+        && request.resource.data.createdAt == request.time;
+
+      allow read, update, delete: if false;
+    }
+
   }
 }

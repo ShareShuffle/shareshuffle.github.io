@@ -1,0 +1,6 @@
+2026.07.06-short-link-resolve-canary-icons-64b
+- Rotated RGBY network mark 180 degrees so red node sits top-right.
+- Rebuilt transparent S variants full bleed.
+- Rebuilt canary #FFF78A square/rounded/circle app icons.
+- Removed doubled padding in app/site logo containers.
+- Kept favicon treatment transparent S, no canary/pink favicon background.

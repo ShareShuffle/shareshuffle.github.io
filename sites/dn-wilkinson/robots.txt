@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://dnwilkinson.web.app/sitemap.xml

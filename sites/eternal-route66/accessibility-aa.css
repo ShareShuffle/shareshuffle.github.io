@@ -1,0 +1,22 @@
+/* WCAG AA contrast overrides — Eternal Route 66 */
+.paper { color:#28180f !important; }
+.paper .muted { color:#574736 !important; }
+.paper .card-road {
+  color:#28180f !important;
+  background:#fffaf0 !important;
+  border-color:#c7b791 !important;
+}
+.paper .card-road h1,.paper .card-road h2,.paper .card-road h3,.paper .card-road h4,
+.paper .card-road p,.paper .card-road .chapter-num { color:#28180f !important; opacity:1 !important; }
+.paper .smallcaps, .paper .text-warning { color:#7a4300 !important; }
+.paper .state-strip a {
+  color:#5f2a00 !important;
+  background:#fff4d7 !important;
+  border-color:#a77b36 !important;
+}
+.paper .roadline { opacity:1 !important; }
+.form-control::placeholder, textarea::placeholder { color:#d9caaa !important; opacity:1 !important; }
+.paper .form-control::placeholder, .paper textarea::placeholder { color:#655744 !important; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline:3px solid #f0b33a !important; outline-offset:3px !important;
+}

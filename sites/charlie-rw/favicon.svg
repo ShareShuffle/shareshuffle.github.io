@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CRW">
+  <rect width="64" height="64" rx="16" fill="#0a1530"/>
+  <path d="M13 18h38v28H13z" fill="#dfff69"/>
+  <text x="32" y="39" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="20" fill="#0a1530">CRW</text>
+</svg>

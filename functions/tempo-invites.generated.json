@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "invites": [
+    {
+      "tokenHash": "c585c09d913f0934a83d0484d25fbf513f2da01cb9ce6e9cfc52a5b7cb190775",
+      "property": "linkwombat",
+      "handle": "th",
+      "reservedFor": "Tiffany Hill",
+      "relationship": "Rich Williams's cousin",
+      "purpose": "Founding teacher account",
+      "role": "founding-teacher",
+      "priceWaived": true,
+      "publicProfileEnabled": false,
+      "publicLinkListingEnabled": false,
+      "expiresAt": "2027-01-18T18:39:42.178097Z",
+      "id": "linkwombat-th",
+      "maxClaims": 1,
+      "features": [],
+      "redirectPath": "/dashboard",
+      "allowedEmail": null,
+      "allowedDomain": null,
+      "badge": null,
+      "cohort": null,
+      "revokedAt": null,
+      "createdAt": null
+    },
+    {
+      "id": "linkwombat-th-20260722-dc34e9",
+      "tokenHash": "0ab62adca6ccb69a971160704b3948869dc84495970e3ab56a70652e82a8fbe0",
+      "property": "linkwombat",
+      "handle": "th",
+      "reservedFor": "Tiffany Hill",
+      "relationship": null,
+      "purpose": "Access to LinkWombat early adopters.",
+      "role": "founding-teacher",
+      "features": [],
+      "badge": null,
+      "cohort": null,
+      "priceWaived": true,
+      "publicProfileEnabled": false,
+      "publicLinkListingEnabled": false,
+      "allowedEmail": null,
+      "allowedDomain": null,
+      "maxClaims": 1,
+      "expiresAt": "2026-10-20T22:42:58.481371Z",
+      "revokedAt": null,
+      "redirectPath": "/dashboard",
+      "createdAt": "2026-07-22T22:42:58.481371Z"
+    }
+  ]
+}

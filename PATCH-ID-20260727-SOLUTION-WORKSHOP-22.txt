@@ -1,0 +1,8 @@
+Tempo Foundry Patch 22
+Solution Workshop ecosystem integration
+2026-07-27
+
+Canonical domain: solutionworkshop.com
+Short domain: solwx.com
+Firebase project/site: sol-wx
+Hosting target: solutionworkshop

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "currency": "USD",
+  "billing": "one_time",
+  "tiers": [
+    {
+      "minLength": 6,
+      "maxLength": null,
+      "priceCents": 0,
+      "label": "Free"
+    },
+    {
+      "minLength": 5,
+      "maxLength": 5,
+      "priceCents": 500,
+      "label": "$5"
+    },
+    {
+      "minLength": 4,
+      "maxLength": 4,
+      "priceCents": 1500,
+      "label": "$15"
+    },
+    {
+      "minLength": 3,
+      "maxLength": 3,
+      "priceCents": 4900,
+      "label": "$49"
+    },
+    {
+      "minLength": 2,
+      "maxLength": 2,
+      "priceCents": 14900,
+      "label": "$149"
+    },
+    {
+      "minLength": 1,
+      "maxLength": 1,
+      "priceCents": null,
+      "label": "Reserved"
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "firebaseProject": "shareshuffle-c7f96",
+  "properties": {
+    "tempo": {
+      "name": "Tempo Foundry",
+      "target": "tempo",
+      "public": "sites/tempo-foundry",
+      "baseUrl": "https://tempofoundry.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "studio-collaborator",
+      "roleSuggestions": [
+        "studio-admin",
+        "studio-collaborator",
+        "staff",
+        "advisor"
+      ],
+      "supportsHandles": false,
+      "accent": "#fff78a",
+      "accentText": "#17201c"
+    },
+    "shareshuffle": {
+      "name": "ShareShuffle",
+      "target": "shuffle",
+      "public": ".",
+      "baseUrl": "https://shareshuffle.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/dashboard.html",
+      "defaultRole": "founding-creator",
+      "roleSuggestions": [
+        "founding-creator",
+        "early-access",
+        "creator",
+        "moderator"
+      ],
+      "supportsHandles": true,
+      "accent": "#fff78a",
+      "accentText": "#17201c"
+    },
+    "linkwombat": {
+      "name": "LinkWombat",
+      "target": "wombat",
+      "public": "sites/linkwombat",
+      "baseUrl": "https://linkwombat.com",
+      "authDomain": "linkwombat.com",
+      "defaultRedirect": "/dashboard",
+      "defaultRole": "founding-teacher",
+      "roleSuggestions": [
+        "founding-teacher",
+        "teacher",
+        "founding-member",
+        "administrator"
+      ],
+      "supportsHandles": true,
+      "accent": "#fff78a",
+      "accentText": "#17201c"
+    },
+    "lnkdx": {
+      "name": "LNKDX",
+      "target": "lnkdx",
+      "public": "sites/lnkdx",
+      "baseUrl": "https://lnkdx.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "founding-member",
+      "roleSuggestions": [
+        "founding-member",
+        "complimentary-handle",
+        "partner",
+        "administrator"
+      ],
+      "supportsHandles": true,
+      "accent": "#7ad8bf",
+      "accentText": "#10231e"
+    },
+    "duetloop": {
+      "name": "Duet Loop",
+      "target": "duetloop",
+      "public": "sites/duetloop",
+      "baseUrl": "https://duetloop.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "founding-listener",
+      "roleSuggestions": [
+        "founding-listener",
+        "beta-tester",
+        "venue-partner",
+        "moderator"
+      ],
+      "supportsHandles": false,
+      "accent": "#c6b7ff",
+      "accentText": "#221944"
+    },
+    "metromance": {
+      "name": "Metromance",
+      "target": "metromance",
+      "public": "sites/metromance",
+      "baseUrl": "https://metromance.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "founding-member",
+      "roleSuggestions": [
+        "founding-member",
+        "city-beta",
+        "community-host",
+        "moderator"
+      ],
+      "supportsHandles": false,
+      "accent": "#f7a9ba",
+      "accentText": "#3b1720"
+    },
+    "breger": {
+      "name": "The Butch Breger Museum",
+      "target": "breger",
+      "public": "sites/breger",
+      "baseUrl": "https://breger.web.app",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "approved-contributor",
+      "roleSuggestions": [
+        "curator",
+        "researcher",
+        "catalog-editor",
+        "approved-contributor"
+      ],
+      "supportsHandles": false,
+      "accent": "#d59869",
+      "accentText": "#2e1b10"
+    },
+    "eternalroute66": {
+      "name": "Eternal Route 66",
+      "target": "eternalroute66",
+      "public": "sites/eternal-route66",
+      "baseUrl": "https://eternalroute66.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "approved-contributor",
+      "roleSuggestions": [
+        "editor",
+        "photographer",
+        "church-contributor",
+        "landmark-contributor"
+      ],
+      "supportsHandles": false,
+      "accent": "#8eb7cf",
+      "accentText": "#142933"
+    },
+    "charlie": {
+      "name": "Charlie RW",
+      "target": "charlie",
+      "public": "sites/charlie-rw",
+      "baseUrl": "https://charlierw.com",
+      "authDomain": "shareshuffle-c7f96.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "approved-collaborator",
+      "roleSuggestions": [
+        "family-manager",
+        "approved-agent",
+        "casting-collaborator",
+        "approved-collaborator"
+      ],
+      "supportsHandles": false,
+      "accent": "#a8c7e5",
+      "accentText": "#132536"
+    },
+    "solutionworkshop": {
+      "name": "Solution Workshop",
+      "target": "solutionworkshop",
+      "public": "sites/solution-workshop",
+      "baseUrl": "https://solutionworkshop.com",
+      "authDomain": "sol-wx.firebaseapp.com",
+      "defaultRedirect": "/",
+      "defaultRole": "client-collaborator",
+      "roleSuggestions": [
+        "client-collaborator",
+        "workshop-participant",
+        "advisor",
+        "administrator"
+      ],
+      "supportsHandles": false,
+      "accent": "#2563eb",
+      "accentText": "#ffffff"
+    }
+  }
+}

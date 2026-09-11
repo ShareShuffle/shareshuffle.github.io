@@ -1,0 +1,765 @@
+{
+  "hosting": [
+    {
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "functions/**",
+        ".git/**",
+        ".firebase/**",
+        "__MACOSX/**",
+        "*.zip",
+        "*.psd",
+        "sites/**",
+        "firebase.before-tempo-foundry.json",
+        "DEPLOY-TEMPO-FOUNDRY.command",
+        "TEMPO-FOUNDRY-LIVE-README.txt"
+      ],
+      "rewrites": [
+        {
+          "source": "/getPreview",
+          "function": {
+            "functionId": "getPreview",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/linkCheck",
+          "function": {
+            "functionId": "linkCheck",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/imageRescue",
+          "function": {
+            "functionId": "imageRescue",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/rimg-**",
+          "function": {
+            "functionId": "rescueImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/_build",
+          "function": {
+            "functionId": "getBuildInfo",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/_status",
+          "destination": "/status.html"
+        },
+        {
+          "source": "/uploadShareImage",
+          "function": {
+            "functionId": "uploadShareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/img/**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/i-**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/c-**",
+          "function": {
+            "functionId": "cardImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/~**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/-**",
+          "function": {
+            "functionId": "shareImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/shareData",
+          "function": {
+            "functionId": "shareData",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/trackShareClick",
+          "function": {
+            "functionId": "trackShareClick",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/addShareToShelf",
+          "function": {
+            "functionId": "addShareToShelf",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/shelfData",
+          "function": {
+            "functionId": "shelfData",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/shelfCard",
+          "function": {
+            "functionId": "shelfCardImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/ogImage",
+          "function": {
+            "functionId": "ogImage",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "**",
+          "function": {
+            "functionId": "renderRoute",
+            "region": "us-central1"
+          }
+        }
+      ],
+      "target": "shuffle",
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "tempo",
+      "public": "sites/tempo-foundry",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "duetloop",
+      "public": "sites/duetloop",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "metromance",
+      "public": "sites/metromance",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "eternalroute66",
+      "public": "sites/eternal-route66",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "breger",
+      "public": "sites/breger",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "rewrites": [
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "lnkdx",
+      "public": "sites/lnkdx",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(html|js|css)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            },
+            {
+              "key": "Permissions-Policy",
+              "value": "camera=(), microphone=(), geolocation=()"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/api/park-availability",
+          "function": {
+            "functionId": "lnkdxParkAvailability",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/api/park-checkout",
+          "function": {
+            "functionId": "lnkdxCreateCheckout",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/api/park-finalize",
+          "function": {
+            "functionId": "lnkdxFinalizeCheckout",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/api/stripe-webhook",
+          "function": {
+            "functionId": "lnkdxStripeWebhook",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/api/resolve",
+          "function": {
+            "functionId": "lnkdxResolve",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "target": "charlie",
+      "public": "sites/charlie-rw",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|png|webp|svg|ico|woff|woff2|mp3|m4a|wav)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|js|css|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            },
+            {
+              "key": "Permissions-Policy",
+              "value": "camera=(), microphone=(), geolocation=()"
+            }
+          ]
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "wombat",
+      "public": "sites/linkwombat",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**/*.@(jpg|jpeg|png|webp|svg|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|js|css|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/api/links",
+          "function": {
+            "functionId": "wombatCreateLink",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/login",
+          "destination": "/account/login.html"
+        },
+        {
+          "source": "/dashboard",
+          "destination": "/account/dashboard.html"
+        },
+        {
+          "source": "/api/member-links/**",
+          "function": {
+            "functionId": "wombatMemberApi",
+            "region": "us-central1"
+          }
+        },
+        {
+          "regex": "^/[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/?$",
+          "function": {
+            "functionId": "wombatMemberResolve",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/th",
+          "function": {
+            "functionId": "wombatMemberResolve",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/invite",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/invite/**",
+          "destination": "/invite/index.html"
+        },
+        {
+          "source": "/api/account/**",
+          "function": {
+            "functionId": "tempoAccountApi",
+            "region": "us-central1"
+          }
+        },
+        {
+          "source": "/**",
+          "function": {
+            "functionId": "wombatResolve",
+            "region": "us-central1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "solutionworkshop",
+      "public": "sites/solution-workshop",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(svg|ico|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=604800,immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|js|css|xml|txt|json|webmanifest)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=300,must-revalidate"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            },
+            {
+              "key": "Permissions-Policy",
+              "value": "camera=(), microphone=(), geolocation=()"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "source": "functions",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

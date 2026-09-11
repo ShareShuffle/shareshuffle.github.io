@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Butch's handwritten B favicon set: 20260714T185955Z -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicon-16x16-20260714T185955Z.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="24x24"
+      href="/favicon-24x24-20260714T185955Z.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon-32x32-20260714T185955Z.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="64x64"
+      href="/favicon-64x64-20260714T185955Z.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="128x128"
+      href="/favicon-128x128-20260714T185955Z.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="256x256"
+      href="/favicon-256x256-20260714T185955Z.png"
+    />
+    <link rel="icon" href="/favicon-20260714T185955Z.ico" sizes="any" />
+    <link
+      rel="apple-touch-icon"
+      href="/apple-touch-icon-20260714T185955Z.png"
+    />
+    <link rel="manifest" href="/site-20260714T185955Z.webmanifest" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>The Butch Breger Museum</title>
+    <meta
+      name="description"
+      content="The online museum for Ernest Lee Butch Breger, Arcadia's Round Barn Man."
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Libre+Franklin:wght@400;600;800&family=Special+Elite&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f4ecd8;
+        --ink: #181613;
+        --barn: #9d2f25;
+        --road: #244f73;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Libre Franklin", sans-serif;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 75px;
+      }
+      .navbar {
+        background: #f4ecd8ee;
+        backdrop-filter: blur(14px);
+      }
+      .hero {
+        min-height: 88vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, #fff8e9, #e4c991);
+        border-bottom: 8px solid var(--barn);
+      }
+      h1,
+      .section-title {
+        font-family: "Archivo Black";
+        text-transform: uppercase;
+        line-height: 0.86;
+      }
+      h1 {
+        font-size: clamp(3.5rem, 11vw, 9rem);
+      }
+      .section-title {
+        font-size: clamp(2.5rem, 7vw, 6rem);
+      }
+      .voice {
+        font: clamp(1.5rem, 3vw, 2.8rem) "Special Elite";
+      }
+      section {
+        padding: 80px 0;
+      }
+      .note {
+        background: #fffaf0;
+        border-left: 8px solid #d9a53a;
+        padding: 1.5rem;
+      }
+      .gallery {
+        columns: 1;
+        column-gap: 1rem;
+      }
+      @media (min-width: 700px) {
+        .gallery {
+          columns: 2;
+        }
+      }
+      @media (min-width: 1050px) {
+        .gallery {
+          columns: 3;
+        }
+      }
+      @media (min-width: 1400px) {
+        .gallery {
+          columns: 4;
+        }
+      }
+      .art {
+        break-inside: avoid;
+        margin: 0 0 1rem;
+        background: #fffaf0;
+        border: 1px solid #ccb998;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .art img {
+        width: 100%;
+      }
+      .meta {
+        padding: 1rem;
+      }
+      footer {
+        background: #181613;
+        color: #f4ecd8;
+        padding: 45px 0;
+      }
+      .museum-shop {
+        background: #fff7d7;
+      }
+      .shop-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+      }
+      .shop-stack {
+        display: grid;
+        gap: 18px;
+      }
+      .artist-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .artist-card {
+        background: #fffaf0;
+        border: 1px solid #ccb998;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 12px 34px #3c28111a;
+      }
+      .artist-card img,
+      .artist-placeholder {
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+        background: #ddd1b9;
+      }
+      .artist-placeholder {
+        display: grid;
+        place-items: center;
+        font: 700 5rem "Special Elite";
+        color: #8a3b2f;
+      }
+      .artist-card .artist-copy {
+        padding: 18px;
+      }
+      .artist-card .product-img {
+        height: 145px;
+        margin-top: 12px;
+        border-radius: 12px;
+      }
+      .legal-note {
+        font-size: 0.8rem;
+        color: #675e50;
+      }
+      @media (max-width: 850px) {
+        .shop-grid,
+        .artist-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  <!-- TEMPO_STUDIO_2_CSS_START -->
+<link rel="stylesheet" href="https://tempofoundry.com/tempo-studio.css?v=2" data-tempo-studio="2">
+<!-- TEMPO_STUDIO_2_CSS_END -->
+<!-- TEMPO_JOEY_1_CSS_START -->
+<link rel="stylesheet" href="/tempo-joey.css?v=1" data-tempo-joey="1">
+<!-- TEMPO_JOEY_1_CSS_END -->
+<!-- TEMPO_JOEY_1_ICONS_START -->
+<link rel="icon" href="/brand/joey/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/joey/mark-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/joey/mark-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/joey/mark-180.png">
+<!-- TEMPO_JOEY_1_ICONS_END -->
+</head>
+  <body>
+<nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#top"
+          >B · The Butch Breger Museum</a
+        >
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="#story">Butch</a
+          ><a class="nav-link" href="#collection">Collection</a
+          ><a class="nav-link" href="#shop">Shop</a
+          ><a class="nav-link" href="#route66artists">Route 66 Artists</a
+          ><a class="nav-link" href="https://eternalroute66.com/"
+            >Eternal Route 66</a
+          >
+        </div>
+      </div>
+    </nav>
+    <header id="top" class="hero text-center">
+      <div class="container">
+        <p class="text-uppercase fw-bold">
+          The online home of the Round Barn Man
+        </p>
+        <h1>The Butch<br />Breger Museum</h1>
+        <p class="voice mx-auto mt-4">
+          “Butch drew what he saw, what he remembered, and perhaps what only he
+          could see.”
+        </p>
+        <a class="btn btn-danger btn-lg rounded-pill" href="#collection"
+          >Enter the Collection</a
+        >
+      </div>
+    </header>
+    <section id="story">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-7">
+            <h2 class="section-title">The Round Barn Man</h2>
+            <p class="lead">
+              Ernest Lee “Butch” Breger was an artist, storyteller, Route 66
+              character, and longtime caretaker of Arcadia’s Round Barn.
+            </p>
+            <p>
+              Published history, personal recollection, and unidentified details
+              remain clearly labeled rather than blended together.
+            </p>
+          </div>
+          <div class="col-lg-5">
+            <div class="note">
+              <h3>Rich Williams remembers</h3>
+              <p>
+                “I met Butch in 2005. He told me no other barn in the world was
+                rounder. He also told me much of his art was inspired by
+                unidentified flying objects he saw from the second-story
+                apartment over the gas station caddy-corner to the Round Barn.”
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="bg-dark text-light">
+      <div class="container">
+        <h2 class="section-title">What only he could see</h2>
+        <p class="lead">
+          The UFO connection is preserved as Rich Williams’s recollection of
+          Butch’s own explanation of the art—not as a joke and not as
+          independently verified biography.
+        </p>
+      </div>
+    </section>
+    <section id="collection">
+      <div class="container-fluid px-lg-5">
+        <div class="row align-items-end mb-4">
+          <div class="col-lg-8">
+            <h2 class="section-title">The Collection</h2>
+            <p class="lead">
+              64 photographed works. Click to enlarge and zoom. Full-resolution
+              source photos are available for personal, educational, and
+              noncommercial printing.
+            </p>
+          </div>
+          <div class="col-lg-4">
+            <input
+              id="q"
+              class="form-control form-control-lg"
+              placeholder="Search the collection"
+            />
+          </div>
+        </div>
+        <div class="alert alert-warning">
+          <i class="fa-solid fa-print"></i> Made for the refrigerator.
+          Commercial reuse is not granted.
+        </div>
+        <div id="gallery" class="gallery"></div>
+      </div>
+    </section>
+    <section class="bg-light">
+      <div class="container">
+        <div class="row g-5 align-items-center">
+          <div class="col-lg-5">
+            <img
+              class="img-fluid rounded shadow"
+              src="/butch-round-barn-note.jpg"
+            />
+          </div>
+          <div class="col-lg-7">
+            <h2 class="section-title">A real Breger B</h2>
+            <p class="lead">
+              The site icon is cropped from Butch’s handwritten capital B in
+              “Breger,” not redrawn.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="shop" class="museum-shop">
+      <div class="container">
+        <p class="text-uppercase fw-bold text-danger">
+          The official online Museum shop
+        </p>
+        <h2 class="section-title">Wear Butch's Art</h2>
+        <p class="lead">
+          Three original drawings from the Rich Williams Collection are now
+          approved and available through Amazon Merch on Demand.
+        </p>
+        <div class="shop-grid mt-4">
+          <div
+            data-shuffle-product="butch-birthday-donkey"
+            data-layout="feature"
+          ></div>
+          <div class="shop-stack">
+            <div
+              data-shuffle-product="butch-movie-star-dog"
+              data-layout="standard"
+            ></div>
+            <div
+              data-shuffle-product="butch-mirror-pig"
+              data-layout="compact"
+            ></div>
+          </div>
+        </div>
+        <div
+          class="mt-4"
+          data-shuffle-product="butch-museum-shop"
+          data-layout="collection"
+        ></div>
+        <p class="legal-note mt-3">
+          Illustrative shirt mockups use the approved artwork. Actual products,
+          colors, scale and print may vary. As an Amazon Associate I earn from
+          qualifying purchases.
+        </p>
+      </div>
+    </section>
+    <section id="route66artists">
+      <div class="container">
+        <p class="text-uppercase fw-bold text-danger">The road makes artists</p>
+        <h2 class="section-title">Route 66 Artist Community</h2>
+        <p class="lead">
+          A growing, carefully credited circle of artists and storytellers whose
+          work helps people see the Mother Road differently. Links lead to each
+          artist's official home whenever possible.
+        </p>
+        <div class="artist-grid mt-4">
+          <article class="artist-card">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/8/86/Bob_Waldmire_van_at_Route_66_Museum.jpg"
+              alt="Bob Waldmire's Volkswagen van displayed at the Route 66 Museum"
+            />
+            <div class="artist-copy">
+              <h3>Bob Waldmire</h3>
+              <p>
+                The wandering pen-and-ink cartographer of Route 66 turned the
+                whole road into densely observed maps, postcards and visual
+                stories. His vehicles and fiercely independent life became part
+                of the road's mythology.
+              </p>
+              <img
+                class="product-img"
+                src="https://upload.wikimedia.org/wikipedia/commons/8/86/Bob_Waldmire_van_at_Route_66_Museum.jpg"
+                alt="Bob Waldmire's Route 66 van"
+              />
+              <p>
+                <a
+                  class="btn btn-dark rounded-pill"
+                  href="https://www.bobwaldmire.com/"
+                  target="_blank"
+                  rel="noopener"
+                  >Explore Bob's official art catalog</a
+                >
+              </p>
+              <p class="legal-note">
+                Photo: Anna Harris, CC BY-SA 2.0, via Wikimedia Commons. Image
+                unmodified; linked license and source available on Wikimedia.
+              </p>
+            </div>
+          </article>
+          <article class="artist-card">
+            <div
+              class="artist-placeholder"
+              role="img"
+              aria-label="Bob Crocodile Lile portrait permission pending"
+            >
+              CL
+            </div>
+            <div class="artist-copy">
+              <h3>Bob “Crocodile” Lile</h3>
+              <p>
+                An Amarillo painter, Route 66 historian and gallery host,
+                Crocodile Lile is also known for Cadilite jewelry made from
+                layers of paint recovered from Cadillac Ranch.
+              </p>
+              <img
+                class="product-img"
+                src="/artist-community/cadillac-ranch-williams-family.jpg"
+                alt="Cadillac Ranch in Amarillo, photographed by the Williams family"
+              />
+              <p>
+                <a
+                  class="btn btn-dark rounded-pill"
+                  href="https://lilegallery.com/"
+                  target="_blank"
+                  rel="noopener"
+                  >Visit Lile Art Gallery</a
+                >
+              </p>
+              <p class="legal-note">
+                Cadillac Ranch photograph from the Williams family Route 66
+                collection. A portrait is intentionally not reproduced until
+                permission is documented.
+              </p>
+            </div>
+          </article>
+          <article class="artist-card">
+            <img
+              src="/artist-community/chuck-williams-route66.jpg"
+              alt="Chuck Williams traveling Route 66"
+            />
+            <div class="artist-copy">
+              <h3>Chuck Williams — Eternal Route 66</h3>
+              <p>
+                Rich's all-time favorite Route 66 artist and storyteller is his
+                dad. Chuck Williams connects all 66 books of the Bible with the
+                towns, landmarks and people of Historic Route 66—Mother Road
+                meeting Father Road.
+              </p>
+              <img
+                class="product-img"
+                src="/artist-community/eternal-route66-project.jpg"
+                alt="Eternal Route 66 project artwork"
+              />
+              <p>
+                <a
+                  class="btn btn-danger rounded-pill"
+                  href="https://eternalroute66.com/"
+                  target="_blank"
+                  rel="noopener"
+                  >Travel Eternal Route 66</a
+                >
+              </p>
+              <p class="legal-note">
+                Photographs and project artwork from the Williams family
+                collection.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container">
+        <h2 class="section-title">Research</h2>
+        <p>
+          <a
+            href="https://www.route66news.com/2017/10/20/butch-breger-caretaker-round-barn-dies/"
+            >Route 66 News</a
+          >
+          ·
+          <a
+            href="https://www.oklahoman.com/story/business/real-estate/2017/10/28/heaven-takes-the-man-at-the-round-barn-in-arcadia-oklahoma/60565845007/"
+            >The Oklahoman</a
+          >
+          ·
+          <a
+            href="https://www.kgou.org/arts-and-entertainment/2013-03-20/a-round-barn-rendezvous-on-historic-route-66"
+            >KGOU</a
+          >
+          ·
+          <a
+            href="https://arcadiaroundbarn.com/about-the-arcadia-historical-society/"
+            >Arcadia Historical Society</a
+          >
+        </p>
+      </div>
+    </section>
+    <footer>
+      <div class="container d-flex justify-content-between">
+        <div>The Rich Williams Collection</div>
+        <div>
+          A Tempo Foundry preservation project in the ShareShuffle ecosystem.
+        </div>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script async src="https://shareshuffle.com/embed.js"></script>
+    <script>
+      const C = [
+        {
+          id: "BB-0001",
+          title: "Untitled humorous drawing, source photograph 11",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0001.webp",
+          display: "art/display/bb-0001.webp",
+          original: "art/originals/bb-0001.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0001.",
+        },
+        {
+          id: "BB-0002",
+          title: "Untitled humorous drawing, source photograph 12",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0002.webp",
+          display: "art/display/bb-0002.webp",
+          original: "art/originals/bb-0002.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0002.",
+        },
+        {
+          id: "BB-0003",
+          title: "Untitled humorous drawing, source photograph 13",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0003.webp",
+          display: "art/display/bb-0003.webp",
+          original: "art/originals/bb-0003.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0003.",
+        },
+        {
+          id: "BB-0004",
+          title: "Untitled humorous drawing, source photograph 14",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0004.webp",
+          display: "art/display/bb-0004.webp",
+          original: "art/originals/bb-0004.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0004.",
+        },
+        {
+          id: "BB-0005",
+          title: "Untitled humorous drawing, source photograph 15",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0005.webp",
+          display: "art/display/bb-0005.webp",
+          original: "art/originals/bb-0005.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0005.",
+        },
+        {
+          id: "BB-0006",
+          title: "Untitled humorous drawing, source photograph 16",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0006.webp",
+          display: "art/display/bb-0006.webp",
+          original: "art/originals/bb-0006.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0006.",
+        },
+        {
+          id: "BB-0007",
+          title: "Untitled humorous drawing, source photograph 17",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0007.webp",
+          display: "art/display/bb-0007.webp",
+          original: "art/originals/bb-0007.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0007.",
+        },
+        {
+          id: "BB-0008",
+          title: "Untitled humorous drawing, source photograph 18",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0008.webp",
+          display: "art/display/bb-0008.webp",
+          original: "art/originals/bb-0008.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0008.",
+        },
+        {
+          id: "BB-0009",
+          title: "Untitled humorous drawing, source photograph 19",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0009.webp",
+          display: "art/display/bb-0009.webp",
+          original: "art/originals/bb-0009.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0009.",
+        },
+        {
+          id: "BB-0010",
+          title: "Untitled humorous drawing, source photograph 20",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0010.webp",
+          display: "art/display/bb-0010.webp",
+          original: "art/originals/bb-0010.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0010.",
+        },
+        {
+          id: "BB-0011",
+          title: "Untitled humorous drawing, source photograph 21",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0011.webp",
+          display: "art/display/bb-0011.webp",
+          original: "art/originals/bb-0011.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0011.",
+        },
+        {
+          id: "BB-0012",
+          title: "Untitled humorous drawing, source photograph 22",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0012.webp",
+          display: "art/display/bb-0012.webp",
+          original: "art/originals/bb-0012.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0012.",
+        },
+        {
+          id: "BB-0013",
+          title: "Untitled humorous drawing, source photograph 23",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0013.webp",
+          display: "art/display/bb-0013.webp",
+          original: "art/originals/bb-0013.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0013.",
+        },
+        {
+          id: "BB-0014",
+          title: "Untitled humorous drawing, source photograph 24",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0014.webp",
+          display: "art/display/bb-0014.webp",
+          original: "art/originals/bb-0014.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0014.",
+        },
+        {
+          id: "BB-0015",
+          title: "Untitled humorous drawing, source photograph 25",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0015.webp",
+          display: "art/display/bb-0015.webp",
+          original: "art/originals/bb-0015.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0015.",
+        },
+        {
+          id: "BB-0016",
+          title: "Untitled humorous drawing, source photograph 26",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0016.webp",
+          display: "art/display/bb-0016.webp",
+          original: "art/originals/bb-0016.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0016.",
+        },
+        {
+          id: "BB-0017",
+          title: "Untitled humorous drawing, source photograph 27",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0017.webp",
+          display: "art/display/bb-0017.webp",
+          original: "art/originals/bb-0017.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0017.",
+        },
+        {
+          id: "BB-0018",
+          title: "Untitled humorous drawing, source photograph 28",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0018.webp",
+          display: "art/display/bb-0018.webp",
+          original: "art/originals/bb-0018.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0018.",
+        },
+        {
+          id: "BB-0019",
+          title: "Untitled humorous drawing, source photograph 29",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0019.webp",
+          display: "art/display/bb-0019.webp",
+          original: "art/originals/bb-0019.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0019.",
+        },
+        {
+          id: "BB-0020",
+          title: "Untitled humorous drawing, source photograph 30",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0020.webp",
+          display: "art/display/bb-0020.webp",
+          original: "art/originals/bb-0020.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0020.",
+        },
+        {
+          id: "BB-0021",
+          title: "Untitled humorous drawing, source photograph 31",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0021.webp",
+          display: "art/display/bb-0021.webp",
+          original: "art/originals/bb-0021.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0021.",
+        },
+        {
+          id: "BB-0022",
+          title: "Untitled humorous drawing, source photograph 32",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0022.webp",
+          display: "art/display/bb-0022.webp",
+          original: "art/originals/bb-0022.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0022.",
+        },
+        {
+          id: "BB-0023",
+          title: "Untitled humorous drawing, source photograph 34",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0023.webp",
+          display: "art/display/bb-0023.webp",
+          original: "art/originals/bb-0023.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0023.",
+        },
+        {
+          id: "BB-0024",
+          title: "Untitled humorous drawing, source photograph 35",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0024.webp",
+          display: "art/display/bb-0024.webp",
+          original: "art/originals/bb-0024.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0024.",
+        },
+        {
+          id: "BB-0025",
+          title: "Untitled humorous drawing, source photograph 36",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0025.webp",
+          display: "art/display/bb-0025.webp",
+          original: "art/originals/bb-0025.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0025.",
+        },
+        {
+          id: "BB-0026",
+          title: "Untitled humorous drawing, source photograph 37",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0026.webp",
+          display: "art/display/bb-0026.webp",
+          original: "art/originals/bb-0026.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0026.",
+        },
+        {
+          id: "BB-0027",
+          title: "Untitled humorous drawing, source photograph 38",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0027.webp",
+          display: "art/display/bb-0027.webp",
+          original: "art/originals/bb-0027.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0027.",
+        },
+        {
+          id: "BB-0028",
+          title: "Untitled humorous drawing, source photograph 39",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0028.webp",
+          display: "art/display/bb-0028.webp",
+          original: "art/originals/bb-0028.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0028.",
+        },
+        {
+          id: "BB-0029",
+          title: "Untitled humorous drawing, source photograph 40",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0029.webp",
+          display: "art/display/bb-0029.webp",
+          original: "art/originals/bb-0029.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0029.",
+        },
+        {
+          id: "BB-0030",
+          title: "Untitled humorous drawing, source photograph 41",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0030.webp",
+          display: "art/display/bb-0030.webp",
+          original: "art/originals/bb-0030.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0030.",
+        },
+        {
+          id: "BB-0031",
+          title: "Untitled humorous drawing, source photograph 42",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0031.webp",
+          display: "art/display/bb-0031.webp",
+          original: "art/originals/bb-0031.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0031.",
+        },
+        {
+          id: "BB-0032",
+          title: "Untitled humorous drawing, source photograph 43",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0032.webp",
+          display: "art/display/bb-0032.webp",
+          original: "art/originals/bb-0032.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0032.",
+        },
+        {
+          id: "BB-0033",
+          title: "Untitled humorous drawing, source photograph 44",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0033.webp",
+          display: "art/display/bb-0033.webp",
+          original: "art/originals/bb-0033.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0033.",
+        },
+        {
+          id: "BB-0034",
+          title: "Untitled humorous drawing, source photograph 45",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0034.webp",
+          display: "art/display/bb-0034.webp",
+          original: "art/originals/bb-0034.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0034.",
+        },
+        {
+          id: "BB-0035",
+          title: "Untitled humorous drawing, source photograph 46",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0035.webp",
+          display: "art/display/bb-0035.webp",
+          original: "art/originals/bb-0035.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0035.",
+        },
+        {
+          id: "BB-0036",
+          title: "Untitled humorous drawing, source photograph 47",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0036.webp",
+          display: "art/display/bb-0036.webp",
+          original: "art/originals/bb-0036.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0036.",
+        },
+        {
+          id: "BB-0037",
+          title: "Untitled humorous drawing, source photograph 48",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0037.webp",
+          display: "art/display/bb-0037.webp",
+          original: "art/originals/bb-0037.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0037.",
+        },
+        {
+          id: "BB-0038",
+          title: "Untitled humorous drawing, source photograph 49",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0038.webp",
+          display: "art/display/bb-0038.webp",
+          original: "art/originals/bb-0038.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0038.",
+        },
+        {
+          id: "BB-0039",
+          title: "Untitled humorous drawing, source photograph 50",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0039.webp",
+          display: "art/display/bb-0039.webp",
+          original: "art/originals/bb-0039.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0039.",
+        },
+        {
+          id: "BB-0040",
+          title: "Untitled humorous drawing, source photograph 51",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0040.webp",
+          display: "art/display/bb-0040.webp",
+          original: "art/originals/bb-0040.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0040.",
+        },
+        {
+          id: "BB-0041",
+          title: "Untitled humorous drawing, source photograph 52",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0041.webp",
+          display: "art/display/bb-0041.webp",
+          original: "art/originals/bb-0041.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0041.",
+        },
+        {
+          id: "BB-0042",
+          title: "Untitled humorous drawing, source photograph 53",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0042.webp",
+          display: "art/display/bb-0042.webp",
+          original: "art/originals/bb-0042.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0042.",
+        },
+        {
+          id: "BB-0043",
+          title: "Untitled humorous drawing, source photograph 54",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0043.webp",
+          display: "art/display/bb-0043.webp",
+          original: "art/originals/bb-0043.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0043.",
+        },
+        {
+          id: "BB-0044",
+          title: "Untitled humorous drawing, source photograph 55",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0044.webp",
+          display: "art/display/bb-0044.webp",
+          original: "art/originals/bb-0044.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0044.",
+        },
+        {
+          id: "BB-0045",
+          title: "Untitled humorous drawing, source photograph 56",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0045.webp",
+          display: "art/display/bb-0045.webp",
+          original: "art/originals/bb-0045.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0045.",
+        },
+        {
+          id: "BB-0046",
+          title: "Untitled humorous drawing, source photograph 57",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0046.webp",
+          display: "art/display/bb-0046.webp",
+          original: "art/originals/bb-0046.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0046.",
+        },
+        {
+          id: "BB-0047",
+          title: "Untitled humorous drawing, source photograph 58",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0047.webp",
+          display: "art/display/bb-0047.webp",
+          original: "art/originals/bb-0047.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0047.",
+        },
+        {
+          id: "BB-0048",
+          title: "Untitled humorous drawing, source photograph 59",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0048.webp",
+          display: "art/display/bb-0048.webp",
+          original: "art/originals/bb-0048.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0048.",
+        },
+        {
+          id: "BB-0049",
+          title: "Untitled humorous drawing, source photograph 60",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0049.webp",
+          display: "art/display/bb-0049.webp",
+          original: "art/originals/bb-0049.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0049.",
+        },
+        {
+          id: "BB-0050",
+          title: "Untitled humorous drawing, source photograph 61",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0050.webp",
+          display: "art/display/bb-0050.webp",
+          original: "art/originals/bb-0050.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0050.",
+        },
+        {
+          id: "BB-0051",
+          title: "Untitled humorous drawing, source photograph 62",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0051.webp",
+          display: "art/display/bb-0051.webp",
+          original: "art/originals/bb-0051.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0051.",
+        },
+        {
+          id: "BB-0052",
+          title: "Untitled humorous drawing, source photograph 63",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0052.webp",
+          display: "art/display/bb-0052.webp",
+          original: "art/originals/bb-0052.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0052.",
+        },
+        {
+          id: "BB-0053",
+          title: "Untitled humorous drawing, source photograph 64",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0053.webp",
+          display: "art/display/bb-0053.webp",
+          original: "art/originals/bb-0053.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0053.",
+        },
+        {
+          id: "BB-0054",
+          title: "Untitled humorous drawing, source photograph 65",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0054.webp",
+          display: "art/display/bb-0054.webp",
+          original: "art/originals/bb-0054.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0054.",
+        },
+        {
+          id: "BB-0055",
+          title: "Untitled humorous drawing, source photograph 66",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0055.webp",
+          display: "art/display/bb-0055.webp",
+          original: "art/originals/bb-0055.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0055.",
+        },
+        {
+          id: "BB-0056",
+          title: "Untitled humorous drawing, source photograph 67",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0056.webp",
+          display: "art/display/bb-0056.webp",
+          original: "art/originals/bb-0056.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0056.",
+        },
+        {
+          id: "BB-0057",
+          title: "Untitled humorous drawing, source photograph 68",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0057.webp",
+          display: "art/display/bb-0057.webp",
+          original: "art/originals/bb-0057.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0057.",
+        },
+        {
+          id: "BB-0058",
+          title: "Untitled humorous drawing, source photograph 69",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0058.webp",
+          display: "art/display/bb-0058.webp",
+          original: "art/originals/bb-0058.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0058.",
+        },
+        {
+          id: "BB-0059",
+          title: "Untitled humorous drawing, source photograph 70",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0059.webp",
+          display: "art/display/bb-0059.webp",
+          original: "art/originals/bb-0059.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0059.",
+        },
+        {
+          id: "BB-0060",
+          title: "Untitled humorous drawing, source photograph 71",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0060.webp",
+          display: "art/display/bb-0060.webp",
+          original: "art/originals/bb-0060.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0060.",
+        },
+        {
+          id: "BB-0061",
+          title: "Untitled humorous drawing, source photograph 72",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0061.webp",
+          display: "art/display/bb-0061.webp",
+          original: "art/originals/bb-0061.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0061.",
+        },
+        {
+          id: "BB-0062",
+          title: "Untitled humorous drawing, source photograph 73",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0062.webp",
+          display: "art/display/bb-0062.webp",
+          original: "art/originals/bb-0062.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0062.",
+        },
+        {
+          id: "BB-0063",
+          title: "Untitled humorous drawing, source photograph 74",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0063.webp",
+          display: "art/display/bb-0063.webp",
+          original: "art/originals/bb-0063.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0063.",
+        },
+        {
+          id: "BB-0064",
+          title: "Untitled artwork, source photograph 1",
+          date: "Date unknown",
+          medium: "Ink and marker on paper; medium to be confirmed",
+          thumb: "art/thumbs/bb-0064.webp",
+          display: "art/display/bb-0064.webp",
+          original: "art/originals/bb-0064.jpg",
+          alt: "Artwork by Butch Breger, collection object BB-0064.",
+        },
+      ];
+      const G = document.getElementById("gallery");
+      function r(a) {
+        G.innerHTML = a
+          .map(
+            (x) =>
+              `<article class="art"><a class="glightbox" href="${x.display}" data-gallery="b" data-title="${x.id} — ${x.title}"><img loading="lazy" src="${x.thumb}" alt="${x.alt}"></a><div class="meta"><strong>${x.id}</strong><h3 class="h6 mt-2">${x.title}</h3><a class="btn btn-sm btn-outline-dark" href="${x.original}" download>Full resolution</a></div></article>`,
+          )
+          .join("");
+        if (window.l) l.destroy();
+        window.l = GLightbox({
+          selector: ".glightbox",
+          zoomable: true,
+          loop: true,
+        });
+      }
+      r(C);
+      q.oninput = (e) =>
+        r(
+          C.filter((x) =>
+            JSON.stringify(x)
+              .toLowerCase()
+              .includes(e.target.value.toLowerCase()),
+          ),
+        );
+    </script>
+  <!-- TEMPO_STUDIO_2_FOOTER_START --><aside class="tf-studio-footer" aria-label="Tempo Foundry studio footer"><div class="tf-studio-footer-row"><div><div class="tf-studio-footer-title"><img src="/brand/joey/mark-64.png" alt=""><span>The Butch Breger Museum is part of Tempo Foundry.</span></div><div class="tf-studio-footer-copy">An independent studio founded by Rich Williams in Texas—building software, stories, music and city experiences, art archives, publishing projects, and original media.</div></div><nav class="tf-studio-footer-nav"><a href="https://tempofoundry.com/">Studio</a><a href="https://tempofoundry.com/projects/">All projects</a><a href="https://tempofoundry.com/privacy-policy/">Privacy Policy</a><a href="https://tempofoundry.com/terms-of-service/">Terms</a><a href="https://tempofoundry.com/contact/">Contact</a></nav></div><div class="tf-studio-legal">© 2026 Tempo Foundry. Product names, archives and creative materials may have separate owners and usage terms.</div></aside><!-- TEMPO_STUDIO_2_FOOTER_END -->
+</body>
+</html>

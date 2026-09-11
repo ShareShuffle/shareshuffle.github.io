@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15191b">
+  <meta name="description" content="Calls wearing you out? Ask unwanted callers to stop. THE QUIT STOP, a GraceFeed product.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="The Quit Stop">
+  <title>THE QUIT STOP · a GraceFeed product</title>
+  <link rel="canonical" href="https://thequitstop.com/">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">a GraceFeed product</span>
+      <h1>THE<br>QUIT STOP<span class="dot">.</span></h1>
+      <p class="tagline"><strong>Calls wearing you out?</strong><br>Ask unwanted callers to stop.</p>
+    </header>
+    <section aria-label="Open an opt-out message">
+      <form id="stopForm" novalidate autocomplete="off">
+        <label for="phoneNumber">Who keeps calling?</label>
+        <input id="phoneNumber" type="tel" inputmode="tel" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Phone number" aria-describedby="numberHelp numberError">
+        <p class="help" id="numberHelp">Unwanted calls. Unwanted texts. Enough already.</p>
+        <p id="numberError" class="error" role="alert" hidden></p>
+        <div class="actions">
+          <button type="submit" name="message" value="STOP" class="stop" aria-label="Open a STOP text in Messages">STOP<span aria-hidden="true">↗</span></button>
+          <button type="submit" name="message" value="QUIT" class="quit" aria-label="Open a QUIT text in Messages">QUIT<span aria-hidden="true">↗</span></button>
+        </div>
+        <p class="send-note">One last thing: tap <strong>Send in Messages.</strong></p>
+        <p id="messageStatus" class="help" role="status"></p>
+        <div id="followUp" class="follow-up" hidden>
+          <p id="followUpHelp"></p>
+          <button id="nextMessage" type="button"></button>
+        </div>
+      </form>
+    </section>
+    <details class="block-guide" id="block-report">
+      <summary>Still calling? Block &amp; report <span aria-hidden="true">+</span></summary>
+      <p>Take it from here. You can use these steps without sending an opt-out first.</p>
+      <ol class="guide-steps">
+        <li>
+          <h2>Save the evidence</h2>
+          <p>Screenshot your recent calls before deleting anything. Keep any messages or voicemails, and note when you asked them to stop.</p>
+          <p>For your report, have the caller’s number, any callback number, the dates and times, and your own number ready. If they called 30 times, say how often and over what period.</p>
+        </li>
+        <li>
+          <h2>Block on your iPhone</h2>
+          <p>Open <strong>Phone → Recents</strong>. Open the caller’s details; in Classic view, tap the <strong>ⓘ</strong> next to the call. Scroll down, tap <strong>Block Caller</strong> (or <strong>Block this Caller</strong>), and confirm if asked.</p>
+          <p>For a text: open the conversation in Messages, tap the contact at the top, then find <strong>Block Caller</strong>.</p>
+          <p>Blocked callers can still leave voicemail without a notification. A different number needs its own block.</p>
+          <a href="https://support.apple.com/en-us/111104" target="_blank" rel="noopener noreferrer">See Apple’s blocking guide ↗</a>
+        </li>
+        <li>
+          <h2>Make an official report</h2>
+          <p><strong>In the U.S.:</strong> open the FCC form below. Under Phone Issues, choose <strong>unwanted calls/texts</strong>, then <strong>all other unwanted calls/messages</strong>. Describe what happened, add the dates and numbers, and review your report before submitting.</p>
+          <a class="report-link" href="https://consumercomplaints.fcc.gov/hc/en-us/requests/new?ticket_form_id=39744" target="_blank" rel="noopener noreferrer">Open the official FCC form ↗</a>
+          <p class="report-note">You submit on the FCC’s website. The Quit Stop doesn’t submit or store your report. Complaints help enforcement; the FCC doesn’t resolve individual unwanted-call complaints.</p>
+          <p>For an unwanted sales call or robocall with no money lost, you can also <a href="https://donotcall.gov/report" target="_blank" rel="noopener noreferrer">report to the FTC at DoNotCall.gov</a>. Lost money to a phone scam? Use <a href="https://reportfraud.ftc.gov/" target="_blank" rel="noopener noreferrer">ReportFraud.ftc.gov</a>.</p>
+        </li>
+      </ol>
+    </details>
+    <footer>
+      <p class="privacy"><span aria-hidden="true">✓</span> No sign-up. No tracking. Just you, calling it quits.</p>
+      <details>
+        <summary>Add to your iPhone Home Screen <span aria-hidden="true">+</span></summary>
+        <p>Open this page in Safari. Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. If shown, turn on <strong>Open as Web App</strong>, then tap <strong>Add</strong>.</p>
+      </details>
+      <details>
+        <summary>A few things to know <span aria-hidden="true">+</span></summary>
+        <p>Opt-out requests can apply to unwanted calls, too. Use a company’s text-enabled contact or designated opt-out number; a number on caller ID may not accept requests or belong to the caller.</p>
+        <p>You review and send each request in Messages. We never save the number or send anything in the background. This doesn’t block numbers or guarantee calls will stop.</p>
+        <p><strong>Your right to opt out.</strong> The FCC recognizes STOP and QUIT, among other words, as valid ways to revoke consent when replying to an incoming text. Either can be used; sending both is not required. The rule covers certain automated calls and texts, not every unwanted call. <a href="https://docs.fcc.gov/public/attachments/FCC-24-24A1_Rcd.pdf" target="_blank" rel="noopener noreferrer">Read the FCC rule (PDF, paragraphs 25–26)</a>.</p>
+        <p>The broader requirement to apply an opt-out across unrelated calls and texts is delayed until January 31, 2027. A text opt-out is not a blanket guarantee that all calls will stop. <a href="https://docs.fcc.gov/public/attachments/DA-26-12A1.pdf" target="_blank" rel="noopener noreferrer">Read the FCC’s 2026 update (PDF)</a>.</p>
+      </details>
+    </footer>
+    <noscript><p class="error">Enable JavaScript to prepare a message, or open Messages and text STOP or QUIT to the sender yourself.</p></noscript>
+  </main>
+</body>
+</html>

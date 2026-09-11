@@ -1,0 +1,29 @@
+TEMPO FOUNDRY / SHARESHUFFLE NEW CHAT HANDOFF — 20260716T211820Z
+
+START HERE
+1. Upload the latest lean code ZIP made by `tools/ZIP-CODE-FOR-CHAT.command`.
+2. Upload the media ZIP only when the task changes originals, scans, print files, museum downloads, Route 66 photos or mockups.
+3. Tell the new chat to read `.AI_CONTEXT.md` and every file under `.project-context/summaries/` before doing anything.
+4. Treat the uploaded repository as the source of truth for files.
+5. Treat summaries as the source of truth for decisions, compliance intent, approved wording and known risks.
+
+LATEST MASSIVE UPDATE
+- Shuffle Link Check and `/linkCheck` Function.
+- Compliance-aware Amazon affiliate behavior.
+- Product embed builder and stable no-Amazon-widget cards.
+- Three Butch Museum shirt advertisements and one ER66 placement.
+- Route 66 Artist Community: Bob Waldmire, Bob “Crocodile” Lile, Chuck Williams / Eternal Route 66.
+- Media split/copy and lean ZIP scripts.
+
+IMPORTANT
+- Amazon shirts are still pending review.
+- Do not invent prices, ratings, availability, ASINs or Amazon images.
+- Existing affiliate tags are preserved.
+- ShareShuffle's tag is used only on approved owned domains and with disclosures.
+- Unknown external embeds stay untagged unless the publisher supplies their own tag.
+- Direct Amazon links are used; no hidden redirect.
+- Crocodile Lile portrait and Bob Waldmire map art were not copied without permission.
+- Butch merchandising rights/provenance remain a separate research item.
+
+NEXT LIKELY TASK
+When Amazon approves the shirts, update the 3 central records with ASIN/live URLs and deploy only Shuffle, Butch Breger Museum and Eternal Route 66. Then order samples and inspect the actual print quality.

@@ -1,0 +1,25 @@
+{
+  "name": "The Butch Breger Museum",
+  "short_name": "Breger Museum",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4ecd8",
+  "theme_color": "#9d2f25",
+  "icons": [
+    {
+      "src": "/favicon-128x128-20260714T185955Z.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-256x256-20260714T185955Z.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512-20260714T185955Z.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

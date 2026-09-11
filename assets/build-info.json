@@ -1,6 +1,7 @@
 {
-  "build": "2026.06.19-open-buttons-internal-routes-59",
-  "createdAt": "2026-06-19T14:50:00Z",
-  "patch": "open-buttons-internal-routes-59",
-  "notes": "Makes Open and Open Shelf use same-origin /share.html and /shelf.html routes, with delegated click handling for Safari, iOS PWA, and WKWebView app shells. Includes prior Amazon title and card polish fixes."
+  "build": "2026.07.06-short-link-resolve-canary-s-favicons-64f",
+  "createdAt": "2026-07-06T18:05:00Z",
+  "patch": "short-link-resolve-64",
+  "notes": "Resolves cash-cow short share URLs before preview lookup, including a.co/amzn.to and Walmart redirect-style share links, returns the redirect chain for debugging, updates mobile status copy, and keeps the resolved canonical product URL in the field when lookup succeeds.",
+  "marker": "2026.07.06-short-link-resolve-canary-s-favicons-64f"
 }

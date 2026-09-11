@@ -1,0 +1,9 @@
+/* WCAG AA contrast overrides — Tempo Foundry */
+:root { color-scheme: light dark; }
+body { color:#17191d; }
+.muted, .text-muted, footer p, .portfolio-note, .subhead { color:#555b63 !important; }
+a { text-decoration-thickness:.1em; text-underline-offset:.18em; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline:3px solid #8b1e1e !important; outline-offset:3px !important;
+}
+input::placeholder, textarea::placeholder { color:#626872 !important; opacity:1 !important; }

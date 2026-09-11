@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "name": "Tempo Joey Brand System",
+  "character": {
+    "name": "Joey",
+    "pronouns": "she/her",
+    "role": "Tempo Foundry mascot",
+    "signatureFeature": "cream-colored forelock",
+    "eyeRule": "Eye whites and highlights remain opaque and background-independent."
+  },
+  "variants": {
+    "mark": {
+      "use": [
+        "favicon",
+        "browser tab",
+        "compact navigation",
+        "studio credit"
+      ]
+    },
+    "character-badge": {
+      "use": [
+        "Tempo Foundry hero",
+        "OAuth",
+        "large welcome moments"
+      ]
+    },
+    "hello": {
+      "use": [
+        "greetings",
+        "empty states",
+        "success states"
+      ]
+    },
+    "pointing": {
+      "use": [
+        "tips",
+        "calls to action",
+        "next steps"
+      ]
+    },
+    "teacher": {
+      "use": [
+        "LinkWombat teacher login",
+        "teacher invitations",
+        "educator help"
+      ]
+    },
+    "wide-hero": {
+      "use": [
+        "LinkWombat marketing hero"
+      ]
+    }
+  },
+  "strength": {
+    "heavy": [
+      "LinkWombat"
+    ],
+    "medium": [
+      "Tempo Foundry",
+      "OAuth and account pages"
+    ],
+    "light": [
+      "ShareShuffle",
+      "LNKDX",
+      "Duet Loop",
+      "Metromance",
+      "The Butch Breger Museum",
+      "Eternal Route 66",
+      "Charlie RW"
+    ]
+  }
+}

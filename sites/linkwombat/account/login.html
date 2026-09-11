@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teacher login | LinkWombat</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/account/account.css?v=tempo-accounts-1">
+<!-- TEMPO_STUDIO_2_CSS_START -->
+<link rel="stylesheet" href="https://tempofoundry.com/tempo-studio.css?v=2" data-tempo-studio="2">
+<!-- TEMPO_STUDIO_2_CSS_END -->
+<!-- TEMPO_JOEY_1_CSS_START -->
+<link rel="stylesheet" href="/tempo-joey.css?v=1" data-tempo-joey="1">
+<!-- TEMPO_JOEY_1_CSS_END -->
+<!-- TEMPO_JOEY_1_ICONS_START -->
+<link rel="icon" href="/brand/joey/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/joey/mark-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/joey/mark-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/joey/mark-180.png">
+<!-- TEMPO_JOEY_1_ICONS_END -->
+</head>
+<body>
+<main class="shell">
+    <section class="hero card">
+      <a class="brand" href="/">
+        <img src="/apple-touch-icon.png" alt="" onerror="this.hidden=true">
+        <span>LinkWombat</span>
+      </a>
+      <p class="eyebrow">Teacher account</p>
+      <h1>Welcome back.</h1>
+      <p class="lede">
+        Sign in with Google to create and edit your useful little links.
+        There is no separate LinkWombat password.
+      </p>
+      <div class="actions">
+        <button id="googleButton" type="button">Continue with Google</button>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <p class="privacy-note">
+        Your dashboard and link list are not public. Individual short links
+        are unlisted, so anyone who receives or guesses one can open it.
+      </p>
+    </section>
+  </main>
+
+  <script src="/account/property.js?v=tempo-accounts-1"></script>
+  <script type="module">
+    import "/account/tempo-account-client.js?v=tempo-accounts-1";
+
+    const button = document.querySelector("#googleButton");
+    const status = document.querySelector("#status");
+
+    function setStatus(message, type = "") {
+      status.textContent = message;
+      status.className = `status ${type}`.trim();
+    }
+
+    try {
+      await window.TempoAccount.initialize();
+      if (window.TempoAccount.user()) location.replace("/dashboard");
+    } catch (error) {
+      setStatus(window.TempoAccount.authErrorMessage(error), "error");
+    }
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      setStatus("Opening Google sign-in…");
+      try {
+        await window.TempoAccount.googleSignIn();
+        setStatus("Signed in. Opening your dashboard…", "success");
+        location.replace("/dashboard");
+      } catch (error) {
+        setStatus(window.TempoAccount.authErrorMessage(error), "error");
+        button.disabled = false;
+      }
+    });
+  </script>
+<!-- TEMPO_STUDIO_2_FOOTER_START --><aside class="tf-studio-footer" aria-label="Tempo Foundry studio footer"><div class="tf-studio-footer-row"><div><div class="tf-studio-footer-title"><img src="/brand/joey/mark-64.png" alt=""><span>LinkWombat is part of Tempo Foundry.</span></div><div class="tf-studio-footer-copy">An independent studio founded by Rich Williams in Texas—building software, stories, music and city experiences, art archives, publishing projects, and original media.</div></div><nav class="tf-studio-footer-nav"><a href="https://tempofoundry.com/">Studio</a><a href="https://tempofoundry.com/projects/">All projects</a><a href="https://tempofoundry.com/privacy-policy/">Privacy Policy</a><a href="https://tempofoundry.com/terms-of-service/">Terms</a><a href="https://tempofoundry.com/contact/">Contact</a></nav></div><div class="tf-studio-legal">© 2026 Tempo Foundry. Product names, archives and creative materials may have separate owners and usage terms.</div></aside><!-- TEMPO_STUDIO_2_FOOTER_END -->
+</body>
+</html>

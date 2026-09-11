@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "brand": "ShareShuffle",
+  "mark": "Original four-node network mark",
+  "orientation": {
+    "yellow": "top",
+    "red": "left",
+    "blue": "right",
+    "green": "bottom"
+  },
+  "note": "This is the original orientation, not the later S-like transposed variation."
+}

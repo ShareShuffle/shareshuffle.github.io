@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teacher dashboard | LinkWombat</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/account/account.css?v=tempo-accounts-1">
+<!-- TEMPO_STUDIO_2_CSS_START -->
+<link rel="stylesheet" href="https://tempofoundry.com/tempo-studio.css?v=2" data-tempo-studio="2">
+<!-- TEMPO_STUDIO_2_CSS_END -->
+<!-- TEMPO_JOEY_1_CSS_START -->
+<link rel="stylesheet" href="/tempo-joey.css?v=1" data-tempo-joey="1">
+<!-- TEMPO_JOEY_1_CSS_END -->
+<!-- TEMPO_JOEY_1_ICONS_START -->
+<link rel="icon" href="/brand/joey/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/joey/mark-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/joey/mark-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/joey/mark-180.png">
+<!-- TEMPO_JOEY_1_ICONS_END -->
+</head>
+<body>
+<main class="shell">
+    <header class="masthead">
+      <a class="brand" href="/">
+        <img src="/apple-touch-icon.png" alt="" onerror="this.hidden=true">
+        <span>LinkWombat</span>
+      </a>
+      <button id="signOutButton" class="secondary" type="button">Sign out</button>
+    </header>
+
+    <div class="dashboard-grid">
+      <section class="card">
+        <p class="eyebrow">Your account</p>
+        <div class="account-row">
+          <div class="user">
+            <img id="userPhoto" alt="" hidden>
+            <div class="user-copy">
+              <strong id="userName">Loading…</strong>
+              <span id="userEmail"></span>
+              <span id="handleBadge" class="handle" hidden></span>
+            </div>
+          </div>
+        </div>
+        <p class="privacy-note">
+          Your dashboard is private. LinkWombat never publishes a shelf
+          containing all of your classroom links.
+        </p>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">Make a named link</p>
+        <h2>A useful address you can edit later</h2>
+        <form id="linkForm">
+          <label>
+            Link name
+            <input id="slugInput" name="slug" autocomplete="off"
+              placeholder="volcanoes" required>
+            <span class="hint">
+              Lowercase letters, numbers, and hyphens. Dots, spaces,
+              underscores, +, @, and & become hyphens.
+            </span>
+          </label>
+
+          <label>
+            Destination
+            <input id="destinationInput" name="destination"
+              inputmode="url" placeholder="https://..." required>
+          </label>
+
+          <label>
+            Private dashboard label
+            <input id="titleInput" name="title"
+              placeholder="Volcano lecture" maxlength="160">
+          </label>
+
+          <button id="saveButton" type="submit">Save link</button>
+        </form>
+        <p id="formStatus" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card links-panel">
+        <p class="eyebrow">Your unlisted links</p>
+        <h2>Edit the destination without changing the short link</h2>
+        <div id="linkList" class="link-list">
+          <p class="status">Loading your links…</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/account/property.js?v=tempo-accounts-1"></script>
+  <script type="module">
+    import "/account/tempo-account-client.js?v=tempo-accounts-1";
+
+    const signOutButton = document.querySelector("#signOutButton");
+    const userPhoto = document.querySelector("#userPhoto");
+    const userName = document.querySelector("#userName");
+    const userEmail = document.querySelector("#userEmail");
+    const handleBadge = document.querySelector("#handleBadge");
+    const form = document.querySelector("#linkForm");
+    const slugInput = document.querySelector("#slugInput");
+    const destinationInput = document.querySelector("#destinationInput");
+    const titleInput = document.querySelector("#titleInput");
+    const saveButton = document.querySelector("#saveButton");
+    const formStatus = document.querySelector("#formStatus");
+    const linkList = document.querySelector("#linkList");
+
+    let handle = "";
+    let links = [];
+
+    function setFormStatus(message, type = "") {
+      formStatus.textContent = message;
+      formStatus.className = `status ${type}`.trim();
+    }
+
+    function escapeHtml(value) {
+      const element = document.createElement("div");
+      element.textContent = String(value || "");
+      return element.innerHTML;
+    }
+
+    function normalizedSlug(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_.+&@]+/g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+
+    function renderLinks() {
+      if (!links.length) {
+        linkList.innerHTML =
+          '<p class="status">No links yet. Your first one can be ready in a few seconds.</p>';
+        return;
+      }
+
+      linkList.innerHTML = links.map((link) => `
+        <article class="link-card" data-slug="${escapeHtml(link.slug)}">
+          <div>
+            <div class="link-title">${escapeHtml(link.title || link.slug)}</div>
+            <a class="short-url" href="${escapeHtml(link.shortUrl)}"
+              target="_blank" rel="noopener">${escapeHtml(link.shortUrl)}</a>
+            <div class="destination" title="${escapeHtml(link.destination)}">
+              ${escapeHtml(link.destination)}
+            </div>
+          </div>
+          <div class="link-actions">
+            <button class="secondary" type="button" data-action="copy">Copy</button>
+            <button class="secondary" type="button" data-action="edit">Edit</button>
+            <button class="danger" type="button" data-action="delete">Delete</button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    async function loadAccount() {
+      const user = await window.TempoAccount.initialize();
+      if (!user) {
+        location.replace("/login");
+        return false;
+      }
+
+      const result = await window.TempoAccount.api("/api/account/me");
+      const memberHandle = result.handles?.find(
+        (item) => item.property === "linkwombat" && item.status === "active",
+      );
+
+      userName.textContent = result.user?.displayName || "Teacher account";
+      userEmail.textContent = result.user?.email || "";
+
+      if (result.user?.photoURL) {
+        userPhoto.src = result.user.photoURL;
+        userPhoto.hidden = false;
+      }
+
+      if (!memberHandle) {
+        handleBadge.textContent = "Invitation required";
+        handleBadge.hidden = false;
+        form.querySelectorAll("input, button").forEach(
+          (element) => element.disabled = true,
+        );
+        linkList.innerHTML = `
+          <p class="status error">
+            This Google account does not have a LinkWombat username yet.
+            Open the invitation link Rich sent you while signed into this account.
+          </p>
+        `;
+        return false;
+      }
+
+      handle = memberHandle.handle;
+      handleBadge.textContent = `wombat.to/${handle}`;
+      handleBadge.hidden = false;
+      return true;
+    }
+
+    async function loadLinks() {
+      const result = await window.TempoAccount.api(
+        `/api/member-links/list?handle=${encodeURIComponent(handle)}`,
+      );
+      links = result.links || [];
+      renderLinks();
+    }
+
+    slugInput.addEventListener("blur", () => {
+      const suggestion = normalizedSlug(slugInput.value);
+      if (suggestion && suggestion !== slugInput.value) {
+        slugInput.value = suggestion;
+        setFormStatus(`Suggested link name: ${suggestion}`);
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      saveButton.disabled = true;
+
+      const slug = normalizedSlug(slugInput.value);
+      if (!slug) {
+        setFormStatus("Enter a useful link name.", "error");
+        saveButton.disabled = false;
+        return;
+      }
+
+      slugInput.value = slug;
+      setFormStatus("Saving…");
+
+      try {
+        await window.TempoAccount.api("/api/member-links/save", {
+          method: "POST",
+          body: JSON.stringify({
+            handle,
+            slug,
+            destination: destinationInput.value,
+            title: titleInput.value,
+          }),
+        });
+
+        setFormStatus(`Saved wombat.to/${handle}/${slug}`, "success");
+        form.reset();
+        await loadLinks();
+      } catch (error) {
+        const message = {
+          invalid_destination: "Enter a complete http:// or https:// destination.",
+          invalid_slug: "Use letters, numbers, and hyphens for the link name.",
+          link_unavailable: "That link name is already in use.",
+        }[error.code] || error.message;
+        setFormStatus(message, "error");
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    linkList.addEventListener("click", async (event) => {
+      const button = event.target.closest("button[data-action]");
+      const card = event.target.closest("[data-slug]");
+      if (!button || !card) return;
+
+      const slug = card.dataset.slug;
+      const link = links.find((item) => item.slug === slug);
+      if (!link) return;
+
+      if (button.dataset.action === "copy") {
+        await navigator.clipboard.writeText(link.shortUrl);
+        button.textContent = "Copied";
+        setTimeout(() => button.textContent = "Copy", 1200);
+        return;
+      }
+
+      if (button.dataset.action === "edit") {
+        slugInput.value = link.slug;
+        destinationInput.value = link.destination;
+        titleInput.value = link.title || "";
+        slugInput.focus();
+        setFormStatus("Change the destination or label, then save.");
+        return;
+      }
+
+      if (button.dataset.action === "delete") {
+        const confirmed = confirm(`Delete ${link.shortUrl}? This cannot be undone.`);
+        if (!confirmed) return;
+
+        button.disabled = true;
+        try {
+          await window.TempoAccount.api("/api/member-links/delete", {
+            method: "DELETE",
+            body: JSON.stringify({ handle, slug }),
+          });
+          await loadLinks();
+        } catch (error) {
+          alert(error.message);
+          button.disabled = false;
+        }
+      }
+    });
+
+    signOutButton.addEventListener("click", async () => {
+      signOutButton.disabled = true;
+      await window.TempoAccount.logOut();
+      location.replace("/login");
+    });
+
+    try {
+      const hasHandle = await loadAccount();
+      if (hasHandle) await loadLinks();
+    } catch (error) {
+      linkList.innerHTML =
+        `<p class="status error">${escapeHtml(error.message)}</p>`;
+    }
+  </script>
+<!-- TEMPO_STUDIO_2_FOOTER_START --><aside class="tf-studio-footer" aria-label="Tempo Foundry studio footer"><div class="tf-studio-footer-row"><div><div class="tf-studio-footer-title"><img src="/brand/joey/mark-64.png" alt=""><span>LinkWombat is part of Tempo Foundry.</span></div><div class="tf-studio-footer-copy">An independent studio founded by Rich Williams in Texas—building software, stories, music and city experiences, art archives, publishing projects, and original media.</div></div><nav class="tf-studio-footer-nav"><a href="https://tempofoundry.com/">Studio</a><a href="https://tempofoundry.com/projects/">All projects</a><a href="https://tempofoundry.com/privacy-policy/">Privacy Policy</a><a href="https://tempofoundry.com/terms-of-service/">Terms</a><a href="https://tempofoundry.com/contact/">Contact</a></nav></div><div class="tf-studio-legal">© 2026 Tempo Foundry. Product names, archives and creative materials may have separate owners and usage terms.</div></aside><!-- TEMPO_STUDIO_2_FOOTER_END -->
+</body>
+</html>

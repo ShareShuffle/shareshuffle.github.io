@@ -1,0 +1,7 @@
+/* WCAG AA contrast overrides — ShareShuffle */
+body { color:#151719; }
+.text-muted,.muted,.small-muted { color:#50565c !important; }
+input::placeholder, textarea::placeholder { color:#596169 !important; opacity:1 !important; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline:3px solid #166534 !important; outline-offset:3px !important;
+}

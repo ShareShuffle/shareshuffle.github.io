@@ -535,3 +535,12 @@ SS-080 — Open Shelf in app wrapper/PWA
 Problem: Open Shelf used target=_blank behavior, which can be ignored by iOS Home Screen apps and WKWebView shells.
 Fix: Route Open Share/Open Shelf through same-context navigation so clicks work in Safari, PWA, simulator, and the native app wrapper.
 Status: Patch 58.
+
+SS-080 — Promote #facade as Shuffle app/icon accent color.
+SS-081 — Keep App Store display name as Shuffle while retaining ShareShuffle as formal brand.
+SS-082 — Use #facade for PWA theme color, app icons, and selective brand accents; avoid making every surface pink.
+
+
+SS-080 — Create Share Link must never spin indefinitely on mobile/WKWebView.
+SS-081 — Final share cards must never render blank or junk titles.
+SS-082 — Image chooser should show six image options max for mobile clarity.

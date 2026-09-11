@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Shops for Miles offers private shop buildings with two garage bays, an office, and room to run a business in a secure seven-acre campus.">
+  <meta name="theme-color" content="#17231d">
+  <title>Shops for Miles | Garage, Office & Business Space</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260728">
+</head>
+<body>
+  <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav" aria-label="Primary navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#top" aria-label="Shops for Miles home">
+        <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-warehouse"></i></span>
+        <span>Shops for Miles</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="#spaces">Available Spaces</a></li>
+          <li class="nav-item"><a class="nav-link" href="#campus">The Campus</a></li>
+          <li class="nav-item"><a class="nav-link" href="#businesses">Businesses</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          <li class="nav-item ms-lg-2"><a class="btn btn-warning rounded-pill px-4" href="#contact">Join the List</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="container position-relative">
+      <div class="row min-vh-100 align-items-center py-5">
+        <div class="col-lg-8 col-xl-7 py-5">
+          <p class="eyebrow mb-3"><i class="fa-solid fa-location-dot me-2"></i>Seven-acre small-business shop campus</p>
+          <h1 class="display-2 fw-black mb-4">Room to work.<br><span>Space to grow.</span></h1>
+          <p class="lead hero-copy mb-4">Private shop buildings with two garage bays, a dedicated office, and practical space for contractors, car enthusiasts, makers, storage, and local businesses.</p>
+          <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+            <a href="#spaces" class="btn btn-warning btn-lg rounded-pill px-4">See Available Shops</a>
+            <a href="#campus" class="btn btn-outline-light btn-lg rounded-pill px-4">Explore the Campus</a>
+          </div>
+          <div class="row g-3 hero-stats">
+            <div class="col-6 col-md-3"><div><strong>28</strong><span>Shop buildings</span></div></div>
+            <div class="col-6 col-md-3"><div><strong>2</strong><span>Bays per shop</span></div></div>
+            <div class="col-6 col-md-3"><div><strong>7</strong><span>Acres</span></div></div>
+            <div class="col-6 col-md-3"><div><strong>1</strong><span>Office per shop</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="feature-strip py-4" aria-label="Property highlights">
+      <div class="container">
+        <div class="row g-3 text-center text-lg-start">
+          <div class="col-6 col-lg-3"><i class="fa-solid fa-truck-fast"></i><span>Contractor-friendly access</span></div>
+          <div class="col-6 col-lg-3"><i class="fa-solid fa-car-side"></i><span>Auto and hobby space</span></div>
+          <div class="col-6 col-lg-3"><i class="fa-solid fa-building-shield"></i><span>Private buildings</span></div>
+          <div class="col-6 col-lg-3"><i class="fa-solid fa-address-card"></i><span>Business web presence</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad" id="spaces">
+      <div class="container">
+        <div class="row align-items-end mb-5">
+          <div class="col-lg-8">
+            <p class="section-kicker">Availability</p>
+            <h2 class="display-5 fw-bold">Find your shop.</h2>
+            <p class="section-lead mb-0">Each independent building is designed around real work: two garage bays, an office, and convenient access through the campus.</p>
+          </div>
+          <div class="col-lg-4 mt-4 mt-lg-0">
+            <label for="statusFilter" class="form-label fw-semibold">Filter spaces</label>
+            <select id="statusFilter" class="form-select form-select-lg" aria-label="Filter shop availability">
+              <option value="all">All shops</option>
+              <option value="available">Available now</option>
+              <option value="coming-soon">Coming soon</option>
+              <option value="leased">Leased</option>
+            </select>
+          </div>
+        </div>
+        <div class="row g-4" id="spaceCards" aria-live="polite"></div>
+        <div class="text-center mt-5">
+          <a class="btn btn-dark btn-lg rounded-pill px-4" href="#contact"><i class="fa-regular fa-calendar-check me-2"></i>Request a Tour</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad campus-section" id="campus">
+      <div class="container">
+        <div class="row g-5 align-items-center">
+          <div class="col-lg-5">
+            <p class="section-kicker">The campus</p>
+            <h2 class="display-5 fw-bold">28 shops around the perimeter. Plenty of room in the middle.</h2>
+            <p class="section-lead">The concept places private shop buildings around the outside of the property, leaving a broad internal drive for circulation, loading, trailers, and easy access.</p>
+            <ul class="icon-list list-unstyled mt-4">
+              <li><i class="fa-solid fa-check"></i><span>Approximately ten feet between neighboring buildings</span></li>
+              <li><i class="fa-solid fa-check"></i><span>Seven groups of four buildings sharing a restroom facility</span></li>
+              <li><i class="fa-solid fa-check"></i><span>Two garage bays and one office in every shop</span></li>
+              <li><i class="fa-solid fa-check"></i><span>Separate public business listings for every tenant</span></li>
+            </ul>
+          </div>
+          <div class="col-lg-7">
+            <div class="campus-map" aria-label="Conceptual campus layout showing 28 shops around the perimeter">
+              <div class="campus-road"><span>Central access & circulation</span></div>
+              <div id="campusBuildings"></div>
+              <div class="map-legend">
+                <span><i class="legend-dot available"></i>Available</span>
+                <span><i class="legend-dot coming-soon"></i>Coming soon</span>
+                <span><i class="legend-dot leased"></i>Leased</span>
+              </div>
+            </div>
+            <p class="small text-muted mt-3 mb-0">Concept plan only. Final dimensions, circulation, utilities, fire access, drainage, setbacks, accessibility, and permitting require licensed civil, architectural, and engineering review.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad" id="businesses">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-lg-8">
+            <p class="section-kicker">Business directory</p>
+            <h2 class="display-5 fw-bold">More than a shop address.</h2>
+            <p class="section-lead mb-0">Every tenant can have a searchable page on ShopsForMiles.com with business details, services, hours, photos, and direct contact information.</p>
+          </div>
+        </div>
+        <div class="row g-4" id="businessCards"></div>
+        <div class="tenant-cta mt-5 p-4 p-lg-5 rounded-4">
+          <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+              <h3 class="h2 mb-2">Already leasing at Shops for Miles?</h3>
+              <p class="mb-0">Send your logo, description, hours, services, phone number, and website to create your tenant page.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+              <a class="btn btn-warning btn-lg rounded-pill" href="#contact">Submit Business Info</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad process-section">
+      <div class="container">
+        <div class="text-center mx-auto section-heading">
+          <p class="section-kicker">Simple leasing</p>
+          <h2 class="display-5 fw-bold">From interest to move-in.</h2>
+        </div>
+        <div class="row g-4 mt-3">
+          <div class="col-md-6 col-xl-3"><div class="process-card"><span>01</span><i class="fa-solid fa-magnifying-glass-location"></i><h3>Choose a space</h3><p>Review current availability and request a walk-through.</p></div></div>
+          <div class="col-md-6 col-xl-3"><div class="process-card"><span>02</span><i class="fa-solid fa-file-signature"></i><h3>Complete the lease</h3><p>Review terms, sign the lease, and provide required business information.</p></div></div>
+          <div class="col-md-6 col-xl-3"><div class="process-card"><span>03</span><i class="fa-solid fa-building-columns"></i><h3>Set up payments</h3><p>Arrange recurring bank draft or other approved monthly payment method.</p></div></div>
+          <div class="col-md-6 col-xl-3"><div class="process-card"><span>04</span><i class="fa-solid fa-key"></i><h3>Open your shop</h3><p>Move in, finish local licensing, and publish your directory page.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad contact-section" id="contact">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-5">
+            <p class="section-kicker text-warning">Contact</p>
+            <h2 class="display-5 fw-bold text-white">Tell us what kind of space you need.</h2>
+            <p class="text-white-50 fs-5">Whether you run a plumbing company, store cars, build things, or simply need more room, we want to hear about your plans.</p>
+            <div class="contact-details mt-4">
+              <a href="mailto:leasing@shopsformiles.com"><i class="fa-solid fa-envelope"></i><span><small>Email</small>leasing@shopsformiles.com</span></a>
+              <a href="tel:+19030000000"><i class="fa-solid fa-phone"></i><span><small>Phone</small>(903) 000-0000</span></a>
+              <div><i class="fa-solid fa-location-dot"></i><span><small>Location</small>East Texas — exact address coming soon</span></div>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <form class="contact-card" id="interestForm" novalidate>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="name" class="form-label">Name</label>
+                  <input class="form-control form-control-lg" id="name" name="name" autocomplete="name" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="business" class="form-label">Business or intended use</label>
+                  <input class="form-control form-control-lg" id="business" name="business" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control form-control-lg" id="email" name="email" autocomplete="email" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="phone" class="form-label">Phone</label>
+                  <input type="tel" class="form-control form-control-lg" id="phone" name="phone" autocomplete="tel">
+                </div>
+                <div class="col-md-6">
+                  <label for="timeline" class="form-label">Move-in timeline</label>
+                  <select class="form-select form-select-lg" id="timeline" name="timeline">
+                    <option>As soon as possible</option>
+                    <option>Within 30 days</option>
+                    <option>Within 90 days</option>
+                    <option>Later / planning ahead</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="space" class="form-label">Preferred shop</label>
+                  <select class="form-select form-select-lg" id="space" name="space"><option value="">Any available shop</option></select>
+                </div>
+                <div class="col-12">
+                  <label for="message" class="form-label">What do you need from the space?</label>
+                  <textarea class="form-control" id="message" name="message" rows="4"></textarea>
+                </div>
+                <div class="col-12 d-flex flex-column flex-sm-row align-items-sm-center gap-3 mt-4">
+                  <button class="btn btn-warning btn-lg rounded-pill px-4" type="submit">Send Interest Form</button>
+                  <span class="small text-muted">This demo opens your email app. Connect a form service before launch.</span>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="emergency-bar py-4" aria-label="Tenant emergency contact">
+      <div class="container">
+        <div class="row align-items-center g-3">
+          <div class="col-md-8 d-flex align-items-center gap-3">
+            <span class="emergency-icon"><i class="fa-solid fa-faucet-drip"></i></span>
+            <div><strong>Current tenant with a property emergency?</strong><br><span>For active leaks, electrical issues, access problems, or urgent property concerns, call the emergency line.</span></div>
+          </div>
+          <div class="col-md-4 text-md-end"><a class="btn btn-outline-light rounded-pill" href="tel:+19030000000">Emergency: (903) 000-0000</a></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-5">
+          <a class="footer-brand d-inline-flex align-items-center gap-2 mb-3" href="#top"><span class="brand-mark"><i class="fa-solid fa-warehouse"></i></span><span>Shops for Miles</span></a>
+          <p class="text-white-50 mb-0">Garage, office, storage, and working space for the people who keep East Texas moving.</p>
+        </div>
+        <div class="col-6 col-lg-2">
+          <h2 class="h6 text-uppercase">Explore</h2>
+          <a href="#spaces">Available spaces</a><a href="#campus">Campus</a><a href="#businesses">Businesses</a>
+        </div>
+        <div class="col-6 col-lg-2">
+          <h2 class="h6 text-uppercase">Tenant</h2>
+          <a href="#contact">Leasing contact</a><a href="#contact">Update listing</a><a href="tel:+19030000000">Emergency line</a>
+        </div>
+        <div class="col-lg-3 text-lg-end">
+          <p class="small text-white-50 mb-2">A Tempo Foundry project.</p>
+          <p class="small text-white-50 mb-0">© <span id="year"></span> Shops for Miles. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="formToast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+      <div class="toast-header"><i class="fa-solid fa-paper-plane me-2"></i><strong class="me-auto">Interest form</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div>
+      <div class="toast-body">Your email app should open with the form details.</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="assets/js/app.js?v=20260728"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Quit Stop provisional app icon">
+  <rect width="512" height="512" rx="112" fill="#111"/>
+  <path d="M256 54 399 113 458 256 399 399 256 458 113 399 54 256 113 113Z" fill="#ee2b22" stroke="#fff" stroke-width="22"/>
+  <text x="256" y="292" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="124" font-weight="900" text-anchor="middle">QUIT</text>
+</svg>

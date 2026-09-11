@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tempo Foundry Account | Google Sign-In and private account access</title>
+  <meta name="description" content="Tempo Foundry Account is the shared Google Sign-In service for Tempo Foundry products. It protects private dashboards and connects users with their own saved content and settings.">
+  <link rel="canonical" href="https://tempofoundry.com/account/">
+  <meta name="theme-color" content="#fff78a">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tempo Foundry Account">
+  <meta property="og:description" content="Secure Google Sign-In for private Tempo Foundry dashboards, saved content, and settings.">
+  <meta property="og:url" content="https://tempofoundry.com/account/">
+  <meta property="og:image" content="https://tempofoundry.com/assets/joey.png">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/site.css?v=tempo-oauth-1">
+  <style>
+    .oauth-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);align-items:center;gap:42px;padding:60px 0 70px}
+    .oauth-hero h1{font-size:clamp(3.2rem,7vw,6.7rem)}
+    .oauth-hero img{width:min(100%,360px);margin:auto;filter:drop-shadow(0 20px 20px rgba(23,26,24,.18))}
+    .oauth-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .oauth-card{border:1px solid var(--line);border-radius:24px;padding:28px;background:rgba(255,255,255,.94);box-shadow:0 16px 45px rgba(31,39,35,.07)}
+    .oauth-card h2{margin-top:0;font-size:clamp(1.6rem,3vw,2.4rem)}
+    .oauth-card p,.oauth-card li{color:var(--muted);line-height:1.65}
+    .oauth-highlight{border:2px solid var(--ink);background:var(--lemon-soft);box-shadow:8px 8px 0 var(--ink)}
+    .data-table{width:100%;border-collapse:collapse;margin-top:16px}
+    .data-table th,.data-table td{border-bottom:1px solid var(--line);padding:12px 8px;text-align:left;vertical-align:top}
+    .data-table th{font-size:.83rem;letter-spacing:.06em;text-transform:uppercase}
+    .review-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    @media(max-width:800px){.oauth-hero,.oauth-grid{grid-template-columns:1fr}.oauth-hero img{order:-1;width:250px}}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Tempo Foundry Account",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Web",
+    "url": "https://tempofoundry.com/account/",
+    "description": "Shared Google Sign-In and private account access for Tempo Foundry products.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Tempo Foundry",
+      "url": "https://tempofoundry.com/"
+    }
+  }
+  </script>
+<!-- TEMPO_JOEY_1_CSS_START -->
+<link rel="stylesheet" href="/tempo-joey.css?v=1" data-tempo-joey="1">
+<!-- TEMPO_JOEY_1_CSS_END -->
+<!-- TEMPO_JOEY_1_ICONS_START -->
+<link rel="icon" href="/brand/joey/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/joey/mark-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/joey/mark-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/joey/mark-180.png">
+<!-- TEMPO_JOEY_1_ICONS_END -->
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <nav class="nav wrap" aria-label="Main navigation">
+    <a class="brand" href="/">
+      <img src="/brand/joey/mark-128.png" alt="">
+      <span>Tempo Foundry</span>
+    </a>
+    <div class="navlinks">
+      <a href="/">Studio home</a>
+      <a href="/projects/">Projects</a><a href="/joey/">Meet Joey</a>
+      <a href="/privacy-policy/">Privacy</a>
+      <a href="/terms-of-service/">Terms</a>
+      <a href="/contact/">Contact</a>
+    </div>
+  </nav>
+
+  <main id="main">
+    <section class="oauth-hero wrap">
+      <div>
+        <p class="eyebrow">OAuth application homepage</p>
+        <h1>Tempo Foundry Account</h1>
+        <p>
+          Tempo Foundry Account is the shared sign-in service used by selected
+          Tempo Foundry products. It lets users sign in with Google to securely
+          access private dashboards, manage their own saved content and
+          settings, and return to that information without creating another
+          password.
+        </p>
+        <p>
+          <strong>
+            Google Sign-In is used only for authentication and account access.
+            Tempo Foundry does not receive or store Google passwords.
+          </strong>
+        </p>
+        <div class="review-links">
+          <a class="button" href="/privacy-policy/">Read the Privacy Policy</a>
+          <a class="button secondary" href="/terms-of-service/">Read the Terms</a>
+        </div>
+      </div>
+      <img src="/brand/joey/character-badge-768.png" alt="Joey, the Tempo Foundry mascot">
+    </section>
+
+    <section class="section wrap">
+      <div class="section-head">
+        <p class="eyebrow">Application purpose</p>
+        <h2>What the account service does</h2>
+        <p>
+          Tempo Foundry Account provides a common identity layer for products
+          that need private user accounts. Each product keeps its own content,
+          membership, permissions, and public visibility settings.
+        </p>
+      </div>
+
+      <div class="oauth-grid">
+        <article class="oauth-card oauth-highlight">
+          <h2>LinkWombat</h2>
+          <p>
+            Teachers and other users can sign in to create, organize, edit,
+            copy, and delete named short links. A user may change the
+            destination later without changing the published
+            <strong>wombat.to</strong> address. Dashboards and complete link
+            lists are private; individual shared links are unlisted rather
+            than secret.
+          </p>
+          <p><a href="https://linkwombat.com/login">Open LinkWombat login →</a></p>
+        </article>
+
+        <article class="oauth-card">
+          <h2>ShareShuffle</h2>
+          <p>
+            Account features may be used to save recommendations, collections,
+            sharing preferences, personal shelves, and related user-created
+            content as those features become available.
+          </p>
+          <p><a href="https://shareshuffle.com/">Visit ShareShuffle →</a></p>
+        </article>
+
+        <article class="oauth-card">
+          <h2>Product-specific access</h2>
+          <p>
+            Other Tempo Foundry products may use the same authenticated
+            identity to protect private dashboards, saved settings, or
+            user-directed content. A person using the same Google identity
+            across products does not automatically receive a public
+            cross-product profile.
+          </p>
+        </article>
+
+        <article class="oauth-card">
+          <h2>No password collection</h2>
+          <p>
+            Authentication is handled by Google and Firebase Authentication.
+            Tempo Foundry never sees or stores the user's Google password.
+            Users may choose which Google account to use when signing in.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap">
+      <div class="section-head">
+        <p class="eyebrow">Google user data</p>
+        <h2>What information is requested and why</h2>
+        <p>
+          Ordinary sign-in requests only the basic account information needed
+          to identify a returning user and protect that user's account.
+        </p>
+      </div>
+
+      <article class="oauth-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Information</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Stable Google account identifier</td>
+              <td>Associate the correct private account, membership, saved content, and settings with the returning user.</td>
+            </tr>
+            <tr>
+              <td>Name</td>
+              <td>Display an understandable account identity inside the user's private dashboard.</td>
+            </tr>
+            <tr>
+              <td>Email address</td>
+              <td>Identify the account, support account administration, and respond to verified support or deletion requests.</td>
+            </tr>
+            <tr>
+              <td>Profile image</td>
+              <td>Optionally help the user recognize which Google account is signed in.</td>
+            </tr>
+            <tr>
+              <td>Email-verification and authentication status</td>
+              <td>Protect accounts and reduce unauthorized or fraudulent access.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          This sign-in flow does not request access to Gmail, Google Drive,
+          Google Calendar, Google Contacts, or other Google services.
+          A future product feature requiring additional Google access would
+          present a separate permission request and explanation before consent.
+        </p>
+      </article>
+    </section>
+
+    <section class="section wrap">
+      <div class="oauth-grid">
+        <article class="oauth-card">
+          <h2>How information is used</h2>
+          <ul>
+            <li>Authenticate and identify returning users.</li>
+            <li>Protect private dashboards and product accounts.</li>
+            <li>Attach user-created content and settings to the correct account.</li>
+            <li>Allow users to edit or delete their own saved information.</li>
+            <li>Prevent abuse, fraud, and unauthorized access.</li>
+            <li>Respond to verified support, privacy, and deletion requests.</li>
+          </ul>
+        </article>
+
+        <article class="oauth-card">
+          <h2>Account deletion and privacy requests</h2>
+          <p>
+            Users may request account deletion, access, correction, or removal
+            of eligible saved content through the Tempo Foundry contact page.
+            We may need to verify account ownership before completing a request.
+          </p>
+          <p><a href="/contact/">Contact Tempo Foundry →</a></p>
+        </article>
+
+        <article class="oauth-card">
+          <h2>Data sharing</h2>
+          <p>
+            Tempo Foundry does not sell personal information. Information may
+            be processed by Google Firebase and Google Cloud to provide
+            authentication, hosting, databases, functions, security, and
+            related infrastructure.
+          </p>
+        </article>
+
+        <article class="oauth-card">
+          <h2>Public access</h2>
+          <p>
+            This application homepage, the Privacy Policy, Terms of Service,
+            project information, and contact page are publicly visible without
+            signing in.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap">
+      <div class="signin">
+        <div>
+          <p class="eyebrow">Organization</p>
+          <h2>Operated by Tempo Foundry</h2>
+          <p>
+            Tempo Foundry is an independent digital product and creative studio
+            founded by Rich Williams in Texas. The studio develops
+            software, educational tools, music and city experiences, cultural
+            archives, publishing projects, and original media.
+          </p>
+        </div>
+        <aside class="signin-note">
+          <strong>Contact</strong>
+          <p>
+            Tempo Foundry<br>
+            Attn: Rich Williams<br>
+            2109 West Parker Road, Suite 202A PMB 1023<br>
+            Plano, Texas 75023, United States<br>
+            +1 214-997-3451
+          </p>
+          <p><a href="/contact/">Full contact information →</a></p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="/">
+            <img src="/brand/joey/mark-128.png" alt="">
+            <span>Tempo Foundry</span>
+          </a>
+          <p>
+            Tempo Foundry Account provides Google Sign-In and private account
+            access for selected Tempo Foundry products.
+          </p>
+        </div>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="/">Studio home</a>
+          <a href="/projects/">Projects</a>
+          <a href="/privacy-policy/">Privacy Policy</a>
+          <a href="/terms-of-service/">Terms of Service</a>
+          <a href="/contact/">Contact</a>
+        </nav>
+      </div>
+      <div class="legal">
+        © 2026 Tempo Foundry · Founded by Rich Williams in Texas.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# ShareShuffle
+Official site: https://shareshuffle.com/
+ShareShuffle turns messy product links into clean, personal recommendations, shelves and SHFL.ME links.

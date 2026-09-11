@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>LNKDX.COM — A shorter path to LinkedIn</title>
+    <meta
+      name="description"
+      content="Turn a LinkedIn public-profile URL into a short, easy-to-type LNKDX.COM link."
+    />
+    <meta name="theme-color" content="#0b1220" />
+    <meta property="og:title" content="LNKDX.COM" />
+    <meta
+      property="og:description"
+      content="A shorter path to LinkedIn public profiles."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://LNKDX.COM/" />
+    <link rel="canonical" href="https://LNKDX.COM/" />
+    <style>
+      :root {
+        --bg: #07101f;
+        --panel: #0d1a2d;
+        --panel2: #101f35;
+        --text: #f5f7fb;
+        --muted: #9fb0c8;
+        --line: #263a56;
+        --accent: #fff78a;
+        --blue: #65a8ff;
+        --ok: #74e5ad;
+        --danger: #ff9e9e;
+        --radius: 24px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background: var(--bg);
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background:
+          radial-gradient(circle at 20% 0, #122b4d 0, transparent 36rem),
+          linear-gradient(180deg, #081221, #050b14 72%);
+        color: var(--text);
+      }
+      a {
+        color: inherit;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      .shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: auto;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 0;
+      }
+      .brand {
+        font-weight: 1000;
+        letter-spacing: 0.16em;
+        font-size: clamp(1.15rem, 3vw, 1.6rem);
+        text-decoration: none;
+      }
+      .brand span {
+        color: var(--accent);
+      }
+      .built {
+        font-size: 0.9rem;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .built strong {
+        color: var(--text);
+      }
+      main {
+        padding: 48px 0 70px;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 26px;
+        align-items: stretch;
+      }
+      .card {
+        background: linear-gradient(
+          180deg,
+          rgba(16, 31, 53, 0.96),
+          rgba(10, 22, 39, 0.96)
+        );
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
+      }
+      .primary {
+        padding: clamp(26px, 5vw, 54px);
+      }
+      .eyebrow {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .primary h1 {
+        font-size: clamp(2.65rem, 7vw, 5.7rem);
+        line-height: 0.92;
+        letter-spacing: -0.06em;
+        margin: 0.35em 0 0.25em;
+      }
+      .primary h1 .dot {
+        color: var(--accent);
+      }
+      .lede {
+        font-size: clamp(1.05rem, 2vw, 1.32rem);
+        line-height: 1.55;
+        color: #c9d5e6;
+        max-width: 700px;
+      }
+      .example {
+        display: inline-flex;
+        gap: 0.25rem;
+        align-items: center;
+        margin-top: 12px;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .example strong {
+        color: var(--text);
+      }
+      .tool {
+        margin-top: 30px;
+      }
+      .label {
+        display: block;
+        font-size: 0.86rem;
+        font-weight: 800;
+        margin-bottom: 9px;
+      }
+      .inputrow {
+        display: flex;
+        gap: 10px;
+      }
+      .inputrow input {
+        width: 100%;
+        min-width: 0;
+        border: 1px solid #36506f;
+        background: #07111f;
+        color: var(--text);
+        padding: 16px 18px;
+        border-radius: 16px;
+        outline: none;
+      }
+      .inputrow input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 4px rgba(101, 168, 255, 0.13);
+      }
+      .btn {
+        border: 0;
+        border-radius: 16px;
+        padding: 15px 19px;
+        font-weight: 950;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #17202b;
+      }
+      .btn-secondary {
+        background: #17304f;
+        color: var(--text);
+        border: 1px solid #345372;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+      .result {
+        display: none;
+        margin-top: 16px;
+        padding: 17px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #081422;
+      }
+      .result.show {
+        display: block;
+      }
+      .result-url {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        overflow-wrap: anywhere;
+        color: var(--ok);
+        font-weight: 800;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 14px;
+      }
+      .status {
+        min-height: 1.3em;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .status.error {
+        color: var(--danger);
+      }
+      .side {
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 24px;
+      }
+      .mini-title {
+        font-size: 1.3rem;
+        font-weight: 950;
+        margin: 0 0 9px;
+      }
+      .side p {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .qrbox {
+        display: none;
+        background: white;
+        border-radius: 20px;
+        padding: 14px;
+        width: fit-content;
+      }
+      .qrbox.show {
+        display: block;
+      }
+      .qrbox img {
+        display: block;
+        width: 190px;
+        height: 190px;
+      }
+      .promo {
+        background: linear-gradient(145deg, #fff78a, #ffe96c);
+        color: #17202b;
+        border-radius: 20px;
+        padding: 24px;
+      }
+      .promo .kicker {
+        font-size: 0.75rem;
+        letter-spacing: 0.13em;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+      .promo h2 {
+        font-size: 1.65rem;
+        line-height: 1.05;
+        margin: 8px 0;
+      }
+      .promo p {
+        color: #354151;
+        margin: 0 0 17px;
+      }
+      .promo a {
+        display: inline-block;
+        background: #17202b;
+        color: white;
+        text-decoration: none;
+        padding: 12px 15px;
+        border-radius: 13px;
+        font-weight: 900;
+      }
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .feature {
+        padding: 22px;
+      }
+      .feature strong {
+        display: block;
+        font-size: 1.04rem;
+        margin-bottom: 6px;
+      }
+      .feature span {
+        color: var(--muted);
+        line-height: 1.45;
+        font-size: 0.94rem;
+      }
+      .legal {
+        margin-top: 28px;
+        color: #8294ad;
+        font-size: 0.78rem;
+        line-height: 1.55;
+      }
+      .errorpanel {
+        display: none;
+        text-align: center;
+        padding: 46px;
+      }
+      .errorpanel.show {
+        display: block;
+      }
+      .errorpanel h1 {
+        font-size: clamp(2rem, 6vw, 4rem);
+        margin: 0.2em 0;
+      }
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 4px solid #31465f;
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 18px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .checkout-banner {
+        display: none;
+        margin: 0 0 22px;
+        padding: 16px 18px;
+        border: 1px solid rgba(116, 229, 173, 0.38);
+        border-radius: 16px;
+        background: rgba(116, 229, 173, 0.1);
+        color: #dffbea;
+      }
+      .checkout-banner.show {
+        display: block;
+      }
+      .park-sales {
+        margin-top: 22px;
+        padding: clamp(24px, 5vw, 44px);
+      }
+      .park-head {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+        align-items: end;
+      }
+      .park-head h2 {
+        font-size: clamp(2rem, 5vw, 4.2rem);
+        letter-spacing: -0.045em;
+        line-height: 0.95;
+        margin: 0.25em 0;
+      }
+      .price-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .price-card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        background: #081422;
+      }
+      .price-card strong {
+        font-size: 1.65rem;
+        color: var(--accent);
+      }
+      .price-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 5px;
+      }
+      .park-form {
+        display: grid;
+        grid-template-columns: 0.55fr 1fr 1.45fr;
+        gap: 12px;
+        margin-top: 28px;
+      }
+      .park-field label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 900;
+        margin-bottom: 7px;
+        color: #dce6f4;
+      }
+      .park-field input {
+        width: 100%;
+        border: 1px solid #36506f;
+        background: #07111f;
+        color: var(--text);
+        padding: 14px 15px;
+        border-radius: 14px;
+        outline: none;
+      }
+      .park-field input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 4px rgba(101, 168, 255, 0.13);
+      }
+      .park-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+      .park-actions .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .terms-check {
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.45;
+        margin-top: 15px;
+      }
+      .terms-check input {
+        margin-top: 3px;
+      }
+      .park-status {
+        min-height: 1.4em;
+        margin-top: 12px;
+        color: var(--muted);
+      }
+      .park-status.good {
+        color: var(--ok);
+      }
+      .park-status.bad {
+        color: var(--danger);
+      }
+      .park-fine {
+        color: #8294ad;
+        font-size: 0.79rem;
+        line-height: 1.5;
+        margin-top: 18px;
+      }
+      footer {
+        border-top: 1px solid #17243a;
+        color: #778ba6;
+        padding: 24px 0 42px;
+        font-size: 0.8rem;
+      }
+      .footerline {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      @media (max-width: 820px) {
+        .hero,
+        .park-head {
+          grid-template-columns: 1fr;
+        }
+        .features {
+          grid-template-columns: 1fr;
+        }
+        .park-form {
+          grid-template-columns: 1fr 1fr;
+        }
+        .park-field:last-child {
+          grid-column: 1/-1;
+        }
+        .built {
+          display: none;
+        }
+      }
+      @media (max-width: 560px) {
+        .inputrow,
+        .park-actions {
+          flex-direction: column;
+        }
+        .park-form,
+        .price-grid {
+          grid-template-columns: 1fr;
+        }
+        .park-field:last-child {
+          grid-column: auto;
+        }
+        .btn {
+          width: 100%;
+        }
+        .primary,
+        .side,
+        .park-sales {
+          padding: 22px;
+        }
+        .shell {
+          width: min(100% - 20px, 1120px);
+        }
+        main {
+          padding-top: 20px;
+        }
+      }
+
+      .park-note {
+        margin-top: 18px;
+        padding: 16px;
+        border: 1px solid rgba(255, 247, 138, 0.35);
+        border-radius: 16px;
+        background: rgba(255, 247, 138, 0.07);
+        color: #dce5f2;
+      }
+      .park-note strong {
+        color: var(--accent);
+      }
+      .memorial {
+        display: none;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: clamp(28px, 6vw, 64px);
+        text-align: center;
+      }
+      .memorial.show {
+        display: block;
+      }
+      .memorial .monogram {
+        width: 112px;
+        height: 112px;
+        margin: 0 auto 24px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        border: 2px solid var(--accent);
+        font-size: 2rem;
+        font-weight: 1000;
+        letter-spacing: 0.12em;
+      }
+      .memorial h1 {
+        font-size: clamp(2.7rem, 8vw, 5.8rem);
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+        margin: 0.2em 0;
+      }
+      .memorial .dates {
+        color: var(--accent);
+        font-weight: 900;
+        letter-spacing: 0.08em;
+      }
+      .memorial .quote {
+        font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+        line-height: 1.55;
+        color: #d5deec;
+        max-width: 680px;
+        margin: 28px auto;
+      }
+      .memorial-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 28px 0;
+      }
+      .support {
+        margin: 28px auto 0;
+        padding: 18px;
+        max-width: 650px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.55;
+      }
+    </style>
+  <!-- TEMPO_STUDIO_2_CSS_START -->
+<link rel="stylesheet" href="https://tempofoundry.com/tempo-studio.css?v=2" data-tempo-studio="2">
+<!-- TEMPO_STUDIO_2_CSS_END -->
+<!-- TEMPO_JOEY_1_CSS_START -->
+<link rel="stylesheet" href="/tempo-joey.css?v=1" data-tempo-joey="1">
+<!-- TEMPO_JOEY_1_CSS_END -->
+<!-- TEMPO_JOEY_1_ICONS_START -->
+<link rel="icon" href="/brand/joey/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/joey/mark-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/joey/mark-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/joey/mark-180.png">
+<!-- TEMPO_JOEY_1_ICONS_END -->
+</head>
+  <body>
+<div class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">LNKDX<span>.COM</span></a
+        ><a
+          class="built"
+          href="https://shareshuffle.com/?utm_source=lnkdx&utm_medium=referral&utm_campaign=homepage"
+          >Built by <strong>ShareShuffle</strong></a
+        >
+      </header>
+      <main>
+        <div id="checkoutBanner" class="checkout-banner" role="status"></div>
+        <section id="home" class="hero">
+          <div class="card primary">
+            <div class="eyebrow">
+              Professional links without the typing exercise
+            </div>
+            <h1>LNKDX<span class="dot">.COM</span></h1>
+            <p class="lede">
+              A short, memorable route to any public LinkedIn profile. The
+              destination stays LinkedIn. The shortcut stays easy.
+            </p>
+            <div class="example">LNKDX.COM/<strong>RCWX</strong></div>
+            <div class="park-note">
+              <strong>Two characters are different.</strong> Names such as
+              LNKDX.COM/RW are Park names: claimed shortcuts that can point to a
+              longer LinkedIn profile.
+            </div>
+            <div class="tool">
+              <label class="label" for="profile"
+                >LinkedIn profile URL or public profile name</label
+              >
+              <div class="inputrow">
+                <input
+                  id="profile"
+                  autocomplete="off"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  placeholder="linkedin.com/in/rcwx or RCWX"
+                />
+                <button id="make" class="btn btn-primary" type="button">
+                  Make it short
+                </button>
+              </div>
+              <div id="status" class="status" aria-live="polite"></div>
+              <div id="result" class="result">
+                <div id="resultUrl" class="result-url"></div>
+                <div class="actions">
+                  <button id="copy" class="btn btn-secondary" type="button">
+                    Copy link
+                  </button>
+                  <button id="share" class="btn btn-secondary" type="button">
+                    Share
+                  </button>
+                  <button id="qr" class="btn btn-secondary" type="button">
+                    Show QR
+                  </button>
+                  <a
+                    id="test"
+                    class="btn btn-secondary"
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                    >Test it</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="card side">
+            <div>
+              <h2 class="mini-title">Instant means instant.</h2>
+              <p>
+                <strong>LNKDX.COM/your-name</strong> goes straight to
+                <strong>linkedin.com/in/your-name</strong>. No countdown, no
+                pop-up, no mystery destination.
+              </p>
+              <div id="qrbox" class="qrbox">
+                <img id="qrimg" alt="QR code for the generated LNKDX link" />
+              </div>
+            </div>
+            <div class="promo">
+              <div class="kicker">From the makers of LNKDX</div>
+              <h2>Share the thing you actually meant to share.</h2>
+              <p>
+                ShareShuffle cleans up awkward links, fixes weak previews, and
+                helps people send better recommendations.
+              </p>
+              <a
+                href="https://shareshuffle.com/?utm_source=lnkdx&utm_medium=referral&utm_campaign=homepage-card"
+                >Try ShareShuffle →</a
+              >
+            </div>
+          </aside>
+        </section>
+        <section id="redirecting" class="card errorpanel">
+          <div class="spinner"></div>
+          <div class="eyebrow">Opening LinkedIn</div>
+          <h1 id="redirectTitle">Taking you there…</h1>
+          <p id="redirectText" class="lede" style="margin-inline: auto"></p>
+        </section>
+        <section id="error" class="card errorpanel">
+          <div class="eyebrow">That shortcut needs help</div>
+          <h1>We couldn't use that path.</h1>
+          <p id="errorText" class="lede" style="margin-inline: auto"></p>
+          <p>
+            <a class="btn btn-primary" href="/">Build a valid LNKDX.COM link</a>
+          </p>
+          <div
+            class="promo"
+            style="max-width: 620px; margin: 26px auto 0; text-align: left"
+          >
+            <div class="kicker">Bad link?</div>
+            <h2>ShareShuffle was built for that.</h2>
+            <p>Check, clean, and improve links before you send them.</p>
+            <a
+              href="https://shareshuffle.com/?utm_source=lnkdx&utm_medium=referral&utm_campaign=error-page"
+              >Check a link →</a
+            >
+          </div>
+        </section>
+
+        <section
+          id="memorial"
+          class="card memorial"
+          aria-labelledby="memorial-title"
+        >
+          <div class="monogram">CB</div>
+          <div class="eyebrow">Permanently reserved in memory</div>
+          <h1 id="memorial-title">Chester Bennington</h1>
+          <div class="dates">MARCH 20, 1976 — JULY 20, 2017</div>
+          <p class="quote">
+            In memory of a voice that helped millions feel less alone. CB will
+            never be sold, reassigned, or used for advertising.
+          </p>
+          <div class="memorial-actions">
+            <a
+              class="btn btn-primary"
+              href="https://www.linkinpark.com/about"
+              target="_blank"
+              rel="noopener"
+              >Official Linkin Park site</a
+            >
+            <a
+              class="btn btn-secondary"
+              href="https://store.linkinpark.com/collections/one-more-light"
+              target="_blank"
+              rel="noopener"
+              >One More Light</a
+            >
+          </div>
+          <div class="support">
+            This independent memorial is not affiliated with Linkin Park or
+            Chester Bennington's estate. If you need emotional support in the
+            United States, call or text <strong>988</strong> or visit
+            <a href="https://988lifeline.org/" target="_blank" rel="noopener"
+              >988lifeline.org</a
+            >.
+          </div>
+        </section>
+        <section id="features" class="features">
+          <div class="card feature">
+            <strong>Works for everyone</strong
+            ><span
+              >No account is required. The path after LNKDX.COM becomes the
+              LinkedIn public-profile name.</span
+            >
+          </div>
+          <div class="card feature">
+            <strong>Safe by design</strong
+            ><span
+              >LNKDX only points to LinkedIn public-profile URLs. It cannot
+              redirect to arbitrary websites.</span
+            >
+          </div>
+          <div class="card feature">
+            <strong>Capitalization is yours</strong
+            ><span
+              >Brand it as LNKDX.COM/RCWX or use any letter case you prefer for
+              the profile name.</span
+            >
+          </div>
+        </section>
+        <section
+          id="parks"
+          class="card park-sales"
+          aria-labelledby="parks-title"
+        >
+          <div class="park-head">
+            <div>
+              <div class="eyebrow">Claim a scarce two-character shortcut</div>
+              <h2 id="parks-title">LNKDX Park</h2>
+              <p class="lede">
+                A renewable shortcut license for your initials, brand shorthand,
+                or memorable professional identity. Your destination stays a
+                public LinkedIn profile, and checkout is handled securely by
+                Stripe.
+              </p>
+            </div>
+            <div class="price-grid">
+              <div class="price-card">
+                <strong>$49/year</strong
+                ><span>Two letters or two numbers · founding rate</span>
+              </div>
+              <div class="price-card">
+                <strong>$24.50/year</strong
+                ><span>One letter + one number · founding rate</span>
+              </div>
+            </div>
+          </div>
+          <div class="park-form">
+            <div class="park-field">
+              <label for="parkSlug">Park name</label
+              ><input
+                id="parkSlug"
+                maxlength="2"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="RW"
+              />
+            </div>
+            <div class="park-field">
+              <label for="parkName">Display name</label
+              ><input
+                id="parkName"
+                maxlength="80"
+                autocomplete="name"
+                placeholder="Rich Williams"
+              />
+            </div>
+            <div class="park-field">
+              <label for="parkLinkedIn">Public LinkedIn profile URL</label
+              ><input
+                id="parkLinkedIn"
+                type="url"
+                inputmode="url"
+                autocomplete="url"
+                placeholder="https://www.linkedin.com/in/rcwx/"
+              />
+            </div>
+          </div>
+          <label class="terms-check"
+            ><input id="parkTerms" type="checkbox" />
+            <span
+              >I agree to the
+              <a href="/terms" target="_blank">LNKDX Park Terms</a> and
+              <a href="/privacy" target="_blank">Privacy Notice</a>, and I
+              confirm that this shortcut will not impersonate or mislead.</span
+            ></label
+          >
+          <div class="park-actions">
+            <button id="checkPark" class="btn btn-secondary" type="button">
+              Check availability</button
+            ><button
+              id="buyPark"
+              class="btn btn-primary"
+              type="button"
+              disabled
+            >
+              Reserve and continue to Stripe</button
+            ><a id="managePark" class="btn btn-secondary" href="#" hidden
+              >Manage subscription</a
+            >
+          </div>
+          <div id="parkStatus" class="park-status" aria-live="polite"></div>
+          <p class="park-fine">
+            Founding pricing applies to the first 100 paid Park names.
+            Afterward, premium names are $79/year and mixed letter-number names
+            are $39.50/year. A checkout holds an available name for 30 minutes.
+            LNKDX licenses the shortcut; it does not sell or claim ownership of
+            any LinkedIn identity.
+          </p>
+        </section>
+        <p class="legal">
+          LNKDX is an independent shortcut utility and is not affiliated with,
+          sponsored by, or endorsed by LinkedIn. LinkedIn is a trademark of its
+          respective owner. LNKDX does not scrape, store, or reproduce LinkedIn
+          profile content. QR codes are generated through a third-party image
+          service only when requested.
+        </p>
+      </main>
+      <footer>
+        <div class="footerline">
+          <span
+            >© <span id="year"></span> LNKDX.COM · <a href="/terms">Terms</a> ·
+            <a href="/privacy">Privacy</a></span
+          ><span>Direct shortcuts. No interstitial advertising.</span>
+        </div>
+      </footer>
+    </div>
+    <script src="/config.js"></script>
+    <script>
+      (() => {
+        "use strict";
+        const RESERVED = new Set([
+          "about",
+          "api",
+          "app",
+          "assets",
+          "card",
+          "help",
+          "memorial",
+          "privacy",
+          "terms",
+          "www",
+        ]);
+        const mirrorPattern = /^[A-Za-z0-9-]{3,100}$/;
+        const parkPattern = /^[A-Za-z0-9]{2}$/;
+        const $ = (id) => document.getElementById(id);
+        const home = $("home"),
+          features = $("features"),
+          parks = $("parks"),
+          redirecting = $("redirecting"),
+          error = $("error"),
+          memorial = $("memorial");
+        let currentShort = "";
+        let currentParkOffer = null;
+        $("year").textContent = new Date().getFullYear();
+
+        function money(cents) {
+          return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(Number(cents || 0) / 100);
+        }
+        function normalizePark(value) {
+          return String(value || "")
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "")
+            .slice(0, 2);
+        }
+        function setParkStatus(message, kind = "") {
+          const el = $("parkStatus");
+          el.textContent = message;
+          el.className = "park-status" + (kind ? " " + kind : "");
+        }
+        function resetParkOffer() {
+          currentParkOffer = null;
+          $("buyPark").disabled = true;
+        }
+
+        function showParkClaim(slug, message) {
+          home.style.display = "none";
+          features.style.display = "none";
+          parks.style.display = "";
+          redirecting.classList.remove("show");
+          memorial.classList.remove("show");
+          error.classList.remove("show");
+          $("parkSlug").value = normalizePark(slug);
+          resetParkOffer();
+          setParkStatus(message || "Check availability to claim this Park.");
+          setTimeout(
+            () => $("parks").scrollIntoView({ behavior: "smooth" }),
+            100,
+          );
+        }
+
+        async function checkPark() {
+          const slug = normalizePark($("parkSlug").value);
+          $("parkSlug").value = slug;
+          resetParkOffer();
+          if (slug.length !== 2) {
+            setParkStatus("Choose exactly two letters or numbers.", "bad");
+            return;
+          }
+          $("checkPark").disabled = true;
+          setParkStatus("Checking LNKDX.COM/" + slug + "…");
+          try {
+            const response = await fetch(
+              "/api/park-availability?slug=" + encodeURIComponent(slug),
+              { cache: "no-store", headers: { accept: "application/json" } },
+            );
+            const data = await response.json();
+            if (!response.ok)
+              throw new Error(data.error || "Availability check failed");
+            if (!data.available) {
+              setParkStatus(
+                "LNKDX.COM/" +
+                  slug +
+                  " is already claimed or temporarily held.",
+                "bad",
+              );
+              return;
+            }
+            currentParkOffer = data;
+            $("buyPark").disabled = false;
+            const kind =
+              data.parkClass === "mixed" ? "mixed letter-number" : "premium";
+            setParkStatus(
+              "Available: " +
+                money(data.amountCents) +
+                "/year at the " +
+                data.priceTier +
+                " " +
+                kind +
+                " rate.",
+              "good",
+            );
+          } catch (error) {
+            setParkStatus(error.message || "Availability check failed.", "bad");
+          } finally {
+            $("checkPark").disabled = false;
+          }
+        }
+
+        async function buyPark() {
+          const slug = normalizePark($("parkSlug").value),
+            displayName = $("parkName").value.trim(),
+            linkedInUrl = $("parkLinkedIn").value.trim();
+          if (!currentParkOffer || currentParkOffer.slug !== slug) {
+            setParkStatus("Check availability again before checkout.", "bad");
+            return;
+          }
+          if (!displayName || !linkedInUrl) {
+            setParkStatus(
+              "Add the display name and public LinkedIn profile URL.",
+              "bad",
+            );
+            return;
+          }
+          if (!$("parkTerms").checked) {
+            setParkStatus(
+              "Agree to the Park Terms and Privacy Notice before checkout.",
+              "bad",
+            );
+            return;
+          }
+          $("buyPark").disabled = true;
+          $("checkPark").disabled = true;
+          setParkStatus("Reserving LNKDX.COM/" + slug + " and opening Stripe…");
+          try {
+            const response = await fetch("/api/park-checkout", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ slug, displayName, linkedInUrl }),
+            });
+            const data = await response.json();
+            if (!response.ok)
+              throw new Error(data.error || "Checkout could not be started");
+            location.assign(data.checkoutUrl);
+          } catch (error) {
+            setParkStatus(
+              error.message || "Checkout could not be started.",
+              "bad",
+            );
+            $("checkPark").disabled = false;
+            $("buyPark").disabled = false;
+          }
+        }
+
+        $("parkSlug").addEventListener("input", (event) => {
+          event.currentTarget.value = normalizePark(event.currentTarget.value);
+          resetParkOffer();
+          setParkStatus("");
+        });
+        $("parkName").addEventListener("input", resetParkOffer);
+        $("parkLinkedIn").addEventListener("input", resetParkOffer);
+        $("checkPark").addEventListener("click", checkPark);
+        $("buyPark").addEventListener("click", buyPark);
+        const portalUrl = String(
+          window.LNKDX_CONFIG?.customerPortalUrl || "",
+        ).trim();
+        if (portalUrl) {
+          $("managePark").href = portalUrl;
+          $("managePark").hidden = false;
+        }
+        async function finalizeCheckout(sessionId) {
+          if (!sessionId) return;
+          try {
+            const response = await fetch("/api/park-finalize", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ sessionId }),
+            });
+            const data = await response.json();
+            if (!response.ok)
+              throw new Error(data.error || "Activation is still pending.");
+            $("checkoutBanner").textContent =
+              "Payment received. LNKDX.COM/" +
+              data.slug +
+              " is active now.";
+            $("parkSlug").value = data.slug;
+            if (data.displayName) $("parkName").value = data.displayName;
+            if (data.linkedInUrl) $("parkLinkedIn").value = data.linkedInUrl;
+            setParkStatus(
+              "Active: LNKDX.COM/" +
+                data.slug +
+                " now opens " +
+                (data.displayName || "that LinkedIn profile") +
+                ".",
+              "good",
+            );
+            history.replaceState(null, "", "/");
+          } catch (error) {
+            $("checkoutBanner").textContent =
+              "Payment received. Activation is still pending; refresh in a moment or check the Stripe webhook event.";
+            setParkStatus(
+              error.message ||
+                "Stripe confirmed checkout, but activation needs a retry.",
+              "bad",
+            );
+          }
+        }
+
+        const checkoutParams = new URLSearchParams(location.search);
+        const checkoutState = checkoutParams.get("park");
+        if (checkoutState === "success") {
+          $("checkoutBanner").textContent =
+            "Payment received. Stripe is confirming your subscription and activating the Park name now.";
+          $("checkoutBanner").classList.add("show");
+          finalizeCheckout(checkoutParams.get("session_id"));
+          setTimeout(
+            () => $("parks").scrollIntoView({ behavior: "smooth" }),
+            100,
+          );
+        }
+        if (checkoutState === "cancel") {
+          $("checkoutBanner").textContent =
+            "Checkout was canceled. The temporary Park hold will expire automatically.";
+          $("checkoutBanner").classList.add("show");
+        }
+
+        function hideMain() {
+          home.style.display = "none";
+          features.style.display = "none";
+          parks.style.display = "none";
+        }
+        function showError(message) {
+          hideMain();
+          redirecting.classList.remove("show");
+          memorial.classList.remove("show");
+          error.classList.add("show");
+          $("errorText").textContent = message;
+        }
+        function extractSlug(raw) {
+          const value = String(raw || "").trim();
+          if (!value)
+            return { error: "Enter a LinkedIn public-profile name or URL." };
+          let candidate = value;
+          try {
+            const withScheme = /^https?:\/\//i.test(value)
+              ? value
+              : value.includes(".")
+                ? "https://" + value
+                : null;
+            if (withScheme) {
+              const u = new URL(withScheme);
+              const host = u.hostname.toLowerCase().replace(/^www\./, "");
+              if (host !== "linkedin.com")
+                return {
+                  error:
+                    "Use a LinkedIn.com public-profile URL, not a different website.",
+                };
+              const parts = u.pathname.split("/").filter(Boolean);
+              if (parts[0]?.toLowerCase() !== "in" || !parts[1])
+                return {
+                  error:
+                    "Use a LinkedIn public profile in the linkedin.com/in/name format.",
+                };
+              candidate = decodeURIComponent(parts[1]);
+            }
+          } catch {
+            return { error: "That URL could not be read." };
+          }
+          candidate = candidate.replace(/^@/, "").replace(/^\/+|\/+$/g, "");
+          if (RESERVED.has(candidate.toLowerCase()))
+            return { error: "That name is reserved by LNKDX." };
+          if (parkPattern.test(candidate))
+            return { park: candidate.toUpperCase() };
+          if (!mirrorPattern.test(candidate))
+            return {
+              error:
+                "Use 2–100 letters or numbers; longer mirror names may also contain hyphens.",
+            };
+          return { slug: candidate };
+        }
+        function make(raw) {
+          const parsed = extractSlug(raw),
+            status = $("status");
+          status.className = "status";
+          if (parsed.error) {
+            status.textContent = parsed.error;
+            status.classList.add("error");
+            $("result").classList.remove("show");
+            return;
+          }
+          const shown = parsed.park || parsed.slug;
+          currentShort = location.origin + "/" + shown;
+          $("resultUrl").textContent = "LNKDX.COM/" + shown;
+          $("test").href = currentShort;
+          $("result").classList.add("show");
+          $("qrbox").classList.remove("show");
+          status.textContent = parsed.park
+            ? "That is a two-character Park name. Test it to see whether it is reserved, claimed, or available."
+            : "Ready. This free mirror opens linkedin.com/in/" +
+              parsed.slug +
+              "/";
+        }
+        $("make").addEventListener("click", () => make($("profile").value));
+        $("profile").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") make(e.currentTarget.value);
+        });
+        $("copy").addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(currentShort);
+            $("status").textContent = "Copied.";
+          } catch {
+            prompt("Copy this link:", currentShort);
+          }
+        });
+        $("share").addEventListener("click", async () => {
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: "My professional link",
+                url: currentShort,
+              });
+            } catch {}
+          } else $("copy").click();
+        });
+        $("qr").addEventListener("click", () => {
+          if (!currentShort) return;
+          $("qrimg").src =
+            "https://api.qrserver.com/v1/create-qr-code/?size=380x380&margin=10&data=" +
+            encodeURIComponent(currentShort);
+          $("qrbox").classList.add("show");
+          $("status").textContent = "QR code ready.";
+        });
+
+        async function openPark(slug) {
+          hideMain();
+          redirecting.classList.add("show");
+          $("redirectTitle").textContent = "Checking " + slug;
+          $("redirectText").textContent = "Looking up this LNKDX Park name…";
+          try {
+            const lookupUrl =
+              "/api/resolve?slug=" +
+              encodeURIComponent(slug) +
+              "&_=" +
+              Date.now();
+            const response = await fetch(lookupUrl, {
+              method: "GET",
+              cache: "no-store",
+              headers: {
+                accept: "application/json",
+                "cache-control": "no-cache",
+              },
+            });
+            const raw = await response.text();
+            let data = {};
+            try {
+              data = raw ? JSON.parse(raw) : {};
+            } catch {
+              throw new Error(
+                "Resolver returned " +
+                  response.status +
+                  ": " +
+                  raw.slice(0, 160),
+              );
+            }
+            if (response.status === 404) {
+              if (parkPattern.test(slug)) {
+                showParkClaim(
+                  slug,
+                  "LNKDX.COM/" +
+                    slug +
+                    " is not active yet. Check availability to claim it or finish a pending checkout.",
+                );
+                checkPark();
+                return;
+              }
+              showError(
+                "LNKDX.COM/" +
+                  slug +
+                  " is not active yet. Use the Park claim form to reserve it.",
+              );
+              return;
+            }
+            if (!response.ok) throw new Error(data.error || "Lookup failed");
+            if (data.type === "memorial" && data.destinationPath) {
+              location.replace(data.destinationPath);
+              return;
+            }
+            const linkedInUrl = String(data.linkedInUrl || "").trim();
+            if (
+              linkedInUrl &&
+              /^https:\/\/(www\.)?linkedin\.com\/in\//i.test(linkedInUrl)
+            ) {
+              $("redirectTitle").textContent =
+                "Opening " + (data.displayName || slug);
+              $("redirectText").textContent =
+                "Verified Park name: LNKDX.COM/" + slug;
+              setTimeout(() => location.replace(linkedInUrl), 90);
+              return;
+            }
+            throw new Error("This Park name has no valid destination.");
+          } catch (e) {
+            console.error("LNKDX Park lookup failed:", e);
+            showError(
+              "Park lookup failed: " +
+                (e && e.message ? e.message : "Unknown resolver error"),
+            );
+          }
+        }
+
+        const parts = location.pathname.split("/").filter(Boolean);
+        let decoded = [];
+        try {
+          decoded = parts.map(decodeURIComponent);
+        } catch {
+          decoded = [];
+        }
+        if (
+          decoded[0]?.toLowerCase() === "memorial" &&
+          decoded[1]?.toLowerCase() === "chester-bennington" &&
+          decoded.length === 2
+        ) {
+          hideMain();
+          memorial.classList.add("show");
+          return;
+        }
+        if (decoded.length) {
+          hideMain();
+          const raw = decoded[0] || "";
+          if (decoded.length !== 1 || RESERVED.has(raw.toLowerCase())) {
+            showError("A LNKDX shortcut contains one name only.");
+            return;
+          }
+          if (parkPattern.test(raw)) {
+            openPark(raw.toUpperCase());
+            return;
+          }
+          if (!mirrorPattern.test(raw)) {
+            showError(
+              "Use letters, numbers, and optional hyphens after LNKDX.COM/.",
+            );
+            return;
+          }
+          redirecting.classList.add("show");
+          $("redirectTitle").textContent = "Opening " + raw;
+          $("redirectText").textContent =
+            "Destination: linkedin.com/in/" + raw + "/";
+          setTimeout(
+            () =>
+              location.replace(
+                "https://www.linkedin.com/in/" + encodeURIComponent(raw) + "/",
+              ),
+            90,
+          );
+        }
+      })();
+    </script>
+  <!-- TEMPO_STUDIO_2_FOOTER_START --><aside class="tf-studio-footer" aria-label="Tempo Foundry studio footer"><div class="tf-studio-footer-row"><div><div class="tf-studio-footer-title"><img src="/brand/joey/mark-64.png" alt=""><span>LNKDX is part of Tempo Foundry.</span></div><div class="tf-studio-footer-copy">An independent studio founded by Rich Williams in Texas—building software, stories, music and city experiences, art archives, publishing projects, and original media.</div></div><nav class="tf-studio-footer-nav"><a href="https://tempofoundry.com/">Studio</a><a href="https://tempofoundry.com/projects/">All projects</a><a href="https://tempofoundry.com/privacy-policy/">Privacy Policy</a><a href="https://tempofoundry.com/terms-of-service/">Terms</a><a href="https://tempofoundry.com/contact/">Contact</a></nav></div><div class="tf-studio-legal">© 2026 Tempo Foundry. Product names, archives and creative materials may have separate owners and usage terms.</div></aside><!-- TEMPO_STUDIO_2_FOOTER_END -->
+</body>
+</html>
