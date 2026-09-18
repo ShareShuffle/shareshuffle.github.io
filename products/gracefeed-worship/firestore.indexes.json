@@ -1,0 +1,1 @@
+{"indexes":[],"fieldOverrides":[{"collectionGroup":"oauthStates","fieldPath":"expiresAt","ttl":true,"indexes":[]}]}
